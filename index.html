@@ -10,29 +10,24 @@
       margin: 0;
       background: #f5f5f5;
     }
-
     header {
       background: #f5f5f5;
       padding: 10px;
       text-align: center;
     }
-
     header img {
       max-width: 100%;
       height: auto;
     }
-
     main {
       padding: 15px;
     }
-
     .productos {
       display: flex;
       gap: 15px;
       flex-wrap: wrap;
       justify-content: center;
     }
-
     .producto {
       background: white;
       border-radius: 6px;
@@ -44,7 +39,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     .producto img {
       width: 180px;
       height: 180px;
@@ -52,10 +46,8 @@
       border-radius: 6px;
       margin-bottom: 10px;
     }
-
     .producto h3 { margin-top: 0; }
     .producto p { margin: 5px 0; }
-
     .producto button {
       background: #28a745;
       color: white;
@@ -65,13 +57,12 @@
       cursor: pointer;
       margin-top: auto;
     }
-
     .producto button:hover {
       background: #1e7e34;
     }
 
-    #carrito,
-    #cliente {
+    /* Carrito y formulario */
+    #carrito, #cliente {
       max-width: 400px;
       margin: 20px auto;
       padding: 15px;
@@ -79,17 +70,16 @@
       border-radius: 6px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
-    #cliente input,
-    #cliente select {
+    #cliente h3 { margin-top: 0; }
+    #cliente input, #cliente select {
       width: 100%;
       margin: 8px 0;
       padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
+      font-size: 14px;
     }
-
     .wsp-btn {
       background-color: #25D366;
       color: white;
@@ -104,7 +94,6 @@
       cursor: pointer;
       margin-top: 10px;
     }
-
     .wsp-btn img {
       width: 20px;
       height: 20px;
@@ -114,11 +103,14 @@
 <body>
 
 <header>
-  <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Cabecera Dulce Vida" />
+  <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png"
+       alt="Cabecera Dulce Vida" />
 </header>
 
 <main>
+  <!-- Aquí cargan los productos -->
   <section class="productos" id="productos"></section>
+  <!-- Carrito de compras -->
   <section id="carrito">
     <h2>Carrito de compras 🛒</h2>
     <ul id="listaCarrito"></ul>
@@ -127,6 +119,7 @@
     <p><strong>Total: $<span id="totalFinal">0</span> CUP</strong></p>
   </section>
 
+  <!-- Formulario visible para el cliente -->
   <section id="cliente">
     <h3>Datos del cliente</h3>
     <select id="codigoPais" required>
@@ -137,9 +130,9 @@
       <option value="52">🇲🇽 México (+52)</option>
       <option value="55">🇧🇷 Brasil (+55)</option>
     </select>
-    <input id="telefono" placeholder="Teléfono" required>
-    <input id="nombre" placeholder="Nombre completo" required>
-    <input id="direccion" placeholder="Dirección" required>
+    <input id="telefono" placeholder="Teléfono" required />
+    <input id="nombre" placeholder="Nombre completo" required />
+    <input id="direccion" placeholder="Dirección" required />
     <select id="reparto" required onchange="actualizarTarifa()">
       <option disabled selected>Selecciona tu reparto</option>
       <option>Santa Lucía</option>
@@ -154,197 +147,17 @@
       <option>La Compañía</option>
       <option>La Maravilla</option>
     </select>
-    <br>
     <button class="wsp-btn" onclick="enviarPedido()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
-      Enviar por WhatsApp
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+           alt="WhatsApp" /> Enviar por WhatsApp
     </button>
   </section>
 
+  <!-- Mensaje opcional tras el envío -->
   <p id="mensajeCompra"></p>
 </main>
-<script>
-const productos = [
-  {
-    id: 1,
-    nombre: 'Panetela Clásica',
-    precio: 3500,
-    descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.',
-    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
-  },
-  {
-    id: 2,
-    nombre: 'Panetela de Chocolate',
-    precio: 3800,
-    descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.',
-    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
-  },
-  {
-    id: 3,
-    nombre: 'Panetela Especial',
-    precio: 4300,
-    descripcion: 'Decorada con crema batida y frutas confitadas.',
-    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
-  }
-];
 
-const tarifas = {
-  'Santa Lucía': 50, 'Tasajera': 50, 'Las Casitas': 50,
-  'Progreso': 50, 'Nuevo Progreso': 50,
-  'Cepero Bonilla': 100, 'El Triángulo': 100,
-  'Alba Flores': 100, 'Borbollón': 100,
-  'La Compañía': 100, 'La Maravilla': 100
-};
-
-let carrito = [];
-
-function cargarProductos() {
-  const cont = document.getElementById('productos');
-  cont.innerHTML = '';
-  productos.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'producto';
-    div.innerHTML = `
-      <img src="${p.img}" alt="${p.nombre}" />
-      <h3>${p.nombre}</h3>
-      <p>${p.descripcion}</p>
-      <p><strong>$${p.precio} CUP</strong></p>
-      <button onclick="agregarAlCarrito(${p.id})">Agregar al carrito ➕</button>
-    `;
-    cont.appendChild(div);
-  });
-}
-
-function agregarAlCarrito(id) {
-  const producto = productos.find(p => p.id === id);
-  const repetido = carrito.find(i => i.id === id);
-  if (repetido) {
-    repetido.cantidad += 1;
-  } else {
-    carrito.push({ ...producto, cantidad: 1 });
-  }
-  actualizarCarrito();
-}
-
-function quitarDelCarrito(id) {
-  carrito = carrito.filter(i => i.id !== id);
-  actualizarCarrito();
-}
-
-function actualizarCarrito() {
-  const lista = document.getElementById('listaCarrito');
-  lista.innerHTML = '';
-  let subtotal = 0;
-  carrito.forEach(item => {
-    subtotal += item.precio * item.cantidad;
-    const li = document.createElement('li');
-    li.innerHTML = `
-      ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad} CUP
-      <button onclick="quitarDelCarrito(${item.id})">❌</button>
-    `;
-    lista.appendChild(li);
-  });
-
-  document.getElementById('totalCarrito').textContent = subtotal;
-  actualizarTarifa();
-}
-
-function actualizarTarifa() {
-  const reparto = document.getElementById('reparto')?.value;
-  const tarifa = tarifas[reparto] || 0;
-  const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-  document.getElementById('tarifaReparto').textContent = tarifa;
-  document.getElementById('totalFinal').textContent = subtotal + tarifa;
-}
-
-function enviarPedido() {
-  if (carrito.length === 0) {
-    alert('El carrito está vacío.');
-    return;
-  }
-
-  const nombre = document.getElementById('nombre').value.trim();
-  const direccion = document.getElementById('direccion').value.trim();
-  const telefono = document.getElementById('telefono').value.trim();
-  const codigoPais = document.getElementById('codigoPais').value;
-  const reparto = document.getElementById('reparto').value;
-
-  if (!nombre || !direccion || !telefono || !codigoPais || !reparto) {
-    alert('Por favor, completa todos los campos del formulario.');
-    return;
-  }
-
-  const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-  const tarifa = tarifas[reparto] || 0;
-  const total = subtotal + tarifa;
-
-  const productosTxt = carrito.map(item => `${item.nombre} x${item.cantidad}`).join(', ');
-
-  let telefonoLimpio = telefono;
-  if (telefono.startsWith(codigoPais)) {
-    telefonoLimpio = telefono.slice(codigoPais.length);
-  }
-  const numeroDestino = codigoPais + telefonoLimpio;
-
-  const datosPedido = {
-    nombre,
-    telefono: telefonoLimpio,
-    direccion,
-    reparto,
-    codigoPais,
-    productos: productosTxt,
-    subtotal,
-    envio: tarifa,
-    total
-  };
-
-  const scriptURL = "https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec";
-
-  // 1) Llenamos el formulario oculto
-  document.getElementById('f_nombre').value     = nombre;
-  document.getElementById('f_telefono').value   = telefonoLimpio;
-  document.getElementById('f_direccion').value  = direccion;
-  document.getElementById('f_reparto').value    = reparto;
-  document.getElementById('f_codigoPais').value = codigoPais;
-  document.getElementById('f_productos').value  = productosTxt;
-  document.getElementById('f_subtotal').value   = subtotal;
-  document.getElementById('f_envio').value      = tarifa;
-  document.getElementById('f_total').value      = total;
-
-  // 2) Enviamos el formulario oculto
-  document.getElementById('sheetForm').submit();
-  .then(res => res.text())
-  .then(resp => console.log("📥 Respuesta de Google Sheets:", resp))
-  .catch(err => console.error("❌ Error al guardar en Sheets:", err));
-
-  // Generar mensaje para WhatsApp
-  let texto = '🧾 *Ticket de Compra* 🧾\n';
-  texto += '-------------------------\n';
-  carrito.forEach(item => {
-    texto += `🍰 ${item.nombre} x${item.cantidad} = $${item.precio * item.cantidad} CUP\n`;
-  });
-  texto += '-------------------------\n';
-  texto += `🚚 Reparto: ${reparto} (+$${tarifa} CUP)\n`;
-  texto += `💰 Subtotal: $${subtotal} CUP\n`;
-  texto += `💰 Total final: $${total} CUP\n`;
-  texto += '-------------------------\n';
-  texto += `👤 Cliente: ${nombre}\n📞 Teléfono: +${codigoPais} ${telefonoLimpio}\n🏠 Dirección: ${direccion}\n`;
-  texto += '¡Gracias por su compra! 😊';
-
-  const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(texto)}`;
-  window.open(url, '_blank');
-
-  carrito = [];
-  actualizarCarrito();
-  document.getElementById('totalCarrito').textContent = 0;
-  document.getElementById('tarifaReparto').textContent = 0;
-  document.getElementById('totalFinal').textContent = 0;
-}
-
-cargarProductos();
-actualizarCarrito();
-</script>
-  <!-- INICIO: formulario oculto para Google Sheets -->
+<!-- Formulario oculto que envía a Google Sheets sin CORS -->
 <form id="sheetForm"
       action="https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec"
       method="post"
@@ -361,6 +174,139 @@ actualizarCarrito();
   <input type="number" name="total"      id="f_total"      />
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
-<!-- FIN: formulario oculto para Google Sheets -->
+<script>
+/* 1) Datos de productos */
+const productos = [
+  { id:1, nombre:'Panetela Clásica', precio:3500,
+    descripcion:'Bizcocho suave y esponjoso con aroma a vainilla.',
+    img:'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png' },
+  { id:2, nombre:'Panetela de Chocolate', precio:3800,
+    descripcion:'Rellena de chocolate con cubierta de cacao oscuro.',
+    img:'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png' },
+  { id:3, nombre:'Panetela Especial', precio:4300,
+    descripcion:'Decorada con crema batida y frutas confitadas.',
+    img:'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png' }
+];
+
+/* 2) Tarifas por reparto */
+const tarifas = {
+  'Santa Lucía':50,'Tasajera':50,'Las Casitas':50,
+  'Progreso':50,'Nuevo Progreso':50,
+  'Cepero Bonilla':100,'El Triángulo':100,
+  'Alba Flores':100,'Borbollón':100,
+  'La Compañía':100,'La Maravilla':100
+};
+
+let carrito = [];
+
+/* 3) Renderizar productos en pantalla */
+function cargarProductos() {
+  const cont = document.getElementById('productos');
+  cont.innerHTML = '';
+  productos.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'producto';
+    div.innerHTML = `
+      <img src="${p.img}" alt="${p.nombre}" />
+      <h3>${p.nombre}</h3>
+      <p>${p.descripcion}</p>
+      <p><strong>$${p.precio} CUP</strong></p>
+      <button onclick="agregarAlCarrito(${p.id})">
+        Agregar al carrito ➕
+      </button>`;
+    cont.appendChild(div);
+  });
+}
+
+/* 4) Agregar/quitar items y actualizar carrito */
+function agregarAlCarrito(id) {
+  const prod = productos.find(x=>x.id===id);
+  const rep = carrito.find(x=>x.id===id);
+  if(rep) rep.cantidad++;
+  else carrito.push({...prod, cantidad:1});
+  actualizarCarrito();
+}
+function quitarDelCarrito(id) {
+  carrito = carrito.filter(x=>x.id!==id);
+  actualizarCarrito();
+}
+
+/* 5) Mostrar carrito + calcular subtotal y tarifa */
+function actualizarCarrito() {
+  const lista = document.getElementById('listaCarrito');
+  lista.innerHTML = '';
+  let subtotal = 0;
+  carrito.forEach(item => {
+    subtotal += item.precio * item.cantidad;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      ${item.nombre} x${item.cantidad} - $${item.precio*item.cantidad} CUP
+      <button onclick="quitarDelCarrito(${item.id})">❌</button>`;
+    lista.appendChild(li);
+  });
+  document.getElementById('totalCarrito').textContent = subtotal;
+  actualizarTarifa();
+}
+function actualizarTarifa() {
+  const rep = document.getElementById('reparto')?.value;
+  const t = tarifas[rep]||0;
+  const subtotal = carrito.reduce((s,i)=>s+i.precio*i.cantidad,0);
+  document.getElementById('tarifaReparto').textContent = t;
+  document.getElementById('totalFinal').textContent = subtotal + t;
+}
+
+/* 6) Enviar pedido: Sheets + WhatsApp */
+function enviarPedido() {
+  if (carrito.length===0) { alert('El carrito está vacío.'); return; }
+  const nombre     = document.getElementById('nombre').value.trim();
+  const direccion  = document.getElementById('direccion').value.trim();
+  const telefono   = document.getElementById('telefono').value.trim();
+  const codigoPais = document.getElementById('codigoPais').value;
+  const reparto    = document.getElementById('reparto').value;
+  if (!nombre||!direccion||!telefono||!codigoPais||!reparto) {
+    alert('Completa todos los campos'); return;
+  }
+
+  /* Cálculos */
+  const subtotal = carrito.reduce((s,i)=>s+i.precio*i.cantidad,0);
+  const envio    = tarifas[reparto]||0;
+  const total    = subtotal + envio;
+  const productosTxt = carrito.map(i=>`${i.nombre} x${i.cantidad}`).join(', ');
+
+  /* 6.1) Llenar y enviar el formulario oculto */
+  const telefonoLimpio = telefono.startsWith(codigoPais)
+    ? telefono.slice(codigoPais.length)
+    : telefono;
+  document.getElementById('f_nombre').value     = nombre;
+  document.getElementById('f_telefono').value   = telefonoLimpio;
+  document.getElementById('f_direccion').value  = direccion;
+  document.getElementById('f_reparto').value    = reparto;
+  document.getElementById('f_codigoPais').value = codigoPais;
+  document.getElementById('f_productos').value  = productosTxt;
+  document.getElementById('f_subtotal').value   = subtotal;
+  document.getElementById('f_envio').value      = envio;
+  document.getElementById('f_total').value      = total;
+  document.getElementById('sheetForm').submit();
+
+  /* 6.2) Abrir mensaje de WhatsApp */
+  const numero = codigoPais + telefonoLimpio;
+  let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
+  carrito.forEach(i=>{
+    texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio*i.cantidad} CUP\n`;
+  });
+  texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${envio} CUP)\n`+
+           `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n`+
+           `-------------------------\n👤 ${nombre}\n📞 +${numero}\n🏠 ${direccion}\n`+
+           `¡Gracias por tu compra! 😊`;
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
+
+  /* 6.3) Limpiar */
+  carrito = []; actualizarCarrito();
+}
+
+/* 7) Inicialización */
+cargarProductos();
+actualizarCarrito();
+</script>
 </body>
 </html>
