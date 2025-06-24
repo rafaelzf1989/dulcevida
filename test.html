@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Test de envío a Google Sheets</title>
+</head>
+<body>
+  <h2>🔍 Prueba de conexión con Sheets</h2>
+  <form id="sheetForm"
+        action="https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec"
+        method="post"
+        target="sheetResponse">
+
+    <label>Nombre: <input name="nombre" required /></label><br><br>
+    <label>Teléfono: <input name="telefono" required /></label><br><br>
+    <label>Productos: <input name="productos" value="Panetela x1" required /></label><br><br>
+
+    <button type="submit">📤 Enviar a Sheets</button>
+  </form>
+
+  <iframe name="sheetResponse" style="display:none;"></iframe>
+
+  <p><strong>Instrucción:</strong> Después de presionar el botón, ve a tu Google Sheets y verifica si aparece una nueva fila con estos datos.</p>
+</body>
+</html>
