@@ -300,11 +300,19 @@ function enviarPedido() {
 
   const scriptURL = "https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec";
 
-  fetch(scriptURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datosPedido)
-  })
+  // 1) Llenamos el formulario oculto
+  document.getElementById('f_nombre').value     = nombre;
+  document.getElementById('f_telefono').value   = telefonoLimpio;
+  document.getElementById('f_direccion').value  = direccion;
+  document.getElementById('f_reparto').value    = reparto;
+  document.getElementById('f_codigoPais').value = codigoPais;
+  document.getElementById('f_productos').value  = productosTxt;
+  document.getElementById('f_subtotal').value   = subtotal;
+  document.getElementById('f_envio').value      = tarifa;
+  document.getElementById('f_total').value      = total;
+
+  // 2) Enviamos el formulario oculto
+  document.getElementById('sheetForm').submit();
   .then(res => res.text())
   .then(resp => console.log("📥 Respuesta de Google Sheets:", resp))
   .catch(err => console.error("❌ Error al guardar en Sheets:", err));
@@ -336,5 +344,23 @@ function enviarPedido() {
 cargarProductos();
 actualizarCarrito();
 </script>
+  <!-- INICIO: formulario oculto para Google Sheets -->
+<form id="sheetForm"
+      action="https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec"
+      method="post"
+      target="sheetResponse"
+      style="display:none;">
+  <input type="text"   name="nombre"     id="f_nombre"     />
+  <input type="text"   name="telefono"   id="f_telefono"   />
+  <input type="text"   name="direccion"  id="f_direccion"  />
+  <input type="text"   name="reparto"    id="f_reparto"    />
+  <input type="text"   name="codigoPais" id="f_codigoPais" />
+  <input type="text"   name="productos"  id="f_productos"  />
+  <input type="number" name="subtotal"   id="f_subtotal"   />
+  <input type="number" name="envio"      id="f_envio"      />
+  <input type="number" name="total"      id="f_total"      />
+</form>
+<iframe name="sheetResponse" style="display:none;"></iframe>
+<!-- FIN: formulario oculto para Google Sheets -->
 </body>
 </html>
