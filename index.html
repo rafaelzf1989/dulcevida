@@ -3,78 +3,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dulce Vida 1.1</title>
+  <title>Dulce Vida</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background: #f5f5f5;
+    }
+
     header {
-  background: #f5f5f5; /* mismo color que el body */
-  padding: 10px;
-  text-align: center;
-}
+      background: #f5f5f5;
+      padding: 10px;
+      text-align: center;
+    }
 
-header img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 0;
-}
+    header img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 0;
+    }
 
+    main {
+      padding: 15px;
+    }
 
     .productos {
-      display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      justify-content: center;
     }
+
     .producto {
-      background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 15px; width: 220px; text-align: center;
-      display: flex; flex-direction: column; align-items: center;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      width: 220px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
     .producto img {
-  width: 180px;
-  height: 180px; /* antes era 120px */
-  object-fit: cover;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
 
     .producto h3 { margin-top: 0; }
     .producto p { margin: 5px 0; }
+
     .producto button {
-      background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
       margin-top: auto;
     }
-    .producto button:hover { background: #1e7e34; }
 
-    #carrito {
-      background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      max-width: 400px; margin: 20px auto; padding: 15px;
+    .producto button:hover {
+      background: #1e7e34;
     }
-    #carrito h2 { text-align: center; }
-    #carrito ul { list-style: none; padding: 0; }
-    #carrito li {
-      display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd;
-    }
-    #carrito button {
-      background: #dc3545; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 2px 8px;
-    }
-    #carrito button:hover { background: #a71d2a; }
-
-    #cliente {
-      max-width: 400px; margin: 20px auto; padding: 15px; background: white; border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    #cliente h3 { margin-top: 0; }
-    #cliente input, #cliente select {
-      width: 100%; margin: 8px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
-    }
-
-    #mensajeCompra {
-      text-align: center; margin-top: 15px; font-weight: bold; color: green;
-    }
-    .wsp-btn {
-      background-color: #25D366; color: white; border: none; padding: 10px 20px;
-      border-radius: 5px; font-size: 1em; display: flex; align-items: center; gap: 10px;
-      justify-content: center; cursor: pointer;
-    }
-    .wsp-btn img { width: 20px; height: 20px; }
   </style>
 </head>
 <body>
@@ -83,16 +78,16 @@ header img {
   <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Cabecera Dulce Vida" />
 </header>
 
-
 <main>
   <section class="productos" id="productos"></section>
-  <section id="carrito">
+<section id="carrito">
     <h2>Carrito de compras 🛒</h2>
     <ul id="listaCarrito"></ul>
     <p><strong>Subtotal: $<span id="totalCarrito">0</span> CUP</strong></p>
     <p><strong>Envío: $<span id="tarifaReparto">0</span> CUP</strong></p>
     <p><strong>Total: $<span id="totalFinal">0</span> CUP</strong></p>
   </section>
+
   <section id="cliente">
     <h3>Datos del cliente</h3>
     <select id="codigoPais" required>
@@ -122,13 +117,14 @@ header img {
     </select>
     <br>
     <button class="wsp-btn" onclick="enviarPedido()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width:20px;height:20px;" />
       Enviar por WhatsApp
     </button>
   </section>
+
   <p id="mensajeCompra"></p>
 </main>
-<script>
+  <script>
 const productos = [
   {
     id: 1,
@@ -181,11 +177,13 @@ function cargarProductos() {
 }
 
 function agregarAlCarrito(id) {
-  const prod = productos.find(p => p.id === id);
-  if (!prod) return;
-  const item = carrito.find(i => i.id === id);
-  if (item) item.cantidad++;
-  else carrito.push({ ...prod, cantidad: 1 });
+  const producto = productos.find(p => p.id === id);
+  const repetido = carrito.find(i => i.id === id);
+  if (repetido) {
+    repetido.cantidad += 1;
+  } else {
+    carrito.push({ ...producto, cantidad: 1 });
+  }
   actualizarCarrito();
 }
 
@@ -243,14 +241,13 @@ function enviarPedido() {
 
   const productosTxt = carrito.map(item => `${item.nombre} x${item.cantidad}`).join(', ');
 
-  // 🧽 Validación para evitar duplicación del código del país
   let telefonoLimpio = telefono;
   if (telefono.startsWith(codigoPais)) {
     telefonoLimpio = telefono.slice(codigoPais.length);
   }
   const numeroDestino = codigoPais + telefonoLimpio;
 
-  // 👉 Enviar a Google Sheets
+  // Guardar en Google Sheets
   const datosPedido = {
     nombre,
     telefono: telefonoLimpio,
@@ -270,10 +267,11 @@ function enviarPedido() {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datosPedido)
   })
-  .then(res => console.log("✅ Pedido guardado en Google Sheets"))
+  .then(res => res.text())
+  .then(resp => console.log("📥 Respuesta de Google Sheets:", resp))
   .catch(err => console.error("❌ Error al guardar en Sheets:", err));
 
-  // 👉 Enviar a WhatsApp
+  // Generar mensaje para WhatsApp
   let texto = '🧾 *Ticket de Compra* 🧾\n';
   texto += '-------------------------\n';
   carrito.forEach(item => {
@@ -290,7 +288,6 @@ function enviarPedido() {
   const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(texto)}`;
   window.open(url, '_blank');
 
-  // Limpiar carrito y actualizar interfaz
   carrito = [];
   actualizarCarrito();
   document.getElementById('totalCarrito').textContent = 0;
@@ -300,6 +297,4 @@ function enviarPedido() {
 
 cargarProductos();
 actualizarCarrito();
-</script>
-</body>
-</html>
+    </script>
