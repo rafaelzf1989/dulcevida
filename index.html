@@ -20,7 +20,6 @@
     header img {
       max-width: 100%;
       height: auto;
-      border-radius: 0;
     }
 
     main {
@@ -70,6 +69,46 @@
     .producto button:hover {
       background: #1e7e34;
     }
+
+    #carrito,
+    #cliente {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 15px;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    #cliente input,
+    #cliente select {
+      width: 100%;
+      margin: 8px 0;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .wsp-btn {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 1em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .wsp-btn img {
+      width: 20px;
+      height: 20px;
+    }
   </style>
 </head>
 <body>
@@ -80,7 +119,7 @@
 
 <main>
   <section class="productos" id="productos"></section>
-<section id="carrito">
+  <section id="carrito">
     <h2>Carrito de compras 🛒</h2>
     <ul id="listaCarrito"></ul>
     <p><strong>Subtotal: $<span id="totalCarrito">0</span> CUP</strong></p>
@@ -117,14 +156,14 @@
     </select>
     <br>
     <button class="wsp-btn" onclick="enviarPedido()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width:20px;height:20px;" />
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
       Enviar por WhatsApp
     </button>
   </section>
 
   <p id="mensajeCompra"></p>
 </main>
-  <script>
+<script>
 const productos = [
   {
     id: 1,
@@ -247,7 +286,6 @@ function enviarPedido() {
   }
   const numeroDestino = codigoPais + telefonoLimpio;
 
-  // Guardar en Google Sheets
   const datosPedido = {
     nombre,
     telefono: telefonoLimpio,
@@ -260,7 +298,7 @@ function enviarPedido() {
     total
   };
 
-  const scriptURL = "https://script.google.com/macros/s/AKfycbzlpyhZ0BZ7PZcRAS2qTSHuKnQ4xk4F9DCq41r9sOP-RMv55XhRUwJM_LWsKSKhBbe3/exec";
+  const scriptURL = "https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec";
 
   fetch(scriptURL, {
     method: "POST",
@@ -297,4 +335,6 @@ function enviarPedido() {
 
 cargarProductos();
 actualizarCarrito();
-    </script>
+</script>
+</body>
+</html>
