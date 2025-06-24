@@ -3,238 +3,148 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Mini Tienda AppsGeyser</title>
+<title>Mini Tienda - Panetelas</title>
 <style>
-  body { font-family: Arial, sans-serif; margin: 15px; background: #f9f9f9; }
-  h1, h2 { color: #333; }
-  .hidden { display: none; }
-  input[type=number] { width: 50px; }
-  button { margin-top: 10px; padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
-  button:hover { background: #0056b3; }
-  .pedido { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
-  a { color: #007bff; word-break: break-all; }
-  label { display: block; margin-top: 8px; }
+  body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+  header {
+    background: #007bff; color: white; padding: 10px 15px; text-align: center;
+  }
+  header h1 { margin: 0; font-size: 1.4em; }
+
+  main { padding: 15px; }
+  .productos {
+    display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
+  }
+  .producto {
+    background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    padding: 15px; width: 220px; text-align: center;
+  }
+  .producto h3 { margin-top: 0; }
+  .producto p { font-weight: bold; font-size: 1.1em; margin: 10px 0; }
+  .producto button {
+    background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;
+  }
+  .producto button:hover { background: #1e7e34; }
+
+  #carrito {
+    background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    max-width: 400px; margin: 20px auto; padding: 15px;
+  }
+  #carrito h2 { margin-top: 0; text-align: center; }
+  #carrito ul { list-style: none; padding: 0; }
+  #carrito li {
+    display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd;
+  }
+  #carrito li:last-child { border-bottom: none; }
+  #carrito button {
+    background: #dc3545; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 2px 8px;
+  }
+  #carrito button:hover { background: #a71d2a; }
+
+  #mensajeCompra {
+    text-align: center; margin-top: 15px; font-weight: bold; color: green;
+  }
 </style>
 </head>
 <body>
 
-<h1>Mini Tienda</h1>
+<header>
+  <h1>Mini Tienda - Panetelas</h1>
+</header>
 
-<!-- LOGIN -->
-<div id="loginDiv">
-  <h2>Iniciar sesión</h2>
-  <label>Usuario: <input type="text" id="username" autocomplete="username" /></label>
-  <label>Contraseña: <input type="password" id="password" autocomplete="current-password" /></label>
-  <button onclick="login()">Entrar</button>
-  <p id="loginError" style="color:red;"></p>
-</div>
+<main>
+  <section class="productos" id="productos"></section>
 
-<!-- VISTA CLIENTE -->
-<div id="clienteDiv" class="hidden">
-  <h2>Productos disponibles</h2>
-  <form id="formPedido">
-    <label><input type="checkbox" id="prod1" data-name="Producto A" data-price="10" /> Producto A - $10</label>
-    <label>Cantidad: <input type="number" id="cant1" min="1" value="1" disabled /></label>
-
-    <label><input type="checkbox" id="prod2" data-name="Producto B" data-price="20" /> Producto B - $20</label>
-    <label>Cantidad: <input type="number" id="cant2" min="1" value="1" disabled /></label>
-
-    <label><input type="checkbox" id="prod3" data-name="Producto C" data-price="15" /> Producto C - $15</label>
-    <label>Cantidad: <input type="number" id="cant3" min="1" value="1" disabled /></label>
-
-    <button type="button" onclick="hacerPedido()">Realizar pedido</button>
-  </form>
-  <p id="mensajeCliente" style="color:green;"></p>
-  <button onclick="logout()">Cerrar sesión</button>
-</div>
-
-<!-- VISTA NEGOCIO -->
-<div id="negocioDiv" class="hidden">
-  <h2>Pedidos recibidos</h2>
-  <div id="listaPedidos"></div>
-  <button onclick="logout()">Cerrar sesión</button>
-</div>
-
-<!-- VISTA REPARTIDOR -->
-<div id="repartidorDiv" class="hidden">
-  <h2>Pedidos aceptados para reparto</h2>
-  <div id="pedidosRepartidor"></div>
-  <button onclick="logout()">Cerrar sesión</button>
-</div>
+  <section id="carrito">
+    <h2>Carrito de compras</h2>
+    <ul id="listaCarrito"></ul>
+    <p><strong>Total: $<span id="totalCarrito">0</span> CUP</strong></p>
+    <button onclick="finalizarCompra()" style="background:#007bff;">Finalizar compra</button>
+    <p id="mensajeCompra"></p>
+  </section>
+</main>
 
 <script>
-// Usuarios y contraseñas
-const usuarios = {
-  'Ode': 'Petunia24*',
-  'rafaelzf': 'Petunia24*'
-};
+const productos = [
+  { id: 1, nombre: 'Panetela Clásica', precio: 3500 },
+  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800 },
+  { id: 3, nombre: 'Panetela Especial', precio: 4300 }
+];
 
-let pedidos = []; // pedidos en memoria
+let carrito = [];
 
-// Habilitar cantidad solo si checkbox está marcado
-document.querySelectorAll('#formPedido input[type=checkbox]').forEach((checkbox, i) => {
-  checkbox.addEventListener('change', () => {
-    const cantidadInput = document.getElementById('cant' + (i + 1));
-    cantidadInput.disabled = !checkbox.checked;
-  });
-});
-
-function login() {
-  const user = document.getElementById('username').value.trim();
-  const pass = document.getElementById('password').value;
-  const errorP = document.getElementById('loginError');
-  errorP.textContent = '';
-
-  if (usuarios[user] && usuarios[user] === pass) {
-    document.getElementById('loginDiv').classList.add('hidden');
-    if (user === 'Ode') mostrarNegocio();
-    else if (user === 'rafaelzf') mostrarRepartidor();
-    else mostrarCliente();
-  } else {
-    errorP.textContent = 'Usuario o contraseña incorrectos.';
-  }
-}
-
-function logout() {
-  document.getElementById('username').value = '';
-  document.getElementById('password').value = '';
-  document.getElementById('loginError').textContent = '';
-  document.getElementById('mensajeCliente').textContent = '';
-
-  document.getElementById('clienteDiv').classList.add('hidden');
-  document.getElementById('negocioDiv').classList.add('hidden');
-  document.getElementById('repartidorDiv').classList.add('hidden');
-  document.getElementById('loginDiv').classList.remove('hidden');
-}
-
-function mostrarCliente() {
-  document.getElementById('clienteDiv').classList.remove('hidden');
-}
-
-function mostrarNegocio() {
-  document.getElementById('negocioDiv').classList.remove('hidden');
-  actualizarListaPedidos();
-}
-
-function mostrarRepartidor() {
-  document.getElementById('repartidorDiv').classList.remove('hidden');
-  actualizarPedidosRepartidor();
-}
-
-function hacerPedido() {
-  const productos = [];
-  for (let i = 1; i <= 3; i++) {
-    const checkbox = document.getElementById('prod' + i);
-    const cantidad = parseInt(document.getElementById('cant' + i).value);
-    if (checkbox.checked && cantidad > 0) {
-      productos.push({
-        name: checkbox.dataset.name,
-        price: parseFloat(checkbox.dataset.price),
-        cantidad: cantidad
-      });
-    }
-  }
-  if (productos.length === 0) {
-    alert('Selecciona al menos un producto con cantidad válida.');
-    return;
-  }
-  const total = productos.reduce((sum, p) => sum + p.price * p.cantidad, 0);
-  const id = Date.now();
-  pedidos.push({ id, productos, total, estado: 'pendiente' });
-
-  document.getElementById('mensajeCliente').textContent = 'Pedido realizado con éxito. ¡Gracias!';
-  document.getElementById('formPedido').reset();
-  for (let i = 1; i <= 3; i++) {
-    document.getElementById('cant' + i).disabled = true;
-    document.getElementById('cant' + i).value = 1;
-  }
-}
-
-function actualizarListaPedidos() {
-  const listaDiv = document.getElementById('listaPedidos');
-  listaDiv.innerHTML = '';
-
-  if (pedidos.length === 0) {
-    listaDiv.innerHTML = '<p>No hay pedidos.</p>';
-    return;
-  }
-
-  pedidos.forEach(pedido => {
-    if (pedido.estado === 'pendiente') {
-      const div = document.createElement('div');
-      div.className = 'pedido';
-      div.innerHTML = `<strong>Pedido ID:</strong> ${pedido.id}<br/>
-        <strong>Productos:</strong><br/>
-        ${pedido.productos.map(p => `${p.name} x${p.cantidad} - $${(p.price * p.cantidad).toFixed(2)}`).join('<br/>')}
-        <br/><strong>Total:</strong> $${pedido.total.toFixed(2)}<br/>
-        <button onclick="aceptarPedido(${pedido.id})">Aceptar</button>
-        <button onclick="rechazarPedido(${pedido.id})">Rechazar</button>
-      `;
-      listaDiv.appendChild(div);
-    }
-  });
-}
-
-function aceptarPedido(id) {
-  const pedido = pedidos.find(p => p.id === id);
-  if (!pedido) return;
-  pedido.estado = 'aceptado';
-  actualizarListaPedidos();
-  actualizarPedidosRepartidor();
-
-  const texto = generarTextoWhatsApp(pedido);
-  const urlWhats = 'https://wa.me/?text=' + encodeURIComponent(texto);
-
-  const listaDiv = document.getElementById('listaPedidos');
-  const linkDiv = document.createElement('div');
-  linkDiv.style.marginTop = '10px';
-  linkDiv.innerHTML = `<strong>Link para WhatsApp:</strong><br/><a href="${urlWhats}" target="_blank" rel="noopener noreferrer">${urlWhats}</a><br/>
-  (Toca el enlace para abrir WhatsApp)`;
-  listaDiv.prepend(linkDiv);
-}
-
-function rechazarPedido(id) {
-  const pedido = pedidos.find(p => p.id === id);
-  if (!pedido) return;
-  pedido.estado = 'rechazado';
-  actualizarListaPedidos();
-  actualizarPedidosRepartidor();
-}
-
-function actualizarPedidosRepartidor() {
-  const div = document.getElementById('pedidosRepartidor');
-  div.innerHTML = '';
-
-  const aceptados = pedidos.filter(p => p.estado === 'aceptado');
-  if (aceptados.length === 0) {
-    div.innerHTML = '<p>No hay pedidos para repartir.</p>';
-    return;
-  }
-
-  aceptados.forEach(pedido => {
-    const divPedido = document.createElement('div');
-    divPedido.className = 'pedido';
-    divPedido.innerHTML = `<strong>Pedido ID:</strong> ${pedido.id}<br/>
-      <strong>Productos:</strong><br/>
-      ${pedido.productos.map(p => `${p.name} x${p.cantidad} - $${(p.price * p.cantidad).toFixed(2)}`).join('<br/>')}
-      <br/><strong>Total:</strong> $${pedido.total.toFixed(2)}
+function cargarProductos() {
+  const cont = document.getElementById('productos');
+  cont.innerHTML = '';
+  productos.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'producto';
+    div.innerHTML = `
+      <h3>${p.nombre}</h3>
+      <p>$${p.precio} CUP</p>
+      <button onclick="agregarAlCarrito(${p.id})">Agregar al carrito</button>
     `;
-    div.appendChild(divPedido);
+    cont.appendChild(div);
   });
 }
 
-function generarTextoWhatsApp(pedido) {
-  let texto = `Resumen de pedido ID ${pedido.id}:\n`;
-  pedido.productos.forEach(p => {
-    texto += `${p.name} x${p.cantidad} = $${(p.price * p.cantidad).toFixed(2)}\n`;
+function agregarAlCarrito(id) {
+  const prod = productos.find(p => p.id === id);
+  if (!prod) return;
+  const item = carrito.find(i => i.id === id);
+  if (item) item.cantidad++;
+  else carrito.push({ ...prod, cantidad: 1 });
+  actualizarCarrito();
+}
+
+function actualizarCarrito() {
+  const lista = document.getElementById('listaCarrito');
+  lista.innerHTML = '';
+  let total = 0;
+  carrito.forEach(item => {
+    total += item.precio * item.cantidad;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      ${item.nombre} x${item.cantidad} - $${(item.precio * item.cantidad)} CUP
+      <button onclick="quitarDelCarrito(${item.id})">X</button>
+    `;
+    lista.appendChild(li);
   });
-  texto += `Subtotal: $${pedido.total.toFixed(2)}\n`;
-  texto += `Total: $${pedido.total.toFixed(2)}\n`;
-  texto += 'Gracias por su compra.';
+  document.getElementById('totalCarrito').textContent = total;
+}
+
+function quitarDelCarrito(id) {
+  carrito = carrito.filter(i => i.id !== id);
+  actualizarCarrito();
+}
+
+function finalizarCompra() {
+  if (carrito.length === 0) {
+    alert('El carrito está vacío.');
+    return;
+  }
+  const total = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
+  const texto = generarTextoWhatsApp(carrito, total);
+  const numero = '5358707434'; // Número destino en formato internacional sin +
+  const urlWhats = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
+  const mensajeCompra = document.getElementById('mensajeCompra');
+  mensajeCompra.innerHTML = `Pedido listo. <a href="${urlWhats}" target="_blank" rel="noopener noreferrer" style="color:#007bff;">Enviar pedido por WhatsApp</a>`;
+  carrito = [];
+  actualizarCarrito();
+}
+
+function generarTextoWhatsApp(carrito, total) {
+  let texto = 'Hola, quiero hacer el siguiente pedido:%0A';
+  carrito.forEach(item => {
+    texto += `- ${item.nombre} x${item.cantidad} = $${item.precio * item.cantidad} CUP%0A`;
+  });
+  texto += `Total: $${total} CUP%0AGracias.`;
   return texto;
 }
+
+cargarProductos();
+actualizarCarrito();
 </script>
 
 </body>
-  </html>
-  
+</html>
