@@ -1,106 +1,126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Dulce Vida</title>
-<style>
-  /* Estilos generales */
-  body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-  /* Cabecera con imagen y título */
-  header {
-    background: #007bff; color: white; padding: 10px 15px; 
-    text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;
-  }
-  header img {
-    height: 150px; border-radius: 108px;
-  }
-  header h1 { margin: 0; font-size: 1.6em; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dulce Vida</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
+    header {
+      background: #007bff; color: white; padding: 10px 15px;
+      text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;
+    }
+    header img { height: 150px; border-radius: 108px; }
+    header h1 { margin: 0; font-size: 1.6em; }
 
-  /* Contenedor principal */
-  main { padding: 15px; }
+    main { padding: 15px; }
 
-  /* Productos: diseño en fila flexible */
-  .productos {
-    display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
-  }
-  /* Cada producto */
-  .producto {
-    background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    padding: 15px; width: 220px; text-align: center;
-    display: flex; flex-direction: column; align-items: center;
-  }
-  /* Imagen del producto */
-  .producto img {
-    width: 180px; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;
-  }
-  .producto h3 { margin-top: 0; }
-  .producto p { font-weight: bold; font-size: 1.1em; margin: 10px 0; }
-  /* Botón agregar al carrito */
-  .producto button {
-    background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;
-    margin-top: auto;
-  }
-  .producto button:hover { background: #1e7e34; }
+    .productos {
+      display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
+    }
+    .producto {
+      background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px; width: 220px; text-align: center;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .producto img {
+      width: 180px; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;
+    }
+    .producto h3 { margin-top: 0; }
+    .producto p { margin: 5px 0; }
+    .producto button {
+      background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;
+      margin-top: auto;
+    }
+    .producto button:hover { background: #1e7e34; }
 
-  /* Carrito de compras */
-  #carrito {
-    background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    max-width: 400px; margin: 20px auto; padding: 15px;
-  }
-  #carrito h2 { margin-top: 0; text-align: center; }
-  #carrito ul { list-style: none; padding: 0; }
-  #carrito li {
-    display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd;
-  }
-  #carrito li:last-child { border-bottom: none; }
-  /* Botón eliminar producto del carrito */
-  #carrito button {
-    background: #dc3545; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 2px 8px;
-  }
-  #carrito button:hover { background: #a71d2a; }
+    #carrito {
+      background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 400px; margin: 20px auto; padding: 15px;
+    }
+    #carrito h2 { text-align: center; }
+    #carrito ul { list-style: none; padding: 0; }
+    #carrito li {
+      display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ddd;
+    }
+    #carrito button {
+      background: #dc3545; border: none; color: white; border-radius: 4px; cursor: pointer; padding: 2px 8px;
+    }
+    #carrito button:hover { background: #a71d2a; }
 
-  /* Mensaje de pedido listo */
-  #mensajeCompra {
-    text-align: center; margin-top: 15px; font-weight: bold; color: green;
-  }
-</style>
+    #cliente {
+      max-width: 400px; margin: 20px auto; padding: 15px; background: white; border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    #cliente h3 { margin-top: 0; }
+    #cliente input, #cliente select {
+      width: 100%; margin: 8px 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+    }
+
+    #mensajeCompra {
+      text-align: center; margin-top: 15px; font-weight: bold; color: green;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Cabecera con logo e título -->
 <header>
   <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Logo Tienda" />
   <h1>Delce Vida 🥮</h1>
 </header>
 
 <main>
-  <!-- Sección donde se cargan los productos -->
   <section class="productos" id="productos"></section>
 
-  <!-- Carrito de compras -->
   <section id="carrito">
     <h2>Carrito de compras 🛒</h2>
     <ul id="listaCarrito"></ul>
-    <p><strong>Total: $<span id="totalCarrito">0</span> CUP</strong></p>
-    <!-- Botón para finalizar compra -->
+    <p><strong>Subtotal: $<span id="totalCarrito">0</span> CUP</strong></p>
+    <p><strong>Envío: $<span id="tarifaReparto">0</span> CUP</strong></p>
+    <p><strong>Total: $<span id="totalFinal">0</span> CUP</strong></p>
     <button onclick="finalizarCompra()" style="background:#007bff;">Finalizar compra ✅</button>
-    <!-- Aquí se muestra el enlace para enviar el pedido por WhatsApp -->
     <p id="mensajeCompra"></p>
+  </section>
+
+  <section id="cliente">
+    <h3>Datos del cliente</h3>
+    <input id="nombre" placeholder="Nombre completo" required>
+    <input id="telefono" placeholder="Teléfono" required>
+    <input id="direccion" placeholder="Dirección" required>
+    <select id="reparto" required onchange="actualizarTarifa()">
+      <option disabled selected>Selecciona tu reparto</option>
+      <option>Santa Lucía</option>
+      <option>Tasajera</option>
+      <option>Las Casitas</option>
+      <option>Progreso</option>
+      <option>Nuevo Progreso</option>
+      <option>Cepero Bonilla</option>
+      <option>El Triángulo</option>
+      <option>Alba Flores</option>
+      <option>Borbollón</option>
+      <option>La Compañía</option>
+      <option>La Maravilla</option>
+    </select>
   </section>
 </main>
 
 <script>
-/* Lista de productos con imágenes, nombre y precio */
 const productos = [
-  { id: 1, nombre: 'Panetela Clásica', precio: 3500, img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png' },
-  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800, img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png' },
-  { id: 3, nombre: 'Panetela Especial', precio: 4300, img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png' }
+  { id: 1, nombre: 'Panetela Clásica', precio: 3500, descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png' },
+  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800, descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png' },
+  { id: 3, nombre: 'Panetela Especial', precio: 4300, descripcion: 'Decorada con crema batida y frutas confitadas.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png' }
 ];
+
+const tarifas = {
+  'Santa Lucía': 50, 'Tasajera': 50, 'Las Casitas': 50,
+  'Progreso': 50, 'Nuevo Progreso': 50,
+  'Cepero Bonilla': 100, 'El Triángulo': 100,
+  'Alba Flores': 100, 'Borbollón': 100,
+  'La Compañía': 100, 'La Maravilla': 100
+};
 
 let carrito = [];
 
-/* Función para cargar productos en la página */
 function cargarProductos() {
   const cont = document.getElementById('productos');
   cont.innerHTML = '';
@@ -110,14 +130,14 @@ function cargarProductos() {
     div.innerHTML = `
       <img src="${p.img}" alt="${p.nombre}" />
       <h3>${p.nombre}</h3>
-      <p>$${p.precio} CUP</p>
+      <p>${p.descripcion}</p>
+      <p><strong>$${p.precio} CUP</strong></p>
       <button onclick="agregarAlCarrito(${p.id})">Agregar al carrito ➕</button>
     `;
     cont.appendChild(div);
   });
 }
 
-/* Agrega producto al carrito o aumenta cantidad si ya está */
 function agregarAlCarrito(id) {
   const prod = productos.find(p => p.id === id);
   if (!prod) return;
@@ -127,60 +147,88 @@ function agregarAlCarrito(id) {
   actualizarCarrito();
 }
 
-/* Actualiza la lista y total del carrito en pantalla */
-function actualizarCarrito() {
-  const lista = document.getElementById('listaCarrito');
-  lista.innerHTML = '';
-  let total = 0;
-  carrito.forEach(item => {
-    total += item.precio * item.cantidad;
-    const li = document.createElement('li');
-    li.innerHTML = `
-      ${item.nombre} x${item.cantidad} - $${(item.precio * item.cantidad)} CUP
-      <button onclick="quitarDelCarrito(${item.id})">❌</button>
-    `;
-    lista.appendChild(li);
-  });
-  document.getElementById('totalCarrito').textContent = total;
-}
-
-/* Elimina un producto del carrito */
 function quitarDelCarrito(id) {
   carrito = carrito.filter(i => i.id !== id);
   actualizarCarrito();
 }
 
-/* Finaliza la compra y genera el enlace para WhatsApp */
+function actualizarCarrito() {
+  const lista = document.getElementById('listaCarrito');
+  lista.innerHTML = '';
+  let subtotal = 0;
+  carrito.forEach(item => {
+    subtotal += item.precio * item.cantidad;
+    const li = document.createElement('li');
+    li.innerHTML = `
+      ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad} CUP
+      <button onclick="quitarDelCarrito(${item.id})">❌</button>
+    `;
+    lista.appendChild(li);
+  });
+
+  document.getElementById('totalCarrito').textContent = subtotal;
+  actualizarTarifa();
+}
+
+function actualizarTarifa() {
+  const reparto = document.getElementById('reparto').value;
+  const tarifa = tarifas[reparto] || 0;
+  const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
+  document.getElementById('tarifaReparto').textContent = tarifa;
+    document.getElementById('totalFinal').textContent = subtotal + tarifa;
+}
+
 function finalizarCompra() {
   if (carrito.length === 0) {
     alert('El carrito está vacío.');
     return;
   }
-  const total = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
-  const texto = generarTextoWhatsApp(carrito, total);
-  const numero = '5358707434'; // Número destino sin +
+
+  const nombre = document.getElementById('nombre').value;
+  const telefono = document.getElementById('telefono').value;
+  const direccion = document.getElementById('direccion').value;
+  const reparto = document.getElementById('reparto').value;
+
+  if (!nombre || !telefono || !direccion || !reparto) {
+    alert('Por favor, completa todos los datos del cliente.');
+    return;
+  }
+
+  const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
+  const tarifa = tarifas[reparto] || 0;
+  const totalFinal = subtotal + tarifa;
+
+  const texto = generarTextoWhatsApp(carrito, subtotal, tarifa, reparto, { nombre, telefono, direccion });
+
+  const numero = '5358707434';
   const urlWhats = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
-  const mensajeCompra = document.getElementById('mensajeCompra');
-  mensajeCompra.innerHTML = `Pedido listo. <a href="${urlWhats}" target="_blank" rel="noopener noreferrer" style="color:#007bff;">Enviar pedido por WhatsApp 📲</a>`;
+  document.getElementById('mensajeCompra').innerHTML =
+    `Pedido listo. <a href="${urlWhats}" target="_blank" rel="noopener noreferrer" style="color:#007bff;">Enviar pedido por WhatsApp 📲</a>`;
+
   carrito = [];
   actualizarCarrito();
+  document.getElementById('totalCarrito').textContent = 0;
+  document.getElementById('tarifaReparto').textContent = 0;
+  document.getElementById('totalFinal').textContent = 0;
 }
 
-/* Genera el texto formateado para WhatsApp con saltos de línea reales */
-function generarTextoWhatsApp(carrito, total) {
+function generarTextoWhatsApp(carrito, subtotal, tarifa, reparto, cliente) {
   let texto = '🧾 *Ticket de Compra* 🧾\n';
   texto += '-------------------------\n';
   carrito.forEach(item => {
-    const subtotal = item.precio * item.cantidad;
-    texto += `🍰 ${item.nombre} x${item.cantidad} = $${subtotal} CUP\n`;
+    const linea = `🍰 ${item.nombre} x${item.cantidad} = $${item.precio * item.cantidad} CUP\n`;
+    texto += linea;
   });
   texto += '-------------------------\n';
-  texto += `💰 *Total:* $${total} CUP\n`;
+  texto += `🚚 Reparto: ${reparto} (+$${tarifa} CUP)\n`;
+  texto += `💰 Subtotal: $${subtotal} CUP\n`;
+  texto += `💰 Total final: $${subtotal + tarifa} CUP\n`;
+  texto += '-------------------------\n';
+  texto += `👤 Cliente: ${cliente.nombre}\n📞 Teléfono: ${cliente.telefono}\n🏠 Dirección: ${cliente.direccion}\n`;
   texto += '¡Gracias por su compra! 😊';
   return texto;
 }
 
-/* Inicializa la tienda */
 cargarProductos();
 actualizarCarrito();
 </script>
