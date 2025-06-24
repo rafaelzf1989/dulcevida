@@ -240,14 +240,20 @@ function enviarPedido() {
   const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
   const tarifa = tarifas[reparto] || 0;
   const total = subtotal + tarifa;
-  const numeroDestino = codigoPais + telefono;
 
   const productosTxt = carrito.map(item => `${item.nombre} x${item.cantidad}`).join(', ');
+
+  // 🧽 Validación para evitar duplicación del código del país
+  let telefonoLimpio = telefono;
+  if (telefono.startsWith(codigoPais)) {
+    telefonoLimpio = telefono.slice(codigoPais.length);
+  }
+  const numeroDestino = codigoPais + telefonoLimpio;
 
   // 👉 Enviar a Google Sheets
   const datosPedido = {
     nombre,
-    telefono,
+    telefono: telefonoLimpio,
     direccion,
     reparto,
     codigoPais,
@@ -278,7 +284,7 @@ function enviarPedido() {
   texto += `💰 Subtotal: $${subtotal} CUP\n`;
   texto += `💰 Total final: $${total} CUP\n`;
   texto += '-------------------------\n';
-  texto += `👤 Cliente: ${nombre}\n📞 Teléfono: +${codigoPais} ${telefono}\n🏠 Dirección: ${direccion}\n`;
+  texto += `👤 Cliente: ${nombre}\n📞 Teléfono: +${codigoPais} ${telefonoLimpio}\n🏠 Dirección: ${direccion}\n`;
   texto += '¡Gracias por su compra! 😊';
 
   const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(texto)}`;
@@ -291,7 +297,6 @@ function enviarPedido() {
   document.getElementById('tarifaReparto').textContent = 0;
   document.getElementById('totalFinal').textContent = 0;
 }
-
 
 cargarProductos();
 actualizarCarrito();
