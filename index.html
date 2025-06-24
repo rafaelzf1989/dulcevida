@@ -12,9 +12,7 @@
     }
     header img { height: 150px; border-radius: 108px; }
     header h1 { margin: 0; font-size: 1.6em; }
-
     main { padding: 15px; }
-
     .productos {
       display: flex; gap: 15px; flex-wrap: wrap; justify-content: center;
     }
@@ -60,6 +58,12 @@
     #mensajeCompra {
       text-align: center; margin-top: 15px; font-weight: bold; color: green;
     }
+    .wsp-btn {
+      background-color: #25D366; color: white; border: none; padding: 10px 20px;
+      border-radius: 5px; font-size: 1em; display: flex; align-items: center; gap: 10px;
+      justify-content: center; cursor: pointer;
+    }
+    .wsp-btn img { width: 20px; height: 20px; }
   </style>
 </head>
 <body>
@@ -71,21 +75,25 @@
 
 <main>
   <section class="productos" id="productos"></section>
-
   <section id="carrito">
     <h2>Carrito de compras 🛒</h2>
     <ul id="listaCarrito"></ul>
     <p><strong>Subtotal: $<span id="totalCarrito">0</span> CUP</strong></p>
     <p><strong>Envío: $<span id="tarifaReparto">0</span> CUP</strong></p>
     <p><strong>Total: $<span id="totalFinal">0</span> CUP</strong></p>
-    <button onclick="finalizarCompra()" style="background:#007bff;">Finalizar compra ✅</button>
-    <p id="mensajeCompra"></p>
   </section>
-
   <section id="cliente">
     <h3>Datos del cliente</h3>
-    <input id="nombre" placeholder="Nombre completo" required>
+    <select id="codigoPais" required>
+      <option disabled selected>Código del país</option>
+      <option value="53">🇨🇺 Cuba (+53)</option>
+      <option value="1">🇺🇸 EE. UU. (+1)</option>
+      <option value="34">🇪🇸 España (+34)</option>
+      <option value="52">🇲🇽 México (+52)</option>
+      <option value="55">🇧🇷 Brasil (+55)</option>
+    </select>
     <input id="telefono" placeholder="Teléfono" required>
+    <input id="nombre" placeholder="Nombre completo" required>
     <input id="direccion" placeholder="Dirección" required>
     <select id="reparto" required onchange="actualizarTarifa()">
       <option disabled selected>Selecciona tu reparto</option>
@@ -101,14 +109,37 @@
       <option>La Compañía</option>
       <option>La Maravilla</option>
     </select>
+    <br>
+    <button class="wsp-btn" onclick="enviarPedido()">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" />
+      Enviar por WhatsApp
+    </button>
   </section>
+  <p id="mensajeCompra"></p>
 </main>
-
 <script>
 const productos = [
-  { id: 1, nombre: 'Panetela Clásica', precio: 3500, descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png' },
-  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800, descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png' },
-  { id: 3, nombre: 'Panetela Especial', precio: 4300, descripcion: 'Decorada con crema batida y frutas confitadas.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png' }
+  {
+    id: 1,
+    nombre: 'Panetela Clásica',
+    precio: 3500,
+    descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
+  },
+  {
+    id: 2,
+    nombre: 'Panetela de Chocolate',
+    precio: 3800,
+    descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
+  },
+  {
+    id: 3,
+    nombre: 'Panetela Especial',
+    precio: 4300,
+    descripcion: 'Decorada con crema batida y frutas confitadas.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
+  }
 ];
 
 const tarifas = {
@@ -171,67 +202,54 @@ function actualizarCarrito() {
 }
 
 function actualizarTarifa() {
-  const reparto = document.getElementById('reparto').value;
+  const reparto = document.getElementById('reparto')?.value;
   const tarifa = tarifas[reparto] || 0;
   const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
   document.getElementById('tarifaReparto').textContent = tarifa;
-    document.getElementById('totalFinal').textContent = subtotal + tarifa;
+  document.getElementById('totalFinal').textContent = subtotal + tarifa;
 }
 
-function finalizarCompra() {
+function enviarPedido() {
   if (carrito.length === 0) {
     alert('El carrito está vacío.');
     return;
   }
 
-  const nombre = document.getElementById('nombre').value;
-  const telefono = document.getElementById('telefono').value;
-  const direccion = document.getElementById('direccion').value;
+  const nombre = document.getElementById('nombre').value.trim();
+  const direccion = document.getElementById('direccion').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const codigoPais = document.getElementById('codigoPais').value;
   const reparto = document.getElementById('reparto').value;
 
-  if (!nombre || !telefono || !direccion || !reparto) {
-    alert('Por favor, completa todos los datos del cliente.');
+  if (!nombre || !direccion || !telefono || !codigoPais || !reparto) {
+    alert('Por favor, completa todos los campos del formulario.');
     return;
   }
 
   const subtotal = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
   const tarifa = tarifas[reparto] || 0;
-  const totalFinal = subtotal + tarifa;
+  const total = subtotal + tarifa;
+  const numeroDestino = codigoPais + telefono;
 
-  const texto = generarTextoWhatsApp(carrito, subtotal, tarifa, reparto, { nombre, telefono, direccion });
-
-  const numero = '5358707434';
-  const urlWhats = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
-  document.getElementById('mensajeCompra').innerHTML =
-    `Pedido listo. <a href="${urlWhats}" target="_blank" rel="noopener noreferrer" style="color:#007bff;">Enviar pedido por WhatsApp 📲</a>`;
-
-  carrito = [];
-  actualizarCarrito();
-  document.getElementById('totalCarrito').textContent = 0;
-  document.getElementById('tarifaReparto').textContent = 0;
-  document.getElementById('totalFinal').textContent = 0;
-}
-
-function generarTextoWhatsApp(carrito, subtotal, tarifa, reparto, cliente) {
   let texto = '🧾 *Ticket de Compra* 🧾\n';
   texto += '-------------------------\n';
   carrito.forEach(item => {
-    const linea = `🍰 ${item.nombre} x${item.cantidad} = $${item.precio * item.cantidad} CUP\n`;
-    texto += linea;
+    texto += `🍰 ${item.nombre} x${item.cantidad} = $${item.precio * item.cantidad} CUP\n`;
   });
   texto += '-------------------------\n';
   texto += `🚚 Reparto: ${reparto} (+$${tarifa} CUP)\n`;
   texto += `💰 Subtotal: $${subtotal} CUP\n`;
-  texto += `💰 Total final: $${subtotal + tarifa} CUP\n`;
+  texto += `💰 Total final: $${total} CUP\n`;
   texto += '-------------------------\n';
-  texto += `👤 Cliente: ${cliente.nombre}\n📞 Teléfono: ${cliente.telefono}\n🏠 Dirección: ${cliente.direccion}\n`;
+  texto += `👤 Cliente: ${nombre}\n📞 Teléfono: +${codigoPais} ${telefono}\n🏠 Dirección: ${direccion}\n`;
   texto += '¡Gracias por su compra! 😊';
-  return texto;
+
+  const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(texto)}`;
+  window.open(url, '_blank');
 }
 
 cargarProductos();
 actualizarCarrito();
 </script>
-
 </body>
 </html>
