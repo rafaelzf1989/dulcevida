@@ -7,9 +7,12 @@
 <style>
   body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
   header {
-    background: #007bff; color: white; padding: 10px 15px; text-align: center;
+    background: #007bff; color: white; padding: 10px 15px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 15px;
   }
-  header h1 { margin: 0; font-size: 1.4em; }
+  header img {
+    height: 50px; border-radius: 8px;
+  }
+  header h1 { margin: 0; font-size: 1.6em; }
 
   main { padding: 15px; }
   .productos {
@@ -18,11 +21,16 @@
   .producto {
     background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     padding: 15px; width: 220px; text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  .producto img {
+    width: 180px; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;
   }
   .producto h3 { margin-top: 0; }
   .producto p { font-weight: bold; font-size: 1.1em; margin: 10px 0; }
   .producto button {
     background: #28a745; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;
+    margin-top: auto;
   }
   .producto button:hover { background: #1e7e34; }
 
@@ -49,26 +57,27 @@
 <body>
 
 <header>
-  <h1>Mini Tienda - Panetelas</h1>
+  <img src="https://i.imgur.com/4AiXzf8.png" alt="Logo Tienda" />
+  <h1>Dulce Vida 🥮</h1>
 </header>
 
 <main>
   <section class="productos" id="productos"></section>
 
   <section id="carrito">
-    <h2>Carrito de compras</h2>
+    <h2>Carrito de compras 🛒</h2>
     <ul id="listaCarrito"></ul>
     <p><strong>Total: $<span id="totalCarrito">0</span> CUP</strong></p>
-    <button onclick="finalizarCompra()" style="background:#007bff;">Finalizar compra</button>
+    <button onclick="finalizarCompra()" style="background:#007bff;">Finalizar compra ✅</button>
     <p id="mensajeCompra"></p>
   </section>
 </main>
 
 <script>
 const productos = [
-  { id: 1, nombre: 'Panetela Clásica', precio: 3500 },
-  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800 },
-  { id: 3, nombre: 'Panetela Especial', precio: 4300 }
+  { id: 1, nombre: 'Panetela Clásica', precio: 3500, img: 'https://i.imgur.com/1r6R9qz.jpg' },
+  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800, img: 'https://i.imgur.com/3ZVvXGg.jpg' },
+  { id: 3, nombre: 'Panetela Especial', precio: 4300, img: 'https://i.imgur.com/8QxXkqH.jpg' }
 ];
 
 let carrito = [];
@@ -80,9 +89,10 @@ function cargarProductos() {
     const div = document.createElement('div');
     div.className = 'producto';
     div.innerHTML = `
+      <img src="${p.img}" alt="${p.nombre}" />
       <h3>${p.nombre}</h3>
       <p>$${p.precio} CUP</p>
-      <button onclick="agregarAlCarrito(${p.id})">Agregar al carrito</button>
+      <button onclick="agregarAlCarrito(${p.id})">Agregar al carrito ➕</button>
     `;
     cont.appendChild(div);
   });
@@ -106,7 +116,7 @@ function actualizarCarrito() {
     const li = document.createElement('li');
     li.innerHTML = `
       ${item.nombre} x${item.cantidad} - $${(item.precio * item.cantidad)} CUP
-      <button onclick="quitarDelCarrito(${item.id})">X</button>
+      <button onclick="quitarDelCarrito(${item.id})">❌</button>
     `;
     lista.appendChild(li);
   });
@@ -125,20 +135,24 @@ function finalizarCompra() {
   }
   const total = carrito.reduce((sum, i) => sum + i.precio * i.cantidad, 0);
   const texto = generarTextoWhatsApp(carrito, total);
-  const numero = '5358707434'; // Número destino en formato internacional sin +
+  const numero = '5358707434'; // Número destino sin +
   const urlWhats = `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
   const mensajeCompra = document.getElementById('mensajeCompra');
-  mensajeCompra.innerHTML = `Pedido listo. <a href="${urlWhats}" target="_blank" rel="noopener noreferrer" style="color:#007bff;">Enviar pedido por WhatsApp</a>`;
+  mensajeCompra.innerHTML = `Pedido listo. <a href="${urlWhats}" target="_blank" rel="noopener noreferrer" style="color:#007bff;">Enviar pedido por WhatsApp 📲</a>`;
   carrito = [];
   actualizarCarrito();
 }
 
 function generarTextoWhatsApp(carrito, total) {
-  let texto = 'Hola, quiero hacer el siguiente pedido:%0A';
+  let texto = '🧾 *Ticket de Compra* 🧾%0A';
+  texto += '-------------------------%0A';
   carrito.forEach(item => {
-    texto += `- ${item.nombre} x${item.cantidad} = $${item.precio * item.cantidad} CUP%0A`;
+    const subtotal = item.precio * item.cantidad;
+    texto += `🍰 ${item.nombre} x${item.cantidad} = $${subtotal} CUP%0A`;
   });
-  texto += `Total: $${total} CUP%0AGracias.`;
+  texto += '-------------------------%0A';
+  texto += `💰 *Total:* $${total} CUP%0A`;
+  texto += '¡Gracias por su compra! 😊';
   return texto;
 }
 
