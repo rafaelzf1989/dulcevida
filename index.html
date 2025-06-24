@@ -256,66 +256,35 @@ function actualizarTarifa() {
 }
 
 /* 6) Enviar pedido: Sheets + WhatsApp */
-function enviarPedido() {
-  if (carrito.length===0) { alert('El carrito está vacío.'); return; }
-  const nombre     = document.getElementById('nombre').value.trim();
-  const direccion  = document.getElementById('direccion').value.trim();
-  const telefono   = document.getElementById('telefono').value.trim();
-  const codigoPais = document.getElementById('codigoPais').value;
-  const reparto    = document.getElementById('reparto').value;
-  if (!nombre||!direccion||!telefono||!codigoPais||!reparto) {
-    alert('Completa todos los campos'); return;
-  }
+// Generar mensaje de WhatsApp y abrir de inmediato
+const numero = codigoPais + telefonoLimpio;
+let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
+carrito.forEach(i => {
+  texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio * i.cantidad} CUP\n`;
+});
+texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${tarifa} CUP)\n` +
+         `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n` +
+         `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n🏠 ${direccion}\n` +
+         `¡Gracias por su compra! 😊`;
 
-  /* Cálculos */
-  const subtotal = carrito.reduce((s,i)=>s+i.precio*i.cantidad,0);
-  const envio    = tarifas[reparto]||0;
-  const total    = subtotal + envio;
-  const productosTxt = carrito.map(i=>`${i.nombre} x${i.cantidad}`).join(', ');
+window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
 
-  /* 6.1) Llenar y enviar el formulario oculto */
-  const telefonoLimpio = telefono.startsWith(codigoPais)
-    ? telefono.slice(codigoPais.length)
-    : telefono;
-  document.getElementById('f_nombre').value     = nombre;
-  document.getElementById('f_telefono').value   = telefonoLimpio;
-  document.getElementById('f_direccion').value  = direccion;
-  document.getElementById('f_reparto').value    = reparto;
-  document.getElementById('f_codigoPais').value = codigoPais;
-  document.getElementById('f_productos').value  = productosTxt;
-  document.getElementById('f_subtotal').value   = subtotal;
-  document.getElementById('f_envio').value      = envio;
-  document.getElementById('f_total').value      = total;
-  document.getElementById('sheetForm').submit();
-
-// Mostrar confirmación visible
+// Mostrar confirmación mientras se guarda en Sheets
 const mensaje = document.getElementById('mensajeCompra');
-mensaje.textContent = '✅ Pedido registrado correctamente. Se abrirá WhatsApp con el mensaje listo para enviar.';
+mensaje.textContent = '✅ Pedido registrado. WhatsApp se abrió con el mensaje listo para enviar.';
 mensaje.style.color = 'green';
 mensaje.style.fontWeight = 'bold';
 mensaje.style.textAlign = 'center';
 
-// Esperar 2 segundos antes de abrir WhatsApp
-setTimeout(() => {
-  const numero = codigoPais + telefonoLimpio;
-  let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
-  carrito.forEach(i => {
-    texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio * i.cantidad} CUP\n`;
-  });
-  texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${tarifa} CUP)\n` +
-           `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n` +
-           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n🏠 ${direccion}\n` +
-           `¡Gracias por su compra! 😊`;
+// Enviar datos a Sheets después (funciona porque es un formulario invisible)
+document.getElementById('sheetForm').submit();
 
-  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
-
-  // Limpiar carrito y totales
-  carrito = [];
-  actualizarCarrito();
-  document.getElementById('totalCarrito').textContent = 0;
-  document.getElementById('tarifaReparto').textContent = 0;
-  document.getElementById('totalFinal').textContent = 0;
-}, 2000);
+// Limpiar carrito y totales
+carrito = [];
+actualizarCarrito();
+document.getElementById('totalCarrito').textContent = 0;
+document.getElementById('tarifaReparto').textContent = 0;
+document.getElementById('totalFinal').textContent = 0;
 }
 
 /* 7) Inicialización */
