@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Mini Tienda AppsGeyser</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 15px; background: #f9f9f9; }
+  h1, h2 { color: #333; }
+  .hidden { display: none; }
+  input[type=number] { width: 50px; }
+  button { margin-top: 10px; padding: 8px 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+  button:hover { background: #0056b3; }
+  .pedido { background: white; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+  a { color: #007bff; word-break: break-all; }
+  label { display: block; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<h1>Mini Tienda</h1>
+
+<!-- LOGIN -->
+<div id="loginDiv">
+  <h2>Iniciar sesión</h2>
+  <label>Usuario: <input type="text" id="username" autocomplete="username" /></label>
+  <label>Contraseña: <input type="password" id="password" autocomplete="current-password" /></label>
+  <button onclick="login()">Entrar</button>
+  <p id="loginError" style="color:red;"></p>
+</div>
+
+<!-- VISTA CLIENTE -->
+<div id="clienteDiv" class="hidden">
+  <h2>Productos disponibles</h2>
+  <form id="formPedido">
+    <label><input type="checkbox" id="prod1" data-name="Producto A" data-price="10" /> Producto A - $10</label>
+    <label>Cantidad: <input type="number" id="cant1" min="1" value="1" disabled /></label>
+
+    <label><input type="checkbox" id="prod2" data-name="Producto B" data-price="20" /> Producto B - $20</label>
+    <label>Cantidad: <input type="number" id="cant2" min="1" value="1" disabled /></label>
+
+    <label><input type="checkbox" id="prod3" data-name="Producto C" data-price="15" /> Producto C - $15</label>
+    <label>Cantidad: <input type="number" id="cant3" min="1" value="1" disabled /></label>
+
+    <button type="button" onclick="hacerPedido()">Realizar pedido</button>
+  </form>
+  <p id="mensajeCliente" style="color:green;"></p>
+  <button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- VISTA NEGOCIO -->
+<div id="negocioDiv" class="hidden">
+  <h2>Pedidos recibidos</h2>
+  <div id="listaPedidos"></div>
+  <button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<!-- VISTA REPARTIDOR -->
+<div id="repartidorDiv" class="hidden">
+  <h2>Pedidos aceptados para reparto</h2>
+  <div id="pedidosRepartidor"></div>
+  <button onclick="logout()">Cerrar sesión</button>
+</div>
+
+<script>
+// Usuarios y contraseñas
+const usuarios = {
+  'Ode': 'Petunia24*',
+  'rafaelzf': 'Petunia24*'
+};
+
+let pedidos = []; // pedidos en memoria
+
+// Habilitar cantidad solo si checkbox está marcado
+document.querySelectorAll('#formPedido input[type=checkbox]').forEach((checkbox, i) => {
+  checkbox.addEventListener('change', () => {
+    const cantidadInput = document.getElementById('cant' + (i + 1));
+    cantidadInput.disabled = !checkbox.checked;
+  });
+});
+
+function login() {
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value;
+  const errorP = document.getElementById('loginError');
+  errorP.textContent = '';
+
+  if (usuarios[user] && usuarios[user] === pass) {
+    document.getElementById('loginDiv').classList.add('hidden');
+    if (user === 'Ode') mostrarNegocio();
+    else if (user === 'rafaelzf') mostrarRepartidor();
+    else mostrarCliente();
+  } else {
+    errorP.textContent = 'Usuario o contraseña incorrectos.';
+  }
+}
+
+function logout() {
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('loginError').textContent = '';
+  document.getElementById('mensajeCliente').textContent = '';
+
+  document.getElementById('clienteDiv').classList.add('hidden');
+  document.getElementById('negocioDiv').classList.add('hidden');
+  document.getElementById('repartidorDiv').classList.add('hidden');
+  document.getElementById('loginDiv').classList.remove('hidden');
+}
+
+function mostrarCliente() {
+  document.getElementById('clienteDiv').classList.remove('hidden');
+}
+
+function mostrarNegocio() {
+  document.getElementById('negocioDiv').classList.remove('hidden');
+  actualizarListaPedidos();
+}
+
+function mostrarRepartidor() {
+  document.getElementById('repartidorDiv').classList.remove('hidden');
+  actualizarPedidosRepartidor();
+}
+
+function hacerPedido() {
+  const productos = [];
+  for (let i = 1; i <= 3; i++) {
+    const checkbox = document.getElementById('prod' + i);
+    const cantidad = parseInt(document.getElementById('cant' + i).value);
+    if (checkbox.checked && cantidad > 0) {
+      productos.push({
+        name: checkbox.dataset.name,
+        price: parseFloat(checkbox.dataset.price),
+        cantidad: cantidad
+      });
+    }
+  }
+  if (productos.length === 0) {
+    alert('Selecciona al menos un producto con cantidad válida.');
+    return;
+  }
+  const total = productos.reduce((sum, p) => sum + p.price * p.cantidad, 0);
+  const id = Date.now();
+  pedidos.push({ id, productos, total, estado: 'pendiente' });
+
+  document.getElementById('mensajeCliente').textContent = 'Pedido realizado con éxito. ¡Gracias!';
+  document.getElementById('formPedido').reset();
+  for (let i = 1; i <= 3; i++) {
+    document.getElementById('cant' + i).disabled = true;
+    document.getElementById('cant' + i).value = 1;
+  }
+}
+
+function actualizarListaPedidos() {
+  const listaDiv = document.getElementById('listaPedidos');
+  listaDiv.innerHTML = '';
+
+  if (pedidos.length === 0) {
+    listaDiv.innerHTML = '<p>No hay pedidos.</p>';
+    return;
+  }
+
+  pedidos.forEach(pedido => {
+    if (pedido.estado === 'pendiente') {
+      const div = document.createElement('div');
+      div.className = 'pedido';
+      div.innerHTML = `<strong>Pedido ID:</strong> ${pedido.id}<br/>
+        <strong>Productos:</strong><br/>
+        ${pedido.productos.map(p => `${p.name} x${p.cantidad} - $${(p.price * p.cantidad).toFixed(2)}`).join('<br/>')}
+        <br/><strong>Total:</strong> $${pedido.total.toFixed(2)}<br/>
+        <button onclick="aceptarPedido(${pedido.id})">Aceptar</button>
+        <button onclick="rechazarPedido(${pedido.id})">Rechazar</button>
+      `;
+      listaDiv.appendChild(div);
+    }
+  });
+}
+
+function aceptarPedido(id) {
+  const pedido = pedidos.find(p => p.id === id);
+  if (!pedido) return;
+  pedido.estado = 'aceptado';
+  actualizarListaPedidos();
+  actualizarPedidosRepartidor();
+
+  const texto = generarTextoWhatsApp(pedido);
+  const urlWhats = 'https://wa.me/?text=' + encodeURIComponent(texto);
+
+  const listaDiv = document.getElementById('listaPedidos');
+  const linkDiv = document.createElement('div');
+  linkDiv.style.marginTop = '10px';
+  linkDiv.innerHTML = `<strong>Link para WhatsApp:</strong><br/><a href="${urlWhats}" target="_blank" rel="noopener noreferrer">${urlWhats}</a><br/>
+  (Toca el enlace para abrir WhatsApp)`;
+  listaDiv.prepend(linkDiv);
+}
+
+function rechazarPedido(id) {
+  const pedido = pedidos.find(p => p.id === id);
+  if (!pedido) return;
+  pedido.estado = 'rechazado';
+  actualizarListaPedidos();
+  actualizarPedidosRepartidor();
+}
+
+function actualizarPedidosRepartidor() {
+  const div = document.getElementById('pedidosRepartidor');
+  div.innerHTML = '';
+
+  const aceptados = pedidos.filter(p => p.estado === 'aceptado');
+  if (aceptados.length === 0) {
+    div.innerHTML = '<p>No hay pedidos para repartir.</p>';
+    return;
+  }
+
+  aceptados.forEach(pedido => {
+    const divPedido = document.createElement('div');
+    divPedido.className = 'pedido';
+    divPedido.innerHTML = `<strong>Pedido ID:</strong> ${pedido.id}<br/>
+      <strong>Productos:</strong><br/>
+      ${pedido.productos.map(p => `${p.name} x${p.cantidad} - $${(p.price * p.cantidad).toFixed(2)}`).join('<br/>')}
+      <br/><strong>Total:</strong> $${pedido.total.toFixed(2)}
+    `;
+    div.appendChild(divPedido);
+  });
+}
+
+function generarTextoWhatsApp(pedido) {
+  let texto = `Resumen de pedido ID ${pedido.id}:\n`;
+  pedido.productos.forEach(p => {
+    texto += `${p.name} x${p.cantidad} = $${(p.price * p.cantidad).toFixed(2)}\n`;
+  });
+  texto += `Subtotal: $${pedido.total.toFixed(2)}\n`;
+  texto += `Total: $${pedido.total.toFixed(2)}\n`;
+  texto += 'Gracias por su compra.';
+  return texto;
+}
+</script>
+
+</body>
+  </html>
+  
