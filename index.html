@@ -288,20 +288,34 @@ function enviarPedido() {
   document.getElementById('f_total').value      = total;
   document.getElementById('sheetForm').submit();
 
-  /* 6.2) Abrir mensaje de WhatsApp */
+// Mostrar confirmación visible
+const mensaje = document.getElementById('mensajeCompra');
+mensaje.textContent = '✅ Pedido registrado correctamente. Se abrirá WhatsApp con el mensaje listo para enviar.';
+mensaje.style.color = 'green';
+mensaje.style.fontWeight = 'bold';
+mensaje.style.textAlign = 'center';
+
+// Esperar 2 segundos antes de abrir WhatsApp
+setTimeout(() => {
   const numero = codigoPais + telefonoLimpio;
   let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
-  carrito.forEach(i=>{
-    texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio*i.cantidad} CUP\n`;
+  carrito.forEach(i => {
+    texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio * i.cantidad} CUP\n`;
   });
-  texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${envio} CUP)\n`+
-           `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n`+
-           `-------------------------\n👤 ${nombre}\n📞 +${numero}\n🏠 ${direccion}\n`+
-           `¡Gracias por tu compra! 😊`;
+  texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${tarifa} CUP)\n` +
+           `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n` +
+           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n🏠 ${direccion}\n` +
+           `¡Gracias por su compra! 😊`;
+
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
 
-  /* 6.3) Limpiar */
-  carrito = []; actualizarCarrito();
+  // Limpiar carrito y totales
+  carrito = [];
+  actualizarCarrito();
+  document.getElementById('totalCarrito').textContent = 0;
+  document.getElementById('tarifaReparto').textContent = 0;
+  document.getElementById('totalFinal').textContent = 0;
+}, 2000);
 }
 
 /* 7) Inicialización */
