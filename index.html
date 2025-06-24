@@ -242,6 +242,32 @@ function enviarPedido() {
   const total = subtotal + tarifa;
   const numeroDestino = codigoPais + telefono;
 
+  const productosTxt = carrito.map(item => `${item.nombre} x${item.cantidad}`).join(', ');
+
+  // 👉 Enviar a Google Sheets
+  const datosPedido = {
+    nombre,
+    telefono,
+    direccion,
+    reparto,
+    codigoPais,
+    productos: productosTxt,
+    subtotal,
+    envio: tarifa,
+    total
+  };
+
+  const scriptURL = "https://script.google.com/macros/s/AKfycbzlpyhZ0BZ7PZcRAS2qTSHuKnQ4xk4F9DCq41r9sOP-RMv55XhRUwJM_LWsKSKhBbe3/exec";
+
+  fetch(scriptURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datosPedido)
+  })
+  .then(res => console.log("✅ Pedido guardado en Google Sheets"))
+  .catch(err => console.error("❌ Error al guardar en Sheets:", err));
+
+  // 👉 Enviar a WhatsApp
   let texto = '🧾 *Ticket de Compra* 🧾\n';
   texto += '-------------------------\n';
   carrito.forEach(item => {
@@ -257,7 +283,15 @@ function enviarPedido() {
 
   const url = `https://wa.me/${numeroDestino}?text=${encodeURIComponent(texto)}`;
   window.open(url, '_blank');
+
+  // Limpiar carrito y actualizar interfaz
+  carrito = [];
+  actualizarCarrito();
+  document.getElementById('totalCarrito').textContent = 0;
+  document.getElementById('tarifaReparto').textContent = 0;
+  document.getElementById('totalFinal').textContent = 0;
 }
+
 
 cargarProductos();
 actualizarCarrito();
