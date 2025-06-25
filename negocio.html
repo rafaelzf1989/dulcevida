@@ -138,6 +138,23 @@
     .pedido.estado-proceso     { background-color: #fff8db; }
     .pedido.estado-listo       { background-color: #e7f7e5; }
     .pedido.estado-entregado   { background-color: #e2f4f9; }
+
+    .barra-resumen {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #128C7E;
+  color: white;
+  padding: 10px;
+  font-weight: bold;
+  font-size: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  border-bottom: 2px solid #25D366;
+    }
+  
   </style>
 </head>
 <body>
@@ -166,6 +183,13 @@
   </div>
 </section>
 
+<div id="resumenEstados" class="barra-resumen">
+  <span>📦 Pendientes: 0</span>
+  <span>🧁 En proceso: 0</span>
+  <span>🎂 Listos: 0</span>
+  <span>✅ Entregados: 0</span>
+</div>
+  
 <section id="pedidos">Cargando pedidos...</section>
 <script>
 const sheetURL = "https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec";
@@ -209,10 +233,10 @@ function filtrar(estadoSeleccionado) {
   mostrarPedidos(pedidosFiltrados);
 }
 
-
 function mostrarPedidos(pedidos) {
   const cont = document.getElementById("pedidos");
   cont.innerHTML = "";
+  actualizarResumenEstados(pedidos);
 
   if (!pedidos.length) {
     cont.innerHTML = "<p style='text-align:center;'>No hay pedidos que coincidan con los filtros.</p>";
@@ -265,6 +289,29 @@ function mostrarPedidos(pedidos) {
   });
 }
 
+function actualizarResumenEstados(lista) {
+  const resumen = {
+    pendiente: 0,
+    "en proceso": 0,
+    listo: 0,
+    entregado: 0
+  };
+
+  lista.forEach(p => {
+    const estado = (p.estado || "pendiente").toLowerCase();
+    if (resumen[estado] !== undefined) {
+      resumen[estado]++;
+    }
+  });
+
+  document.querySelector("#resumenEstados").innerHTML = `
+    <span>📦 Pendientes: ${resumen["pendiente"]}</span>
+    <span>🧁 En proceso: ${resumen["en proceso"]}</span>
+    <span>🎂 Listos: ${resumen["listo"]}</span>
+    <span>✅ Entregados: ${resumen["entregado"]}</span>
+  `;
+}
+  
 function cambiarEstado(select, box) {
   const nuevoEstado = select.value.toLowerCase();
   const ticket = box.dataset.ticket; // ✅ Aquí obtenemos el ticket correctamente
