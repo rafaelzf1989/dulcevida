@@ -27,6 +27,22 @@
   border-color: transparent;
 }
 
+    .btn-modo {
+  background-color: transparent;
+  color: #25D366;
+  border: 2px solid #25D366;
+  padding: 6px 12px;
+  font-weight: bold;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-modo:hover {
+  background-color: #25D366;
+  color: white;
+}
+
     body {
   background-color: #f0f2f5;
   color: #202020;
@@ -128,7 +144,12 @@
 
 <header style="background-color:#ffffff; padding:15px 20px; color:#128C7E; font-size:20px; font-weight:bold; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
   🎂 Panel de Gestión – Dulce Vida
+
+  <div style="text-align:right; padding:10px 20px;">
+  <button onclick="alternarModo()" class="btn-modo">🌓 Cambiar modo</button>
+</div>
 </header>
+  
 
 <h2>📋 Pedidos Recibidos</h2>
   <section style="text-align:center; margin-bottom: 15px;">
@@ -284,6 +305,40 @@ function cambiarColor(select, box) {
   badge.className = `estado estado-${estado}`;
   box.className = `pedido estado-${estado}`;
 }
+
+  function alternarModo() {
+  const body = document.body;
+  const modoActual = body.classList.contains("oscuro") ? "claro" : "oscuro";
+
+  if (modoActual === "oscuro") {
+    activarModoOscuro();
+  } else {
+    activarModoClaro();
+  }
+
+  localStorage.setItem("modo", modoActual); // Guardar preferencia
+}
+
+function activarModoOscuro() {
+  document.body.classList.add("oscuro");
+  document.body.style.backgroundColor = "#1f1f1f";
+  document.body.style.color = "#f0f0f0";
+  document.querySelector("header").style.backgroundColor = "#121212";
+}
+
+function activarModoClaro() {
+  document.body.classList.remove("oscuro");
+  document.body.style.backgroundColor = "#f0f2f5";
+  document.body.style.color = "#202020";
+  document.querySelector("header").style.backgroundColor = "#ffffff";
+}
+
+// Al cargar, aplicar modo guardado
+window.addEventListener("DOMContentLoaded", () => {
+  const modoGuardado = localStorage.getItem("modo") || "oscuro";
+  if (modoGuardado === "oscuro") activarModoOscuro();
+  else activarModoClaro();
+});
 </script>
 </body>
 </html>
