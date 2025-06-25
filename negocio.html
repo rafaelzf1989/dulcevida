@@ -40,32 +40,57 @@
       background: white;
       padding: 15px 20px;
       margin-bottom: 15px;
-      border-left: 6px solid #25D366;
       border-radius: 6px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      position: relative;
+      transition: background 0.3s ease;
     }
 
-    .pedido p {
-      margin: 5px 0;
-      line-height: 1.4em;
-    }
-
-    .resaltado {
+    .estado {
       font-weight: bold;
+      font-size: 1em;
+      padding: 5px 10px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 10px;
     }
 
-    .campo {
-      margin-bottom: 3px;
+    .estado-proceso   { background: #fff5cc; color: #b38f00; }
+    .estado-listo     { background: #d4edda; color: #155724; }
+    .estado-entregado { background: #d1ecf1; color: #0c5460; }
+
+    .productos-lista {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .productos-lista li {
+      margin: 2px 0;
+    }
+
+    .accion {
+      margin-top: 10px;
+    }
+
+    .accion select {
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
     }
 
     .timestamp {
       font-size: 0.85em;
       color: #777;
+      margin-bottom: 4px;
     }
 
-    .cintillo {
+    .total {
+      font-weight: bold;
       margin-top: 8px;
-      font-style: italic;
+    }
+
+    .detalle {
+      font-size: 0.9em;
       color: #555;
     }
   </style>
@@ -80,7 +105,7 @@
 <section id="pedidos">Cargando pedidos...</section>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbywAqR2-TKIrrePjGHQTO0OWbhJfuiU56JPAGX8FnXAwYk4l7Ej5iufcy1FLqUEUPWT/exec"; // ← reemplaza con tu URL
+const sheetURL = "https://script.google.com/macros/s/AKfycbywAqR2-TKIrrePjGHQTO0OWbhJfuiU56JPAGX8FnXAwYk4l7Ej5iufcy1FLqUEUPWT/exec"; // ← reemplaza por tu URL real
 
 fetch(sheetURL)
   .then(r => r.json())
@@ -103,21 +128,57 @@ function mostrarPedidos(pedidos) {
     const div = document.createElement("div");
     div.className = "pedido";
 
+    // Icono de estado visual + clase de color
+    let estado = (p.estado || "En proceso").toLowerCase();
+    let clase = "estado-proceso";
+    let emoji = "🧁";
+    if (estado === "listo")     { clase = "estado-listo"; emoji = "🎂"; }
+    if (estado === "entregado") { clase = "estado-entregado"; emoji = "📦"; }
+
+    // Convertir productos en lista
+    const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
+
     div.innerHTML = `
-      <p class="timestamp">🕒 ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : 'Sin fecha'}</p>
-      <p><span class="resaltado">👤 Cliente:</span> ${p.nombre}</p>
-      <p><span class="resaltado">📞 Teléfono:</span> +${p.codigopais} ${p.telefono}</p>
-      ${p.entrega === 'si' ? `
-        <p><span class="resaltado">📍 Dirección:</span> ${p.direccion}</p>
-        <p><span class="resaltado">🏘️ Reparto:</span> ${p.reparto}</p>
-      ` : `<p><span class="resaltado">🏠 Retira en tienda</span></p>`}
-      ${p.fecha_entrega ? `<p><span class="resaltado">📅 Entrega:</span> ${new Date(p.fecha_entrega).toLocaleString("es-ES")}</p>` : ""}
-      <p><span class="resaltado">🛍️ Productos:</span> ${p.productos}</p>
-      <p><span class="resaltado">💰 Total:</span> ${p.total} CUP (${p.subtotal} + ${p.envio} envío)</p>
-      <p class="cintillo">✔️ Pedido registrado correctamente.</p>
+      <span class="estado ${clase}">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
+      <p class="timestamp">🕒 Fecha de pedido: ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : "?"}</p>
+      <p><strong>👤 Cliente:</strong> ${p.nombre}</p>
+      <p><strong>📞 Teléfono:</strong> +${p.codigopais || ""} ${p.telefono || ""}</p>
+      ${p.entrega === "si" ? `
+        <p><strong>📍 Dirección:</strong> ${p.direccion}</p>
+        <p><strong>🏘️ Reparto:</strong> ${p.reparto}</p>
+      ` : `<p><strong>🏠 Retira en tienda</strong></p>`}
+      ${p.fecha_entrega ? `<p><strong>📅 Entrega:</strong> ${new Date(p.fecha_entrega).toLocaleString("es-ES")}</p>` : ""}
+      <p><strong>🛍️ Productos:</strong></p>
+      <ul class="productos-lista">${lista}</ul>
+      <p class="total">💰 Total: ${p.total} CUP</p>
+      <p class="detalle">(Subtotal: ${p.subtotal} + Envío: ${p.envio})</p>
+
+      <div class="accion">
+        <label for="estado">📌 Cambiar estado:</label>
+        <select onchange="cambiarColor(this, this.closest('.pedido'))">
+          <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
+          <option ${estado === "listo"     ? "selected" : ""}>Listo</option>
+          <option ${estado === "entregado"? "selected" : ""}>Entregado</option>
+        </select>
+      </div>
     `;
+
     cont.appendChild(div);
   });
+}
+
+// Cambiar color de fondo dinámicamente
+function cambiarColor(select, box) {
+  const estado = select.value.toLowerCase();
+  box.querySelector('.estado').textContent = 
+    (estado === "en proceso" ? "🧁 " : estado === "listo" ? "🎂 " : "📦 ") + 
+    estado.charAt(0).toUpperCase() + estado.slice(1);
+
+  box.querySelector('.estado').className = "estado " + (
+    estado === "listo" ? "estado-listo" :
+    estado === "entregado" ? "estado-entregado" :
+    "estado-proceso"
+  );
 }
 </script>
 </body>
