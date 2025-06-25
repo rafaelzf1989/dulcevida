@@ -180,7 +180,7 @@ div.dataset.timestamp = p.timestamp;
 
 function cambiarEstado(select, box) {
   const nuevoEstado = select.value.toLowerCase();
-  const timestamp = box.dataset.timestamp;
+  const ticket = box.dataset.ticket; // ✅ Aquí obtenemos el ticket correctamente
 
   const emoji = nuevoEstado === "en proceso" ? "🧁" :
                 nuevoEstado === "listo" ? "🎂" :
@@ -190,19 +190,18 @@ function cambiarEstado(select, box) {
   badge.textContent = `${emoji} ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`;
   badge.className = `estado estado-${nuevoEstado}`;
   box.className = `pedido estado-${nuevoEstado}`;
-  
-  fetch("https://script.google.com/macros/s/AKfycbyrDKSDPyWKzDNZmCjPufrhO3KELV1MPl5gOQ-xvtM6580kr4erBGZgRKwTeedy775P/exec", {
+
+  fetch("https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
-
   })
   .then(r => r.text())
   .then(r => {
-  console.log("✔️ Estado actualizado:", r);
-  box.classList.add("guardado");
-  setTimeout(() => box.classList.remove("guardado"), 1000);
-})
+    console.log("✔️ Estado actualizado:", r);
+    box.classList.add("guardado");
+    setTimeout(() => box.classList.remove("guardado"), 1000);
+  })
   .catch(e => console.error("❌ Error:", e));
 }
   
