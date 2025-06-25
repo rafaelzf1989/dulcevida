@@ -225,7 +225,7 @@
 
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycbywAqR2-TKIrrePjGHQTO0OWbhJfuiU56JPAGX8FnXAwYk4l7Ej5iufcy1FLqUEUPWT/exec"
+  action="https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input name="nombre"         id="f_nombre" />
   <input name="telefono"       id="f_telefono" />
@@ -238,6 +238,7 @@
   <input name="total"          id="f_total" />
   <input name="entrega"        id="f_entrega" />
   <input name="fecha_entrega"  id="f_fecha_entrega" />
+  <input name="estado" id="f_estado" />
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
 
@@ -378,6 +379,7 @@ function enviarPedido() {
   document.getElementById('f_total').value = total;
   document.getElementById('f_entrega').value = entrega;
   document.getElementById('f_fecha_entrega').value = fechaEntrega;
+  document.getElementById('f_estado').value = "Pendiente";
 
   document.getElementById('sheetForm').submit();
 
