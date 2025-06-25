@@ -104,7 +104,7 @@ function mostrarPedidos(pedidos) {
     div.className = "pedido";
 
     div.innerHTML = `
-      <p class="timestamp">🕒 ${new Date(p.timestamp).toLocaleString("es-ES")}</p>
+      <p class="timestamp">🕒 ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : 'Sin fecha'}</p>
       <p><span class="resaltado">👤 Cliente:</span> ${p.nombre}</p>
       <p><span class="resaltado">📞 Teléfono:</span> +${p.codigopais} ${p.telefono}</p>
       ${p.entrega === 'si' ? `
