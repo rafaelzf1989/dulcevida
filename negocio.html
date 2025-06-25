@@ -3,151 +3,122 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PEDIDOS - Dulce Vida</title>
+  <title>Pedidos - Dulce Vida</title>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #333; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      color: #333;
+    }
+
     header {
-      background: #ffffff;
-      padding: 20px;
+      background: white;
+      padding: 10px;
       text-align: center;
-      font-size: 2em;
-      font-weight: bold;
       border-bottom: 2px solid #ccc;
     }
-    nav {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 10px;
-      flex-wrap: wrap;
-      background: #ffffff;
-      border-bottom: 1px solid #ddd;
+
+    header img {
+      max-width: 100%;
+      height: auto;
     }
-    nav a {
-      padding: 10px 20px;
-      border: 1px solid #25D366;
-      border-radius: 5px;
-      text-decoration: none;
+
+    h2 {
+      text-align: center;
+      margin: 20px 0 10px;
       color: #25D366;
-      font-weight: bold;
-      background: white;
     }
-    nav a:hover {
-      background: #25D366;
-      color: white;
-    }
-    .contenedor {
-      padding: 20px;
-      max-width: 800px;
+
+    #pedidos {
+      max-width: 900px;
       margin: auto;
+      padding: 0 20px 30px;
     }
+
     .pedido {
       background: white;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      border-left: 6px solid #25D366;
       border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 15px;
-      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .pedido pre {
-      white-space: pre-wrap;
-      word-break: break-word;
-      margin: 0 0 10px;
-      font-size: 14px;
+
+    .pedido p {
+      margin: 5px 0;
+      line-height: 1.4em;
     }
-    .estado-select {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+
+    .resaltado {
+      font-weight: bold;
     }
-    .cargando {
-      text-align: center;
-      color: #666;
-      padding: 30px;
+
+    .campo {
+      margin-bottom: 3px;
+    }
+
+    .timestamp {
+      font-size: 0.85em;
+      color: #777;
+    }
+
+    .cintillo {
+      margin-top: 8px;
       font-style: italic;
+      color: #555;
     }
   </style>
 </head>
 <body>
 
-<header>PEDIDOS</header>
-<nav>
-  <a href="index.html">🏪 Ir a Tienda</a>
-  <a href="repartidor.html">🛵 Ver Repartidor</a>
-</nav>
+<header>
+  <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Dulce Vida" />
+</header>
 
-<div class="contenedor" id="contenedorPedidos">
-  <p class="cargando">Cargando pedidos desde Google Sheets...</p>
-</div>
+<h2>📋 Pedidos Recibidos</h2>
+<section id="pedidos">Cargando pedidos...</section>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbwfYBzVGqC7FvVCOhpCcM6fxUhWVttTYp9b2HBelYkHmDjqC7PZQs_bni4X236k8so/exec";
+const sheetURL = "https://script.google.com/macros/s/AKfycbywAqR2-TKIrrePjGHQTO0OWbhJfuiU56JPAGX8FnXAwYk4l7Ej5iufcy1FLqUEUPWT/exec"; // ← reemplaza con tu URL
 
 fetch(sheetURL)
-  .then(res => res.json())
+  .then(r => r.json())
   .then(data => mostrarPedidos(data.reverse()))
   .catch(err => {
-    document.getElementById('contenedorPedidos').innerHTML =
-      "<p class='cargando'>❌ Error al cargar los pedidos</p>";
+    document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
+    console.error("Error cargando datos:", err);
   });
 
 function mostrarPedidos(pedidos) {
-  const contenedor = document.getElementById('contenedorPedidos');
-  contenedor.innerHTML = "";
+  const cont = document.getElementById("pedidos");
+  cont.innerHTML = "";
+
+  if (!pedidos.length) {
+    cont.innerHTML = "<p style='text-align:center;'>No hay pedidos aún.</p>";
+    return;
+  }
 
   pedidos.forEach(p => {
-    const div = document.createElement('div');
-    div.className = 'pedido';
-
-    const mensaje = generarMensajeWhatsApp(p);
+    const div = document.createElement("div");
+    div.className = "pedido";
 
     div.innerHTML = `
-      <pre>${mensaje}</pre>
-      <select class="estado-select">
-        <option disabled selected>📦 Estado del pedido</option>
-        <option>Aceptar</option>
-        <option>En proceso</option>
-        <option>En camino</option>
-        <option>Finalizado</option>
-      </select>
+      <p class="timestamp">🕒 ${new Date(p.timestamp).toLocaleString("es-ES")}</p>
+      <p><span class="resaltado">👤 Cliente:</span> ${p.nombre}</p>
+      <p><span class="resaltado">📞 Teléfono:</span> +${p.codigopais} ${p.telefono}</p>
+      ${p.entrega === 'si' ? `
+        <p><span class="resaltado">📍 Dirección:</span> ${p.direccion}</p>
+        <p><span class="resaltado">🏘️ Reparto:</span> ${p.reparto}</p>
+      ` : `<p><span class="resaltado">🏠 Retira en tienda</span></p>`}
+      ${p.fecha_entrega ? `<p><span class="resaltado">📅 Entrega:</span> ${new Date(p.fecha_entrega).toLocaleString("es-ES")}</p>` : ""}
+      <p><span class="resaltado">🛍️ Productos:</span> ${p.productos}</p>
+      <p><span class="resaltado">💰 Total:</span> ${p.total} CUP (${p.subtotal} + ${p.envio} envío)</p>
+      <p class="cintillo">✔️ Pedido registrado correctamente.</p>
     `;
-
-    contenedor.appendChild(div);
+    cont.appendChild(div);
   });
 }
-
-function generarMensajeWhatsApp(p) {
-  return `🧾 *Ticket de Compra* 🧾
--------------------------
-🍰 ${p.productos}
--------------------------
-🚚 Reparto: ${p.reparto} (+$${p.envio} CUP)
-💰 Subtotal: $${p.subtotal} CUP
-💰 Total: $${p.total} CUP
--------------------------
-👤 ${p.nombre}
-📞 +${p.codigo_pais} ${p.telefono}
-🏠 ${p.direccion}
-📅 ${formatearFecha(p.fecha_y_hora)}
-¡Gracias por su compra! 😊`;
-}
-
-function formatearFecha(valor) {
-  const fecha = new Date(valor);
-  if (!isNaN(fecha)) {
-    return fecha.toLocaleString("es-ES", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  } else {
-    return valor || "Fecha desconocida";
-  }
-      }
 </script>
-
 </body>
 </html>
