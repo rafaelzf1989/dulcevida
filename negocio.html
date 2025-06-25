@@ -93,6 +93,11 @@
       font-size: 0.9em;
       color: #555;
     }
+    .pedido.estado-pendiente   { background-color: #fff5f5; }
+    .pedido.estado-proceso     { background-color: #fff8db; }
+    .pedido.estado-listo       { background-color: #e7f7e5; }
+    .pedido.estado-entregado   { background-color: #e2f4f9; }
+
   </style>
 </head>
 <body>
@@ -105,7 +110,7 @@
 <section id="pedidos">Cargando pedidos...</section>
 
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbywAqR2-TKIrrePjGHQTO0OWbhJfuiU56JPAGX8FnXAwYk4l7Ej5iufcy1FLqUEUPWT/exec"; // ← reemplaza por tu URL real
+const sheetURL = "https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec"; // ← reemplaza por tu URL real
 
 fetch(sheetURL)
   .then(r => r.json())
@@ -126,14 +131,15 @@ function mostrarPedidos(pedidos) {
 
   pedidos.forEach(p => {
     const div = document.createElement("div");
-    div.className = "pedido";
+    div.className = `pedido ${clase}`;
 
     // Icono de estado visual + clase de color
-    let estado = (p.estado || "En proceso").toLowerCase();
-    let clase = "estado-proceso";
-    let emoji = "🧁";
-    if (estado === "listo")     { clase = "estado-listo"; emoji = "🎂"; }
-    if (estado === "entregado") { clase = "estado-entregado"; emoji = "📦"; }
+    let estado = (p.estado || "Pendiente").toLowerCase();
+let clase = "estado-pendiente";
+let emoji = "⏳";
+if (estado === "en proceso")   { clase = "estado-proceso"; emoji = "🧁"; }
+if (estado === "listo")        { clase = "estado-listo";   emoji = "🎂"; }
+if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
 
     // Convertir productos en lista
     const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
@@ -156,10 +162,12 @@ function mostrarPedidos(pedidos) {
       <div class="accion">
         <label for="estado">📌 Cambiar estado:</label>
         <select onchange="cambiarColor(this, this.closest('.pedido'))">
-          <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
-          <option ${estado === "listo"     ? "selected" : ""}>Listo</option>
-          <option ${estado === "entregado"? "selected" : ""}>Entregado</option>
-        </select>
+  <option ${estado === "pendiente"  ? "selected" : ""}>Pendiente</option>
+  <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
+  <option ${estado === "listo"      ? "selected" : ""}>Listo</option>
+  <option ${estado === "entregado"  ? "selected" : ""}>Entregado</option>
+</select>
+
       </div>
     `;
 
