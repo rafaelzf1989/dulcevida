@@ -122,6 +122,7 @@ fetch(sheetURL)
 
 function mostrarPedidos(pedidos) {
   const cont = document.getElementById("pedidos");
+  
   cont.innerHTML = "";
 
   if (!pedidos.length) {
@@ -131,6 +132,8 @@ function mostrarPedidos(pedidos) {
 
   pedidos.forEach((p, index) => {
     const div = document.createElement("div");
+    div.dataset.ticket = p.ticket;
+
 
     let estado = (p.estado || "pendiente").toLowerCase();
     let clase = "estado-pendiente";
@@ -138,6 +141,8 @@ function mostrarPedidos(pedidos) {
     if (estado === "en proceso")   { clase = "estado-proceso"; emoji = "🧁"; }
     if (estado === "listo")        { clase = "estado-listo";   emoji = "🎂"; }
     if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
+
+    div.dataset.ticket = p.ticket;
 
     div.className = `pedido ${clase}`;
     const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
@@ -186,10 +191,10 @@ function cambiarEstado(select, box) {
   badge.className = `estado estado-${nuevoEstado}`;
   box.className = `pedido estado-${nuevoEstado}`;
   
-  fetch("https://script.google.com/macros/s/AKfycbziuzXSFu1Do1szzVO999KgbH29S8qrMZdNaDW8ePspapBCXpwsRW3pZVNOm-vcYN59/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyiXW6DU1zJTyJZA2lvle0SW_XFs7UpwI6efQjPApf-QuBO_TPtwDr4nZ4n4mdPvrEb/exec", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `func=cambiarEstado&timestamp=${encodeURIComponent(timestamp)}&estado=${encodeURIComponent(nuevoEstado)}`
+    body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
   })
   .then(r => r.text())
   .then(r => {
