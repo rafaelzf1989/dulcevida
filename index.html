@@ -239,6 +239,7 @@
   <input name="entrega"        id="f_entrega" />
   <input name="fecha_entrega"  id="f_fecha_entrega" />
   <input name="estado" id="f_estado" />
+  <input name="ticket" id="f_ticket" />
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
 
@@ -352,6 +353,9 @@ function enviarPedido() {
   const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
   const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
   const fechaEntrega = document.getElementById('fechaEntrega').value;
+  const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+document.getElementById('f_ticket').value = ticket;
+
 
   if (!nombre || !telefono || !codigoPais || (entrega === 'si' && (!direccion || !reparto))) {
     alert('Por favor, completa todos los campos requeridos.');
