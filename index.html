@@ -5,57 +5,95 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dulce Vida</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; }
-    header { text-align: center; padding: 10px; background: #f5f5f5; }
-    header img { max-width: 100%; height: auto; }
-    main { padding: 15px; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #333;
+    }
+    header {
+      text-align: center;
+      background: #ffffff;
+      padding: 10px;
+      border-bottom: 2px solid #ccc;
+    }
+    header img {
+      max-width: 100%;
+      height: auto;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 10px;
+      background: #ffffff;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #ddd;
+    }
+    nav a {
+      padding: 10px 20px;
+      border: 1px solid #25D366;
+      border-radius: 5px;
+      text-decoration: none;
+      color: #25D366;
+      font-weight: bold;
+      background: white;
+    }
+    nav a:hover {
+      background: #25D366;
+      color: white;
+    }
+    main {
+      padding: 20px;
+    }
     .productos {
-      display: flex; flex-wrap: wrap; gap: 15px; justify-content: center;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
     }
     .producto {
-      background: #fff; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      width: 220px; padding: 15px; text-align: center;
-      display: flex; flex-direction: column; align-items: center;
+      background: white;
+      border-radius: 6px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      width: 220px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
     }
     .producto img {
-      width: 180px; height: 180px; object-fit: cover;
-      border-radius: 6px; margin-bottom: 10px;
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
     }
     .producto button {
-      background: #28a745; color: #fff; border: none;
-      padding: 8px 15px; border-radius: 4px;
-      cursor: pointer; margin-top: auto;
+      background: #28a745;
+      color: #fff;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: auto;
     }
-    .producto button:hover { background: #1e7e34; }
-    #carrito, #cliente {
-      max-width: 400px; margin: 20px auto; padding: 15px; background: #fff;
-      border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    #cliente input, #cliente select {
-      width: 100%; margin: 8px 0; padding: 8px;
-      border: 1px solid #ccc; border-radius: 4px;
-      box-sizing: border-box;
-    }
-    .wsp-btn {
-      background: #25D366; color: white; border: none;
-      padding: 10px 20px; border-radius: 5px;
-      font-size: 1em; display: flex; align-items: center;
-      gap: 10px; justify-content: center; cursor: pointer;
-      margin-top: 10px;
-    }
-    .wsp-btn img { width: 20px; height: 20px; }
-    #mensajeCompra {
-      text-align: center; color: green;
-      font-weight: bold; margin-top: 10px;
+    .producto button:hover {
+      background: #1e7e34;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png"
-       alt="Dulce Vida" />
+  <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Dulce Vida" />
 </header>
+
+<nav>
+  <a href="index.html">🏪 Tienda</a>
+  <a href="negocio.html">📋 Negocio</a>
+  <a href="repartidor.html">🛵 Repartidor</a>
+</nav>
 
 <main>
   <section id="productos" class="productos"></section>
@@ -64,66 +102,146 @@
     <ul id="listaCarrito"></ul>
     <p>Subtotal: $<span id="totalCarrito">0</span> CUP</p>
     <p>Envío: $<span id="tarifaReparto">0</span> CUP</p>
-    <p>Total: $<span id="totalFinal">0</span> CUP</p>
+    <p><strong>Total: $<span id="totalFinal">0</span> CUP</span></strong></p>
+
+    <!-- Botón para mostrar el formulario -->
+    <button id="btnSolicitar" onclick="mostrarFormulario()">📋 Solicitar pedido</button>
   </section>
 
-  <section id="cliente">
-    <h3>Datos del cliente</h3>
-    <select id="codigoPais" required>
-      <option disabled selected>Código país</option>
-      <option value="53">🇨🇺 Cuba (+53)</option>
-      <option value="1">🇺🇸 EE. UU. (+1)</option>
-      <option value="34">🇪🇸 España (+34)</option>
-      <option value="52">🇲🇽 México (+52)</option>
-      <option value="55">🇧🇷 Brasil (+55)</option>
-    </select>
-    <input id="telefono" placeholder="Teléfono" required />
-    <input id="nombre" placeholder="Nombre completo" required />
-    <input id="direccion" placeholder="Dirección" required />
-    <select id="reparto" required onchange="actualizarTarifa()">
+  <!-- Aquí aparecerá el formulario del cliente más adelante -->
+  <style>
+  #cliente {
+    display: none;
+    max-width: 400px;
+    margin: 20px auto;
+    padding: 15px;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  #cliente input, #cliente select {
+    width: 100%;
+    margin: 8px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+  }
+  .wsp-btn {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  .wsp-btn img {
+    width: 20px;
+    height: 20px;
+  }
+  #mensajeCompra {
+    text-align: center;
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+  }
+  #zonaEntrega {
+    display: none;
+  }
+</style>
+
+<section id="cliente">
+  <h3>Datos del cliente</h3>
+
+  <select id="codigoPais" required>
+    <option disabled selected>Código país</option>
+    <option value="53">🇨🇺 Cuba (+53)</option>
+    <option value="1">🇺🇸 EE. UU. (+1)</option>
+    <option value="34">🇪🇸 España (+34)</option>
+    <option value="52">🇲🇽 México (+52)</option>
+    <option value="55">🇧🇷 Brasil (+55)</option>
+  </select>
+
+  <input id="telefono" placeholder="Teléfono" required />
+  <input id="nombre" placeholder="Nombre completo" required />
+
+  <label>¿Entrega a domicilio?</label>
+  <select id="entrega" onchange="toggleDireccion()">
+    <option value="">Selecciona una opción</option>
+    <option value="si">Sí</option>
+    <option value="no">No</option>
+  </select>
+
+  <div id="zonaEntrega">
+    <input id="direccion" placeholder="Dirección de entrega" />
+    <select id="reparto" onchange="actualizarTarifa()">
       <option disabled selected>Selecciona tu reparto</option>
-      <option>Santa Lucía</option><option>Tasajera</option><option>Las Casitas</option>
-      <option>Progreso</option><option>Nuevo Progreso</option>
-      <option>Cepero Bonilla</option><option>El Triángulo</option>
-      <option>Alba Flores</option><option>Borbollón</option>
-      <option>La Compañía</option><option>La Maravilla</option>
+      <option>Santa Lucía</option>
+      <option>Tasajera</option>
+      <option>Las Casitas</option>
+      <option>Progreso</option>
+      <option>Nuevo Progreso</option>
+      <option>Cepero Bonilla</option>
+      <option>El Triángulo</option>
+      <option>Alba Flores</option>
+      <option>Borbollón</option>
+      <option>La Compañía</option>
+      <option>La Maravilla</option>
     </select>
+  </div>
 
-    <button class="wsp-btn" onclick="enviarPedido()">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-           alt="WA" /> Enviar por WhatsApp
-    </button>
+  <button class="wsp-btn" onclick="enviarPedido()">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WA" />
+    Enviar por WhatsApp
+  </button>
 
-    <p id="mensajeCompra"></p>
-  </section>
-</main>
-
-<!-- Formulario oculto para enviar a Sheets -->
+  <p id="mensajeCompra"></p>
+</section>
+<!-- Formulario oculto para enviar a Google Sheets -->
 <form id="sheetForm"
-      action="https://script.google.com/macros/s/AKfycbzOO5KRAEMklFA6QyzzTK4RsPqTZUfStcNzsUvvKIhVIJF17o2bSI1ytQuIQqwn5FCG/exec"
-      method="post" target="sheetResponse" style="display:none;">
-  <input name="nombre"     id="f_nombre"     />
-  <input name="telefono"   id="f_telefono"   />
-  <input name="direccion"  id="f_direccion"  />
-  <input name="reparto"    id="f_reparto"    />
-  <input name="codigoPais" id="f_codigoPais" />
-  <input name="productos"  id="f_productos"  />
-  <input name="subtotal"   id="f_subtotal"   />
-  <input name="envio"      id="f_envio"      />
-  <input name="total"      id="f_total"      />
+  action="https://script.google.com/macros/s/AKfycbxK3BazMFhLUfDFPX4WPpGrpTQ1cA9KH70-wLExLn0TGlSNlcBLai2H0_85UDO5ssVX/exec"
+  method="post" target="sheetResponse" style="display:none;">
+  <input name="nombre"       id="f_nombre" />
+  <input name="telefono"     id="f_telefono" />
+  <input name="direccion"    id="f_direccion" />
+  <input name="reparto"      id="f_reparto" />
+  <input name="codigoPais"   id="f_codigoPais" />
+  <input name="productos"    id="f_productos" />
+  <input name="subtotal"     id="f_subtotal" />
+  <input name="envio"        id="f_envio" />
+  <input name="total"        id="f_total" />
+  <input name="entrega"      id="f_entrega" />
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
 <script>
 const productos = [
-  { id: 1, nombre: 'Panetela Clásica', precio: 3500,
+  {
+    id: 1,
+    nombre: 'Panetela Clásica',
+    precio: 3500,
     descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.',
-    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png' },
-  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800,
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
+  },
+  {
+    id: 2,
+    nombre: 'Panetela de Chocolate',
+    precio: 3800,
     descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.',
-    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png' },
-  { id: 3, nombre: 'Panetela Especial', precio: 4300,
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
+  },
+  {
+    id: 3,
+    nombre: 'Panetela Especial',
+    precio: 4300,
     descripcion: 'Decorada con crema batida y frutas confitadas.',
-    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png' }
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
+  }
 ];
 
 const tarifas = {
@@ -154,18 +272,18 @@ function cargarProductos() {
 }
 
 function agregarAlCarrito(id) {
-  const producto = productos.find(p => p.id === id);
-  const existente = carrito.find(item => item.id === id);
-  if (existente) {
-    existente.cantidad += 1;
+  const prod = productos.find(p => p.id === id);
+  const existe = carrito.find(i => i.id === id);
+  if (existe) {
+    existe.cantidad += 1;
   } else {
-    carrito.push({ ...producto, cantidad: 1 });
+    carrito.push({ ...prod, cantidad: 1 });
   }
   actualizarCarrito();
 }
 
 function quitarDelCarrito(id) {
-  carrito = carrito.filter(item => item.id !== id);
+  carrito = carrito.filter(i => i.id !== id);
   actualizarCarrito();
 }
 
@@ -176,13 +294,9 @@ function actualizarCarrito() {
   carrito.forEach(item => {
     subtotal += item.precio * item.cantidad;
     const li = document.createElement('li');
-    li.innerHTML = `
-      ${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad} CUP
-      <button onclick="quitarDelCarrito(${item.id})">❌</button>
-    `;
+    li.innerHTML = `${item.nombre} x${item.cantidad} - $${item.precio * item.cantidad} CUP <button onclick="quitarDelCarrito(${item.id})">❌</button>`;
     lista.appendChild(li);
   });
-
   document.getElementById('totalCarrito').textContent = subtotal;
   actualizarTarifa();
 }
@@ -195,75 +309,95 @@ function actualizarTarifa() {
   document.getElementById('totalFinal').textContent = subtotal + tarifa;
 }
 
+function mostrarFormulario() {
+  document.getElementById('cliente').style.display = 'block';
+  document.getElementById('btnSolicitar').style.display = 'none';
+}
+
+function toggleDireccion() {
+  const entrega = document.getElementById('entrega').value;
+  document.getElementById('zonaEntrega').style.display =
+    entrega === 'si' ? 'block' : 'none';
+  actualizarTarifa();
+}
+
 function enviarPedido() {
-  if (carrito.length === 0) { alert('El carrito está vacío.'); return; }
-
-  const nombre = document.getElementById('nombre').value.trim();
-  const direccion = document.getElementById('direccion').value.trim();
-  const telefono = document.getElementById('telefono').value.trim();
-  const codigoPais = document.getElementById('codigoPais').value;
-  const reparto = document.getElementById('reparto').value;
-
-  if (!nombre || !direccion || !telefono || !codigoPais || !reparto) {
-    alert('Por favor, completa todos los campos.'); return;
+  if (carrito.length === 0) {
+    alert('El carrito está vacío.');
+    return;
   }
 
-  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  const envio = tarifas[reparto] || 0;
-  const total = subtotal + envio;
-  const productosTxt = carrito.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
+  const nombre = document.getElementById('nombre').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const codigoPais = document.getElementById('codigoPais').value;
+  const entrega = document.getElementById('entrega').value;
+  const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
+  const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
+
+  if (!nombre || !telefono || !codigoPais || (entrega === 'si' && (!direccion || !reparto))) {
+    alert('Por favor, completa todos los campos requeridos.');
+    return;
+  }
+
   const telefonoLimpio = telefono.startsWith(codigoPais)
     ? telefono.slice(codigoPais.length)
     : telefono;
 
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
+  const total = subtotal + envio;
+  const productosTxt = carrito.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
+
   // Rellenar formulario oculto
   document.getElementById('f_nombre').value = nombre;
   document.getElementById('f_telefono').value = telefonoLimpio;
+  document.getElementById('f_codigoPais').value = codigoPais;
   document.getElementById('f_direccion').value = direccion;
   document.getElementById('f_reparto').value = reparto;
-  document.getElementById('f_codigoPais').value = codigoPais;
   document.getElementById('f_productos').value = productosTxt;
   document.getElementById('f_subtotal').value = subtotal;
   document.getElementById('f_envio').value = envio;
   document.getElementById('f_total').value = total;
+  document.getElementById('f_entrega').value = entrega;
 
-  // Mostrar mensaje confirmación
+  // Confirmación
   const mensaje = document.getElementById('mensajeCompra');
   mensaje.textContent = '✅ Pedido registrado. Se abrirá WhatsApp con el mensaje listo para enviar.';
   mensaje.style.color = 'green';
-  mensaje.style.fontWeight = 'bold';
-  mensaje.style.textAlign = 'center';
 
-  // Enviar a Sheets
   document.getElementById('sheetForm').submit();
 
-  // Generar y abrir WhatsApp
+  // Generar mensaje y abrir WhatsApp al número fijo
   const numero = "5358707434";
   let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
   carrito.forEach(i => {
     texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio * i.cantidad} CUP\n`;
   });
-  texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${envio} CUP)\n` +
+  texto += `-------------------------\n` +
+           `🚚 Reparto: ${reparto || 'Sin reparto'} (+$${envio} CUP)\n` +
            `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n` +
-           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n🏠 ${direccion}\n`;
+           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n` +
+           (direccion ? `🏠 ${direccion}\n` : '') +
+           `¡Gracias por su compra! 😊`;
 
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
 
-  // Limpiar carrito y totales
+  // Limpiar todo
   carrito = [];
   actualizarCarrito();
   document.getElementById('totalCarrito').textContent = 0;
   document.getElementById('tarifaReparto').textContent = 0;
   document.getElementById('totalFinal').textContent = 0;
 
-  // Limpiar campos del cliente
+  // Limpiar cliente
   document.getElementById('nombre').value = '';
-  document.getElementById('direccion').value = '';
   document.getElementById('telefono').value = '';
   document.getElementById('codigoPais').selectedIndex = 0;
+  document.getElementById('direccion').value = '';
   document.getElementById('reparto').selectedIndex = 0;
+  document.getElementById('entrega').selectedIndex = 0;
+  document.getElementById('zonaEntrega').style.display = 'none';
 }
-
 cargarProductos();
 actualizarCarrito();
 </script>
