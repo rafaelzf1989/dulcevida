@@ -160,10 +160,9 @@
 <body>
 
 <header style="background-color:#ffffff; padding:15px 20px; color:#128C7E; font-size:20px; font-weight:bold; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-  <div style="text-align:right; padding:10px 20px;">
-  <button onclick="alternarModo()" class="btn-modo">🌓 Modo oscuro</button>
+  🎂 Panel de Gestión - <div style="text-align:right; padding:10px 20px;">
+  <button onclick="alternarModo()" class="btn-modo">🌓</button>
   </div>
-  🎂 Panel de Gestión
 </header>
   
 
@@ -252,9 +251,9 @@ function mostrarPedidos(pedidos) {
     let estado = (p.estado || "pendiente").toLowerCase();
     let clase = "estado-pendiente";
     let emoji = "⏳";
-    if (estado === "en proceso")   { clase = "estado-proceso"; emoji = "🧁"; }
-    if (estado === "listo")        { clase = "estado-listo";   emoji = "🎂"; }
-    if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
+    if (estado === "en proceso")   { clase = "estado-proceso";}
+    if (estado === "listo")        { clase = "estado-listo";}
+    if (estado === "entregado")    { clase = "estado-entregado"; }
 
     div.className = `pedido ${clase}`;
     const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
@@ -304,10 +303,10 @@ function actualizarResumenEstados(lista) {
     }
   });
 
-  document.getElementById("btn-pendiente").textContent = `📦 Pendientes (${resumen.pendiente})`;
-  document.getElementById("btn-proceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
-  document.getElementById("btn-listo").textContent     = `🎂 Listos (${resumen.listo})`;
-  document.getElementById("btn-entregado").textContent = `✅ Entregados (${resumen.entregado})`;
+  document.getElementById("btn-pendiente").textContent = `Pendientes (${resumen.pendiente})`;
+  document.getElementById("btn-proceso").textContent = `En proceso (${resumen["en proceso"]})`;
+  document.getElementById("btn-listo").textContent     = `Listos (${resumen.listo})`;
+  document.getElementById("btn-entregado").textContent = `Entregados (${resumen.entregado})`;
 }
   
 function cambiarEstado(select, box) {
