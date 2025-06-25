@@ -37,7 +37,6 @@
     }
 
     .pedido {
-      background: white;
       padding: 15px 20px;
       margin-bottom: 15px;
       border-radius: 6px;
@@ -49,15 +48,12 @@
     .estado {
       font-weight: bold;
       font-size: 1em;
-      padding: 5px 10px;
+      padding: 6px 10px;
       border-radius: 4px;
       display: inline-block;
       margin-bottom: 10px;
+      background: white;
     }
-
-    .estado-proceso   { background: #fff5cc; color: #b38f00; }
-    .estado-listo     { background: #d4edda; color: #155724; }
-    .estado-entregado { background: #d1ecf1; color: #0c5460; }
 
     .productos-lista {
       padding-left: 20px;
@@ -93,11 +89,11 @@
       font-size: 0.9em;
       color: #555;
     }
+
     .pedido.estado-pendiente   { background-color: #fff5f5; }
     .pedido.estado-proceso     { background-color: #fff8db; }
     .pedido.estado-listo       { background-color: #e7f7e5; }
     .pedido.estado-entregado   { background-color: #e2f4f9; }
-
   </style>
 </head>
 <body>
@@ -108,9 +104,8 @@
 
 <h2>📋 Pedidos Recibidos</h2>
 <section id="pedidos">Cargando pedidos...</section>
-
 <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec"; // ← reemplaza por tu URL real
+const sheetURL = "https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec";
 
 fetch(sheetURL)
   .then(r => r.json())
@@ -131,17 +126,15 @@ function mostrarPedidos(pedidos) {
 
   pedidos.forEach(p => {
     const div = document.createElement("div");
+
+    let estado = (p.estado || "pendiente").toLowerCase();
+    let clase = "estado-pendiente";
+    let emoji = "⏳";
+    if (estado === "en proceso")   { clase = "estado-proceso"; emoji = "🧁"; }
+    if (estado === "listo")        { clase = "estado-listo";   emoji = "🎂"; }
+    if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
+
     div.className = `pedido ${clase}`;
-
-    // Icono de estado visual + clase de color
-    let estado = (p.estado || "Pendiente").toLowerCase();
-let clase = "estado-pendiente";
-let emoji = "⏳";
-if (estado === "en proceso")   { clase = "estado-proceso"; emoji = "🧁"; }
-if (estado === "listo")        { clase = "estado-listo";   emoji = "🎂"; }
-if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
-
-    // Convertir productos en lista
     const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
 
     div.innerHTML = `
@@ -162,12 +155,11 @@ if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
       <div class="accion">
         <label for="estado">📌 Cambiar estado:</label>
         <select onchange="cambiarColor(this, this.closest('.pedido'))">
-  <option ${estado === "pendiente"  ? "selected" : ""}>Pendiente</option>
-  <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
-  <option ${estado === "listo"      ? "selected" : ""}>Listo</option>
-  <option ${estado === "entregado"  ? "selected" : ""}>Entregado</option>
-</select>
-
+          <option ${estado === "pendiente"   ? "selected" : ""}>Pendiente</option>
+          <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
+          <option ${estado === "listo"      ? "selected" : ""}>Listo</option>
+          <option ${estado === "entregado"  ? "selected" : ""}>Entregado</option>
+        </select>
       </div>
     `;
 
@@ -175,18 +167,17 @@ if (estado === "entregado")    { clase = "estado-entregado"; emoji = "📦"; }
   });
 }
 
-// Cambiar color de fondo dinámicamente
 function cambiarColor(select, box) {
   const estado = select.value.toLowerCase();
-  box.querySelector('.estado').textContent = 
-    (estado === "en proceso" ? "🧁 " : estado === "listo" ? "🎂 " : "📦 ") + 
-    estado.charAt(0).toUpperCase() + estado.slice(1);
+  const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
+  const emoji = estado === "en proceso" ? "🧁" :
+                estado === "listo" ? "🎂" :
+                estado === "entregado" ? "📦" : "⏳";
 
-  box.querySelector('.estado').className = "estado " + (
-    estado === "listo" ? "estado-listo" :
-    estado === "entregado" ? "estado-entregado" :
-    "estado-proceso"
-  );
+  const badge = box.querySelector('.estado');
+  badge.textContent = `${emoji} ${estadoText}`;
+  badge.className = `estado estado-${estado}`;
+  box.className = `pedido estado-${estado}`;
 }
 </script>
 </body>
