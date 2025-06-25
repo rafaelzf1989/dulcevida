@@ -129,24 +129,24 @@ function generarMensajeWhatsApp(p) {
 👤 ${p.nombre}
 📞 +${p.codigo_pais} ${p.telefono}
 🏠 ${p.direccion}
-📅 ${formatearFecha(p[0])}
+📅 ${formatearFecha(p.fecha_y_hora)}
 ¡Gracias por su compra! 😊`;
 }
 
-function formatearFecha(fechaTexto) {
-  try {
-    const fecha = new Date(fechaTexto);
-    return fecha.toLocaleDateString("es-ES", {
+function formatearFecha(valor) {
+  const fecha = new Date(valor);
+  if (!isNaN(fecha)) {
+    return fecha.toLocaleString("es-ES", {
       year: "numeric",
       month: "short",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit"
     });
-  } catch {
-    return fechaTexto;
+  } else {
+    return valor || "Fecha desconocida";
   }
-}
+      }
 </script>
 
 </body>
