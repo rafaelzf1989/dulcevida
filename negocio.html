@@ -12,24 +12,26 @@
   padding: 8px 14px;
   border-radius: 20px;
   cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .btn-filtro:hover {
   background-color: #20b358;
+  transform: scale(1.03);
 }
 
 .btn-filtro.activo {
   background-color: #128C7E;
+  box-shadow: 0 0 0 2px #25D36688;
 }
 
     body {
   background-color: #1f1f1f;
   color: #f0f0f0;
-  font-family: sans-serif;
-  margin: 0;
-  padding: 0;
+  font-family: 'Segoe UI', sans-serif;
     }
 
     header {
@@ -123,8 +125,8 @@
 </head>
 <body>
 
-<header>
-  <h1>Negocio</h1>
+<header style="background-color:#121212; padding:15px 20px; color:#25D366; font-size:20px; font-weight:bold; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.4);">
+  🎂 Panel de Gestión – Dulce Vida
 </header>
 
 <h2>📋 Pedidos Recibidos</h2>
