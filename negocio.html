@@ -90,6 +90,11 @@
       color: #555;
     }
 
+    .pedido.guardado {
+  box-shadow: 0 0 0 3px #25d366aa;
+  transition: box-shadow 0.3s ease;
+}
+
     .pedido.estado-pendiente   { background-color: #fff5f5; }
     .pedido.estado-proceso     { background-color: #fff8db; }
     .pedido.estado-listo       { background-color: #e7f7e5; }
@@ -136,6 +141,7 @@ function mostrarPedidos(pedidos) {
 
     div.className = `pedido ${clase}`;
     const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
+div.dataset.timestamp = p.timestamp;
 
     div.innerHTML = `
       <span class="estado ${clase}">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
@@ -154,7 +160,7 @@ function mostrarPedidos(pedidos) {
 
       <div class="accion">
         <label for="estado">📌 Cambiar estado:</label>
-        <select onchange="cambiarEstado(this, ${index})">
+        <select onchange="cambiarEstado(this, this.closest('.pedido'))">
           <option ${estado === "pendiente"   ? "selected" : ""}>Pendiente</option>
           <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
           <option ${estado === "listo"      ? "selected" : ""}>Listo</option>
@@ -167,28 +173,31 @@ function mostrarPedidos(pedidos) {
   });
 }
 
-function cambiarEstado(select, fila) {
-  const nuevoEstado = select.value;
-  const box = select.closest(".pedido");
-  const badge = box.querySelector(".estado");
+function cambiarEstado(select, box) {
+  const nuevoEstado = select.value.toLowerCase();
+  const timestamp = box.dataset.timestamp;
 
-  // Visual: cambia color y emoji localmente
   const emoji = nuevoEstado === "en proceso" ? "🧁" :
                 nuevoEstado === "listo" ? "🎂" :
                 nuevoEstado === "entregado" ? "📦" : "⏳";
+
+  const badge = box.querySelector(".estado");
   badge.textContent = `${emoji} ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`;
   badge.className = `estado estado-${nuevoEstado}`;
   box.className = `pedido estado-${nuevoEstado}`;
-
-  // Enviar a Sheets
-  fetch("https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec?func=updateEstado", {
+  
+  fetch("https://script.google.com/macros/s/AKfycbziuzXSFu1Do1szzVO999KgbH29S8qrMZdNaDW8ePspapBCXpwsRW3pZVNOm-vcYN59/exec", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `fila=${fila}&estado=${encodeURIComponent(nuevoEstado)}`
+    body: `func=cambiarEstado&timestamp=${encodeURIComponent(timestamp)}&estado=${encodeURIComponent(nuevoEstado)}`
   })
-  .then(res => res.text())
-  .then(r => console.log("✅ Estado actualizado:", r))
-  .catch(e => console.error("❌ Error actualizando estado:", e));
+  .then(r => r.text())
+  .then(r => {
+  console.log("✔️ Estado actualizado:", r);
+  box.classList.add("guardado");
+  setTimeout(() => box.classList.remove("guardado"), 1000);
+})
+  .catch(e => console.error("❌ Error:", e));
 }
   
 function cambiarColor(select, box) {
