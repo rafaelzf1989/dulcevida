@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Panel de Gestión – Dulce Vida</title>
   <style>
     body {
@@ -88,6 +88,32 @@
     select {
       padding: 6px;
       border-radius: 6px;
+    }
+
+    @media screen and (max-width: 600px) {
+  .pedido {
+    margin: 10px 8px;
+    padding: 10px 12px;
+  }
+
+  .btn-filtro {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  #filtros {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .productos-lista {
+    font-size: 14px;
+  }
+
+  .btn-modo {
+    font-size: 13px;
+    padding: 5px 10px;
+  }
     }
   </style>
 </head>
