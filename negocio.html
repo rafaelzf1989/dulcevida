@@ -171,10 +171,10 @@
   <section style="text-align:center; margin-bottom: 15px;">
   <div id="filtros" style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px;">
     <button onclick="filtrar('todos')" class="btn-filtro activo">Todos</button>
-    <button onclick="filtrar('pendiente')" class="btn-filtro">Pendientes</button>
-    <button onclick="filtrar('en proceso')" class="btn-filtro">En proceso</button>
-    <button onclick="filtrar('listo')" class="btn-filtro">Listos</button>
-    <button onclick="filtrar('entregado')" class="btn-filtro">Entregados</button>
+    <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">Pendientes (0)</button>
+<button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-proceso">En proceso (0)</button>
+<button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">Listos (0)</button>
+<button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">Entregados (0)</button>
     <div style="display: flex; align-items: center; gap: 8px;">
   <span style="font-weight: bold;">📅 Por fecha:</span>
   <input type="date" id="filtroFecha" onchange="filtrar()" style="color:#999;" oninput="this.style.color='#000';" />
@@ -183,12 +183,12 @@
   </div>
 </section>
 
-<div id="resumenEstados" class="barra-resumen">
+<!-- <div id="resumenEstados" class="barra-resumen">
   <span>📦 Pendientes: 0</span>
   <span>🧁 En proceso: 0</span>
   <span>🎂 Listos: 0</span>
   <span>✅ Entregados: 0</span>
-</div>
+</div> -->
   
 <section id="pedidos">Cargando pedidos...</section>
 <script>
@@ -236,7 +236,7 @@ function filtrar(estadoSeleccionado) {
 function mostrarPedidos(pedidos) {
   const cont = document.getElementById("pedidos");
   cont.innerHTML = "";
-  actualizarResumenEstados(pedidos);
+  actualizarResumenEstados(todosLosPedidos); // Muestra conteo global
 
   if (!pedidos.length) {
     cont.innerHTML = "<p style='text-align:center;'>No hay pedidos que coincidan con los filtros.</p>";
@@ -304,12 +304,10 @@ function actualizarResumenEstados(lista) {
     }
   });
 
-  document.querySelector("#resumenEstados").innerHTML = `
-    <span>📦 Pendientes: ${resumen["pendiente"]}</span>
-    <span>🧁 En proceso: ${resumen["en proceso"]}</span>
-    <span>🎂 Listos: ${resumen["listo"]}</span>
-    <span>✅ Entregados: ${resumen["entregado"]}</span>
-  `;
+  document.getElementById("btn-pendiente").textContent = `📦 Pendientes (${resumen.pendiente})`;
+  document.getElementById("btn-proceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
+  document.getElementById("btn-listo").textContent     = `🎂 Listos (${resumen.listo})`;
+  document.getElementById("btn-entregado").textContent = `✅ Entregados (${resumen.entregado})`;
 }
   
 function cambiarEstado(select, box) {
