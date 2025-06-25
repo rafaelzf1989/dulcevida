@@ -238,15 +238,14 @@ function enviarPedido() {
   document.getElementById('sheetForm').submit();
 
   // Generar y abrir WhatsApp
-  const numero = codigoPais + telefonoLimpio;
+  const numero = "5358707434";
   let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
   carrito.forEach(i => {
     texto += `🍰 ${i.nombre} x${i.cantidad} = $${i.precio * i.cantidad} CUP\n`;
   });
   texto += `-------------------------\n🚚 Reparto: ${reparto} (+$${envio} CUP)\n` +
            `💰 Subtotal: $${subtotal} CUP\n💰 Total: $${total} CUP\n` +
-           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n🏠 ${direccion}\n` +
-           `¡Gracias por su compra! 😊`;
+           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n🏠 ${direccion}\n`;
 
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
 
