@@ -106,11 +106,74 @@
   <p><strong>Total: <span id="totalFinal">0</span> CUP</strong></p>
 </section>
 
-<section id="cliente" style="max-width: 500px; margin: 30px auto; padding: 15px; background: white; border-radius: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-  <h3>Datos del cliente</h3>
+<style>
+  #cliente {
+    max-width: 500px;
+    margin: 30px auto;
+    background: #fff;
+    padding: 20px 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  #cliente h3 {
+    margin-top: 0;
+    text-align: center;
+    font-size: 1.3em;
+    color: #25D366;
+  }
+  #cliente label {
+    display: block;
+    margin-top: 12px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+  }
+  #cliente input,
+  #cliente select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 0.95em;
+    box-sizing: border-box;
+  }
+  #cliente input:focus,
+  #cliente select:focus {
+    border-color: #25D366;
+    outline: none;
+  }
+  #zonaEntrega {
+    margin-top: 10px;
+    display: none;
+  }
+  #cliente button {
+    background: #25D366;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    font-size: 1em;
+    border-radius: 6px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto 5px;
+  }
+  #cliente button:hover {
+    background: #1ebd5a;
+  }
+  #mensajeCompra {
+    text-align: center;
+    margin-top: 10px;
+    font-weight: bold;
+    color: green;
+  }
+</style>
 
-  <select id="codigoPais" required style="width: 100%; margin-bottom: 8px;">
-    <option disabled selected>Código país</option>
+<section id="cliente">
+  <h3>📝 Datos del Cliente</h3>
+
+  <label for="codigoPais">Código de país</label>
+  <select id="codigoPais" required>
+    <option disabled selected>Selecciona tu país</option>
     <option value="53">🇨🇺 Cuba (+53)</option>
     <option value="1">🇺🇸 EE. UU. (+1)</option>
     <option value="34">🇪🇸 España (+34)</option>
@@ -118,19 +181,25 @@
     <option value="55">🇧🇷 Brasil (+55)</option>
   </select>
 
-  <input id="telefono" placeholder="Teléfono" required style="width:100%; margin-bottom:8px;" />
-  <input id="nombre" placeholder="Nombre completo" required style="width:100%; margin-bottom:8px;" />
+  <label for="telefono">Número de teléfono</label>
+  <input id="telefono" type="tel" placeholder="Ej: 52123456" required />
 
-  <label>¿Entrega a domicilio?</label>
-  <select id="entrega" onchange="toggleDireccion()" style="width:100%; margin-bottom:8px;">
+  <label for="nombre">Nombre completo</label>
+  <input id="nombre" type="text" placeholder="Tu nombre y apellidos" required />
+
+  <label for="entrega">¿Deseas entrega a domicilio?</label>
+  <select id="entrega" onchange="toggleDireccion()" required>
     <option value="">Selecciona una opción</option>
     <option value="si">Sí</option>
     <option value="no">No</option>
   </select>
 
-  <div id="zonaEntrega" style="display:none;">
-    <input id="direccion" placeholder="Dirección de entrega" style="width:100%; margin-bottom:8px;" />
-    <select id="reparto" onchange="actualizarTarifa()" style="width:100%; margin-bottom:8px;">
+  <div id="zonaEntrega">
+    <label for="direccion">Dirección exacta</label>
+    <input id="direccion" type="text" placeholder="Ej: Calle 10 #123 entre A y B" />
+
+    <label for="reparto">Reparto o zona</label>
+    <select id="reparto" onchange="actualizarTarifa()">
       <option disabled selected>Selecciona tu reparto</option>
       <option>Santa Lucía</option>
       <option>Tasajera</option>
@@ -146,14 +215,14 @@
     </select>
   </div>
 
-  <input type="datetime-local" id="fechaEntrega" placeholder="Fecha y hora de entrega" style="width:100%; margin-bottom:8px;" />
+  <label for="fechaEntrega">Fecha y hora deseada de entrega</label>
+  <input type="datetime-local" id="fechaEntrega" required />
 
-  <button class="wsp-btn" onclick="enviarPedido()" style="display: block; margin: 15px auto; background: #25D366; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-size: 1em;">
-    Enviar por WhatsApp
-  </button>
+  <button onclick="enviarPedido()">📤 Enviar por WhatsApp</button>
 
-  <p id="mensajeCompra" style="text-align: center; color: green; font-weight: bold;"></p>
+  <p id="mensajeCompra"></p>
 </section>
+
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
   action="https://script.google.com/macros/s/TU_URL/exec"
