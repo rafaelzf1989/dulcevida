@@ -108,6 +108,17 @@
 </header>
 
 <h2>📋 Pedidos Recibidos</h2>
+  <section style="text-align:center; margin-bottom: 15px;">
+  <div id="filtros" style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px;">
+    <button onclick="filtrar('todos')" class="btn-filtro activo">Todos</button>
+    <button onclick="filtrar('pendiente')" class="btn-filtro">Pendientes</button>
+    <button onclick="filtrar('en proceso')" class="btn-filtro">En proceso</button>
+    <button onclick="filtrar('listo')" class="btn-filtro">Listos</button>
+    <button onclick="filtrar('entregado')" class="btn-filtro">Entregados</button>
+    <input type="date" id="filtroFecha" onchange="filtrar()" style="padding:6px; border-radius:4px; border:1px solid #ccc;" />
+  </div>
+</section>
+
 <section id="pedidos">Cargando pedidos...</section>
 <script>
 const sheetURL = "https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec";
