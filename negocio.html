@@ -191,10 +191,11 @@ function cambiarEstado(select, box) {
   badge.className = `estado estado-${nuevoEstado}`;
   box.className = `pedido estado-${nuevoEstado}`;
   
-  fetch("https://script.google.com/macros/s/AKfycbyiXW6DU1zJTyJZA2lvle0SW_XFs7UpwI6efQjPApf-QuBO_TPtwDr4nZ4n4mdPvrEb/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyrDKSDPyWKzDNZmCjPufrhO3KELV1MPl5gOQ-xvtM6580kr4erBGZgRKwTeedy775P/exec", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
+
   })
   .then(r => r.text())
   .then(r => {
