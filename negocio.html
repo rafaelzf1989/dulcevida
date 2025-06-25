@@ -2,96 +2,78 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pedidos - Dulce Vida</title>
+  <title>Panel de Gestión – Dulce Vida</title>
   <style>
-    .btn-filtro {
-  background-color: #e6f9f1;
-  color: #128C7E;
-  border: 1px solid #c4efe0;
-  padding: 8px 14px;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 14px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.btn-filtro:hover {
-  background-color: #d2f3e3;
-}
-
-.btn-filtro.activo {
-  background-color: #128C7E;
-  color: white;
-  border-color: transparent;
-}
-
-    .btn-modo {
-  background-color: transparent;
-  color: #25D366;
-  border: 2px solid #25D366;
-  padding: 6px 12px;
-  font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.btn-modo:hover {
-  background-color: #25D366;
-  color: white;
-}
-
     body {
-  background-color: #f0f2f5;
-  color: #202020;
-  font-family: 'Segoe UI', sans-serif;
-  margin: 0;
-  padding: 0;
+      background-color: #1f1f1f;
+      color: #f0f0f0;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
     }
 
     header {
-      background: white;
-      padding: 10px;
-      text-align: center;
-      border-bottom: 2px solid #ccc;
-    }
-
-    header img {
-      max-width: 100%;
-      height: auto;
-    }
-
-    h2 {
-      text-align: center;
-      margin: 20px 0 10px;
+      background-color: #121212;
+      padding: 15px 20px;
       color: #25D366;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.4);
     }
 
-    #pedidos {
-      max-width: 900px;
-      margin: auto;
-      padding: 0 20px 30px;
+    .btn-filtro {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      margin: 5px;
+    }
+
+    .btn-filtro:hover {
+      background-color: #20b358;
+      transform: scale(1.03);
+    }
+
+    .btn-filtro.activo {
+      background-color: #128C7E;
+    }
+
+    .btn-modo {
+      background-color: transparent;
+      color: #25D366;
+      border: 2px solid #25D366;
+      padding: 6px 12px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-modo:hover {
+      background-color: #25D366;
+      color: white;
     }
 
     .pedido {
-  background-color: #ffffff;
-  color: #202020;
-  border-radius: 8px;
-  margin: 10px auto;
-  padding: 12px 16px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      background-color: #ffffff;
+      border-radius: 8px;
+      margin: 10px auto;
+      padding: 12px 16px;
+      max-width: 500px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      color: #000;
     }
 
     .estado {
-      font-weight: bold;
-      font-size: 1em;
-      padding: 6px 10px;
-      border-radius: 4px;
       display: inline-block;
-      margin-bottom: 10px;
-      background: white;
+      font-weight: bold;
+      margin-bottom: 6px;
     }
 
     .productos-lista {
@@ -99,143 +81,58 @@
       margin: 6px 0;
     }
 
-    .productos-lista li {
-      margin: 2px 0;
-    }
-
     .accion {
       margin-top: 10px;
     }
 
-    .accion select {
+    select {
       padding: 6px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 6px;
     }
-
-    .timestamp {
-      font-size: 0.85em;
-      color: #777;
-      margin-bottom: 4px;
-    }
-
-    .total {
-      font-weight: bold;
-      margin-top: 8px;
-    }
-
-    .detalle {
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    .pedido.guardado {
-  box-shadow: 0 0 0 3px #25d366aa;
-  transition: box-shadow 0.3s ease;
-}
-
-    .pedido.estado-pendiente   { background-color: #fff5f5; }
-    .pedido.estado-proceso     { background-color: #fff8db; }
-    .pedido.estado-listo       { background-color: #e7f7e5; }
-    .pedido.estado-entregado   { background-color: #e2f4f9; }
-
-    .barra-resumen {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: #128C7E;
-  color: white;
-  padding: 10px;
-  font-weight: bold;
-  font-size: 14px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  border-bottom: 2px solid #25D366;
-    }
-  
   </style>
 </head>
 <body>
+  <header>🎂 Panel de Gestión – Dulce Vida</header>
 
-<header style="background-color:#ffffff; padding:15px 20px; color:#128C7E; font-size:20px; font-weight:bold; text-align:center; box-shadow:0 2px 4px rgba(0,0,0,0.05);">
-  Panel de Gestión - <div style="text-align:right; padding:10px 20px;">
-  <button onclick="alternarModo()" class="btn-modo">🌓</button>
+  <div style="text-align:right; padding:10px 20px;">
+    <button onclick="alternarModo()" class="btn-modo">🌓 Cambiar modo</button>
   </div>
-</header>
-  
 
-<h2>📋 Pedidos Recibidos</h2>
   <section style="text-align:center; margin-bottom: 15px;">
-  <div id="filtros" style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px;">
-    <button onclick="filtrar('todos')" class="btn-filtro activo">Todos</button>
-    <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
-<button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-proceso">🧁 En proceso (0)</button>
-<button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
-<button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
-    <div style="display: flex; align-items: center; gap: 8px;">
-  <span style="font-weight: bold;">📅 Por fecha:</span>
-  <input type="date" id="filtroFecha" onchange="filtrar()" style="color:#999;" oninput="this.style.color='#000';" />
-</div>
+    <div id="filtros" style="display:flex; justify-content:center; flex-wrap:wrap; gap:10px;">
+      <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
+      <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
+      <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-proceso">🧁 En proceso (0)</button>
+      <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
+      <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-weight: bold;">📅 Por fecha:</span>
+        <input type="date" id="filtroFecha" onchange="filtrar()" style="color:#999;" oninput="this.style.color='#000';" />
+      </div>
+    </div>
+  </section>
 
-  </div>
-</section>
-
-<!-- <div id="resumenEstados" class="barra-resumen">
-  <span>📦 Pendientes: 0</span>
-  <span>🧁 En proceso: 0</span>
-  <span>🎂 Listos: 0</span>
-  <span>✅ Entregados: 0</span>
-</div> -->
-  
-<section id="pedidos">Cargando pedidos...</section>
-<script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbyhPc0mXjW25ZA2HQano-QBbbjV0XoLHvJVexSbOuy9HqdYbUQVf-obXskelXVQlNgn/exec";
-
+  <section id="pedidos"></section>
+  <script>
+const sheetURL = "URL-DE-TU-SCRIPT-AQUÍ"; // reemplaza por tu URL real
 let todosLosPedidos = [];
 
 fetch(sheetURL)
   .then(r => r.json())
   .then(data => {
-    todosLosPedidos = data.reverse(); // Guarda todos los pedidos en memoria
-    mostrarPedidos(todosLosPedidos);  // Muestra todos los pedidos al inicio
+    todosLosPedidos = data.reverse();
+    mostrarPedidos(todosLosPedidos);
   })
   .catch(err => {
     document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
     console.error("Error cargando datos:", err);
   });
 
-function filtrar(estadoSeleccionado) {
-  const botones = document.querySelectorAll(".btn-filtro");
-  botones.forEach(b => b.classList.remove("activo"));
-
-  if (estadoSeleccionado) {
-    const botonActivo = [...botones].find(b =>
-      b.textContent.toLowerCase().includes(estadoSeleccionado)
-    );
-    if (botonActivo) botonActivo.classList.add("activo");
-  }
-
-  const fechaSeleccionada = document.getElementById("filtroFecha").value;
-  
-  const pedidosFiltrados = todosLosPedidos.filter(p => {
-    const estadoPedido = (p.estado || "").toLowerCase();
-    const estadoCoincide = !estadoSeleccionado || estadoSeleccionado === "todos" || estadoPedido === estadoSeleccionado;
-
-    const fechaEntrega = p.fecha_de_entrega || p.fecha_entrega || "";
-    const fechaCoincide = !fechaSeleccionada || fechaEntrega.split("T")[0] === fechaSeleccionada;
-
-    return estadoCoincide && fechaCoincide;
-  });
-
-  mostrarPedidos(pedidosFiltrados);
-}
-
 function mostrarPedidos(pedidos) {
   const cont = document.getElementById("pedidos");
   cont.innerHTML = "";
-  actualizarResumenEstados(todosLosPedidos); // Muestra conteo global
+
+  actualizarResumenEstados(todosLosPedidos); // Actualiza conteo en botones
 
   if (!pedidos.length) {
     cont.innerHTML = "<p style='text-align:center;'>No hay pedidos que coincidan con los filtros.</p>";
@@ -244,30 +141,28 @@ function mostrarPedidos(pedidos) {
 
   pedidos.forEach((p, index) => {
     const div = document.createElement("div");
-
-    // Guardar el ticket en el contenedor para futuros usos (como actualizar estado)
     div.dataset.ticket = p.ticket;
 
     let estado = (p.estado || "pendiente").toLowerCase();
-    let clase = "estado-pendiente";
-    let emoji = "⏳";
-    if (estado === "en proceso")   { clase = "estado-proceso";}
-    if (estado === "listo")        { clase = "estado-listo";}
-    if (estado === "entregado")    { clase = "estado-entregado"; }
+    let emoji = "⏳", clase = "estado-pendiente";
+    if (estado === "en proceso")   { emoji = "🧁"; clase = "estado-proceso"; }
+    if (estado === "listo")        { emoji = "🎂"; clase = "estado-listo"; }
+    if (estado === "entregado")    { emoji = "📦"; clase = "estado-entregado"; }
 
     div.className = `pedido ${clase}`;
+
     const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
 
     div.innerHTML = `
       <span class="estado ${clase}">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
-      <p class="timestamp">🕒 Fecha de pedido: ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : "?"}</p>
+      <p class="timestamp">🕒 ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : ""}</p>
       <p><strong>👤 Cliente:</strong> ${p.nombre}</p>
-      <p><strong>📞 Teléfono:</strong> +${p.codigopais || ""} ${p.telefono || ""}</p>
+      <p><strong>📞 Teléfono:</strong> +${p.codigopais || ""} ${p.telefono}</p>
       ${p.entrega === "si" ? `
         <p><strong>📍 Dirección:</strong> ${p.direccion}</p>
         <p><strong>🏘️ Reparto:</strong> ${p.reparto}</p>
       ` : `<p><strong>🏠 Retira en tienda</strong></p>`}
-      ${p.fecha_entrega ? `<p><strong>📅 Entrega:</strong> ${new Date(p.fecha_entrega).toLocaleString("es-ES")}</p>` : ""}
+      ${p.fecha_entrega ? `<p><strong>📅 Entrega:</strong> ${new Date(p.fecha_entrega).toLocaleDateString("es-ES")}</p>` : ""}
       <p><strong>🛍️ Productos:</strong></p>
       <ul class="productos-lista">${lista}</ul>
       <p class="total">💰 Total: ${p.total} CUP</p>
@@ -276,10 +171,10 @@ function mostrarPedidos(pedidos) {
       <div class="accion">
         <label>📌 Cambiar estado:</label>
         <select onchange="cambiarEstado(this, this.closest('.pedido'))">
-          <option ${estado === "pendiente"   ? "selected" : ""}>Pendiente</option>
+          <option ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
           <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
-          <option ${estado === "listo"      ? "selected" : ""}>Listo</option>
-          <option ${estado === "entregado"  ? "selected" : ""}>Entregado</option>
+          <option ${estado === "listo" ? "selected" : ""}>Listo</option>
+          <option ${estado === "entregado" ? "selected" : ""}>Entregado</option>
         </select>
       </div>
     `;
@@ -288,7 +183,31 @@ function mostrarPedidos(pedidos) {
   });
 }
 
-function actualizarResumenEstados(lista) {
+function cambiarEstado(select, box) {
+  const nuevoEstado = select.value.toLowerCase();
+  const ticket = box.dataset.ticket;
+
+  const badge = box.querySelector(".estado");
+  const emoji = nuevoEstado === "en proceso" ? "🧁" :
+                nuevoEstado === "listo" ? "🎂" :
+                nuevoEstado === "entregado" ? "📦" : "⏳";
+  badge.textContent = `${emoji} ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`;
+  box.className = `pedido estado-${nuevoEstado}`;
+  badge.className = `estado estado-${nuevoEstado}`;
+
+  fetch(sheetURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
+  })
+  .then(r => r.text())
+  .then(r => {
+    console.log("✔️ Estado actualizado:", r);
+    actualizarResumenEstados(todosLosPedidos); // Recalcula el resumen
+  })
+  .catch(e => console.error("❌ Error:", e));
+}
+
 function actualizarResumenEstados(lista) {
   const resumen = {
     pendiente: 0,
@@ -299,67 +218,40 @@ function actualizarResumenEstados(lista) {
 
   lista.forEach(p => {
     const estado = (p.estado || "pendiente").toLowerCase();
-    if (resumen[estado] !== undefined) {
-      resumen[estado]++;
-    }
+    if (resumen[estado] !== undefined) resumen[estado]++;
   });
 
   document.getElementById("btn-pendiente").textContent = `📦 Pendientes (${resumen.pendiente})`;
   document.getElementById("btn-proceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
-  document.getElementById("btn-listo").textContent     = `🎂 Listos (${resumen.listo})`;
+  document.getElementById("btn-listo").textContent = `🎂 Listos (${resumen.listo})`;
   document.getElementById("btn-entregado").textContent = `✅ Entregados (${resumen.entregado})`;
-  }  
-function cambiarEstado(select, box) {
-  const nuevoEstado = select.value.toLowerCase();
-  const ticket = box.dataset.ticket; // ✅ Aquí obtenemos el ticket correctamente
-
-  const emoji = nuevoEstado === "en proceso" ? "🧁" :
-                nuevoEstado === "listo" ? "🎂" :
-                nuevoEstado === "entregado" ? "📦" : "⏳";
-
-  const badge = box.querySelector(".estado");
-  badge.textContent = `${emoji} ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`;
-  badge.className = `estado estado-${nuevoEstado}`;
-  box.className = `pedido estado-${nuevoEstado}`;
-
-  fetch("https://script.google.com/macros/s/AKfycbyrDKSDPyWKzDNZmCjPufrhO3KELV1MPl5gOQ-xvtM6580kr4erBGZgRKwTeedy775P/exec", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
-  })
-  .then(r => r.text())
-  .then(r => {
-    console.log("✔️ Estado actualizado:", r);
-    box.classList.add("guardado");
-    setTimeout(() => box.classList.remove("guardado"), 1000);
-  })
-  .catch(e => console.error("❌ Error:", e));
-}
-  
-function cambiarColor(select, box) {
-  const estado = select.value.toLowerCase();
-  const estadoText = estado.charAt(0).toUpperCase() + estado.slice(1);
-  const emoji = estado === "en proceso" ? "🧁" :
-                estado === "listo" ? "🎂" :
-                estado === "entregado" ? "📦" : "⏳";
-
-  const badge = box.querySelector('.estado');
-  badge.textContent = `${emoji} ${estadoText}`;
-  badge.className = `estado estado-${estado}`;
-  box.className = `pedido estado-${estado}`;
 }
 
-  function alternarModo() {
-  const body = document.body;
-  const modoActual = body.classList.contains("oscuro") ? "claro" : "oscuro";
+function filtrar(estadoSeleccionado) {
+  const botones = document.querySelectorAll(".btn-filtro");
+  botones.forEach(b => b.classList.remove("activo"));
 
-  if (modoActual === "oscuro") {
-    activarModoOscuro();
-  } else {
-    activarModoClaro();
+  if (estadoSeleccionado) {
+    const botonActivo = document.querySelector(`#btn-${estadoSeleccionado.replace(" ", "")}`);
+    if (botonActivo) botonActivo.classList.add("activo");
   }
 
-  localStorage.setItem("modo", modoActual); // Guardar preferencia
+  const fecha = document.getElementById("filtroFecha").value;
+  const pedidosFiltrados = todosLosPedidos.filter(p => {
+    const estadoCoincide = !estadoSeleccionado || estadoSeleccionado === "todos" || (p.estado || "").toLowerCase() === estadoSeleccionado;
+    const fechaCoincide = !fecha || (p.fecha_entrega || "").split("T")[0] === fecha;
+    return estadoCoincide && fechaCoincide;
+  });
+
+  mostrarPedidos(pedidosFiltrados);
+}
+
+function alternarModo() {
+  const body = document.body;
+  const nuevoModo = body.classList.contains("oscuro") ? "claro" : "oscuro";
+  if (nuevoModo === "oscuro") activarModoOscuro();
+  else activarModoClaro();
+  localStorage.setItem("modo", nuevoModo);
 }
 
 function activarModoOscuro() {
@@ -376,7 +268,6 @@ function activarModoClaro() {
   document.querySelector("header").style.backgroundColor = "#ffffff";
 }
 
-// Al cargar, aplicar modo guardado
 window.addEventListener("DOMContentLoaded", () => {
   const modoGuardado = localStorage.getItem("modo") || "oscuro";
   if (modoGuardado === "oscuro") activarModoOscuro();
