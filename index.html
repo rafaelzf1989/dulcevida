@@ -156,27 +156,45 @@
 </section>
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycbwfYBzVGqC7FvVCOhpCcM6fxUhWVttTYp9b2HBelYkHmDjqC7PZQs_bni4X236k8so/exec"
+  action="https://script.google.com/macros/s/TU_URL/exec"
   method="post" target="sheetResponse" style="display:none;">
-  <input name="nombre"       id="f_nombre" />
-  <input name="telefono"     id="f_telefono" />
-  <input name="direccion"    id="f_direccion" />
-  <input name="reparto"      id="f_reparto" />
-  <input name="codigoPais"   id="f_codigoPais" />
-  <input name="productos"    id="f_productos" />
-  <input name="subtotal"     id="f_subtotal" />
-  <input name="envio"        id="f_envio" />
-  <input name="total"        id="f_total" />
-  <input name="entrega"      id="f_entrega" />
-  <input name="fecha_entrega" id="f_fecha_entrega" />
+  <input name="nombre"         id="f_nombre" />
+  <input name="telefono"       id="f_telefono" />
+  <input name="direccion"      id="f_direccion" />
+  <input name="reparto"        id="f_reparto" />
+  <input name="codigoPais"     id="f_codigoPais" />
+  <input name="productos"      id="f_productos" />
+  <input name="subtotal"       id="f_subtotal" />
+  <input name="envio"          id="f_envio" />
+  <input name="total"          id="f_total" />
+  <input name="entrega"        id="f_entrega" />
+  <input name="fecha_entrega"  id="f_fecha_entrega" />
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
 
 <script>
 const productos = [
-  { id: 1, nombre: 'Panetela Clásica', precio: 3500, descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png' },
-  { id: 2, nombre: 'Panetela de Chocolate', precio: 3800, descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png' },
-  { id: 3, nombre: 'Panetela Especial', precio: 4300, descripcion: 'Decorada con crema batida y frutas confitadas.', img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png' }
+  {
+    id: 1,
+    nombre: 'Panetela Clásica',
+    precio: 3500,
+    descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
+  },
+  {
+    id: 2,
+    nombre: 'Panetela de Chocolate',
+    precio: 3800,
+    descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
+  },
+  {
+    id: 3,
+    nombre: 'Panetela Especial',
+    precio: 4300,
+    descripcion: 'Decorada con crema batida y frutas confitadas.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
+  }
 ];
 
 const tarifas = {
@@ -251,9 +269,11 @@ function toggleDireccion() {
     entrega === 'si' ? 'block' : 'none';
   actualizarTarifa();
 }
-
 function enviarPedido() {
-  if (carrito.length === 0) return alert('El carrito está vacío.');
+  if (carrito.length === 0) {
+    alert('El carrito está vacío.');
+    return;
+  }
 
   const nombre = document.getElementById('nombre').value.trim();
   const telefono = document.getElementById('telefono').value.trim();
@@ -264,7 +284,8 @@ function enviarPedido() {
   const fechaEntrega = document.getElementById('fechaEntrega').value;
 
   if (!nombre || !telefono || !codigoPais || (entrega === 'si' && (!direccion || !reparto))) {
-    return alert('Por favor, completa todos los campos requeridos.');
+    alert('Por favor, completa todos los campos requeridos.');
+    return;
   }
 
   const telefonoLimpio = telefono.startsWith(codigoPais)
@@ -276,7 +297,7 @@ function enviarPedido() {
   const total = subtotal + envio;
   const productosTxt = carrito.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
 
-  // Formulario oculto
+  // Llenar el formulario oculto
   document.getElementById('f_nombre').value = nombre;
   document.getElementById('f_telefono').value = telefonoLimpio;
   document.getElementById('f_codigoPais').value = codigoPais;
@@ -291,6 +312,7 @@ function enviarPedido() {
 
   document.getElementById('sheetForm').submit();
 
+  // Generar mensaje para WhatsApp
   const numero = "5358707434";
   let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
   carrito.forEach(i => {
@@ -306,8 +328,10 @@ function enviarPedido() {
 
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
 
+  // Limpiar todo
   carrito = [];
   actualizarCarrito();
+
   document.getElementById('nombre').value = '';
   document.getElementById('telefono').value = '';
   document.getElementById('codigoPais').selectedIndex = 0;
@@ -324,3 +348,4 @@ actualizarCarrito();
 </script>
 </body>
 </html>
+
