@@ -134,7 +134,11 @@
     <button onclick="filtrar('en proceso')" class="btn-filtro">En proceso</button>
     <button onclick="filtrar('listo')" class="btn-filtro">Listos</button>
     <button onclick="filtrar('entregado')" class="btn-filtro">Entregados</button>
-    <input type="date" id="filtroFecha" onchange="filtrar()" style="color:#999;" oninput="this.style.color='#000';" />
+    <div style="display: flex; align-items: center; gap: 8px;">
+  <span style="font-weight: bold;">📅 Por fecha:</span>
+  <input type="date" id="filtroFecha" onchange="filtrar()" style="color:#999;" oninput="this.style.color='#000';" />
+</div>
+
   </div>
 </section>
 
