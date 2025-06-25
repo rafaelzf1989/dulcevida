@@ -164,7 +164,7 @@ div.dataset.timestamp = p.timestamp;
       <p class="detalle">(Subtotal: ${p.subtotal} + Envío: ${p.envio})</p>
 
       <div class="accion">
-        <label for="estado">📌 Cambiar estado:</label>
+        <label>📌 Cambiar estado:</label>
         <select onchange="cambiarEstado(this, this.closest('.pedido'))">
           <option ${estado === "pendiente"   ? "selected" : ""}>Pendiente</option>
           <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
