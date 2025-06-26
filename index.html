@@ -82,6 +82,35 @@
     .producto button:hover {
       background: #1e7e34;
     }
+
+    .control-cantidad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  margin-bottom: 6px;
+}
+
+.control-cantidad button {
+  background: #4b2e1e; /* café oscuro */
+  color: white;
+  border: none;
+  padding: 6px 10px;
+  width: 34px;
+  height: 34px;
+  font-size: 1.2em;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.control-cantidad span {
+  font-weight: bold;
+  font-size: 1.1em;
+  min-width: 24px;
+  text-align: center;
+}
+
   </style>
 </head>
 <body>
@@ -278,6 +307,36 @@ const tarifas = {
 
 let carrito = [];
 
+  const cantidadesSeleccionadas = {};
+
+function modificarCantidad(id, delta) {
+  if (!cantidadesSeleccionadas[id]) cantidadesSeleccionadas[id] = 0;
+  cantidadesSeleccionadas[id] += delta;
+  if (cantidadesSeleccionadas[id] < 0) cantidadesSeleccionadas[id] = 0;
+  document.getElementById(`cantidad-${id}`).textContent = cantidadesSeleccionadas[id];
+}
+
+  function agregarAlCarritoDesdeBoton(id) {
+  const cantidad = cantidadesSeleccionadas[id] || 0;
+  if (cantidad === 0) {
+    alert("Selecciona al menos una unidad para agregar.");
+    return;
+  }
+
+  const producto = productos.find(p => p.id === id);
+  const existe = carrito.find(i => i.id === id);
+  if (existe) {
+    existe.cantidad += cantidad;
+  } else {
+    carrito.push({ ...producto, cantidad });
+  }
+
+  cantidadesSeleccionadas[id] = 0;
+  document.getElementById(`cantidad-${id}`).textContent = 0;
+  actualizarCarrito();
+}
+
+
 function cargarProductos() {
   const cont = document.getElementById('productos');
   cont.innerHTML = '';
@@ -285,12 +344,18 @@ function cargarProductos() {
     const div = document.createElement('div');
     div.className = 'producto';
     div.innerHTML = `
-      <img src="${p.img}" alt="${p.nombre}" />
-      <h3>${p.nombre}</h3>
-      <p>${p.descripcion}</p>
-      <p><strong>${p.precio} CUP</strong></p>
-      <button onclick="agregarAlCarrito(${p.id})">Agregar ➕</button>
-    `;
+  <img src="${p.img}" alt="${p.nombre}" />
+  <h3>${p.nombre}</h3>
+  <p>${p.descripcion}</p>
+  <p><strong>${p.precio} CUP</strong></p>
+  <div class="control-cantidad">
+    <button onclick="modificarCantidad(${p.id}, -1)">−</button>
+    <span id="cantidad-${p.id}">0</span>
+    <button onclick="modificarCantidad(${p.id}, 1)">+</button>
+  </div>
+  <button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>
+`;
+
     cont.appendChild(div);
   });
 }
