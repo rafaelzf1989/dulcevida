@@ -1,1 +1,332 @@
-// copiar aquí
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Gestión – Dulce Vida</title>
+  <style>
+    body {
+      background-color: #f0f2f5;
+      color: #202020;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #ffffff;
+      padding: 15px 20px;
+      color: #128C7E;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    #filtros, .pedido, #loginBox {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    #filtros {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background-color: #ffffff;
+    }
+
+    .btn-filtro {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .btn-filtro:hover {
+      background-color: #20b358;
+    }
+
+    .btn-filtro.activo {
+      background-color: #128C7E;
+    }
+
+    .pedido {
+      border-radius: 6px;
+      margin: 16px auto;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background-color 0.3s ease;
+    }
+
+    .estado-pendiente   { background-color: #fdecea; color: #a30000; }
+    .estado-enproceso   { background-color: #fff7e6; color: #b26b00; }
+    .estado-listo       { background-color: #e6f8f9; color: #00796b; }
+    .estado-entregado   { background-color: #e6f4ea; color: #2e7d32; }
+
+    .estado {
+      display: inline-block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 13px;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .productos-lista {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .accion {
+      margin-top: 10px;
+    }
+
+    select, input {
+      padding: 6px;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 250px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #loginBox {
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      margin-top: 40px;
+    }
+
+    @media screen and (max-width: 600px) {
+      .btn-filtro {
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+      select, input {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>🎂 Panel de Gestión – Dulce Vida</header>
+  <!-- Formulario de acceso -->
+  <div id="loginBox">
+    <h2 style="color:#128C7E; text-align:center;">Acceso al Panel</h2>
+    <label>👤 Usuario</label>
+    <input type="text" id="loginUsuario" placeholder="Ej: admin" />
+
+    <label>🔒 Contraseña</label>
+    <input type="password" id="loginClave" placeholder="Ej: clave123" />
+
+    <button onclick="iniciarSesion()" style="margin-top:12px; background-color:#25D366; color:white; font-weight:bold; padding:10px; border:none; border-radius:6px; cursor:pointer;">
+      Iniciar sesión
+    </button>
+
+    <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;"></p>
+  </div>
+
+  <!-- Panel completo (oculto por defecto hasta login exitoso) -->
+  <div id="panel" style="display:none;">
+    <section id="filtros">
+      <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
+      <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
+      <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-enproceso">🧁 En proceso (0)</button>
+      <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
+      <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
+      <input type="date" id="filtroFecha" onchange="filtrar()" style="margin-left: 8px;" />
+    </section>
+
+    <section id="pedidos"></section>
+  </div>
+  <script>
+const sheetURL = "https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec";
+let todosLosPedidos = [];
+
+if (sessionStorage.getItem("acceso") === "ok") {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("panel").style.display = "block";
+  cargarPedidos();
+}
+
+function iniciarSesion() {
+  const usuario = document.getElementById("loginUsuario").value.trim();
+  const clave = document.getElementById("loginClave").value.trim();
+
+  fetch(sheetURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `func=verificarCredenciales&usuario=${encodeURIComponent(usuario)}&clave=${encodeURIComponent(clave)}`
+  })
+  .then(r => r.json())
+  .then(resp => {
+    if (resp.acceso) {
+      sessionStorage.setItem("acceso", "ok");
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("panel").style.display = "block";
+      cargarPedidos();
+    } else {
+      mostrarError("Usuario o clave incorrectos.");
+    }
+  })
+  .catch(() => mostrarError("Error de conexión."));
+}
+
+function mostrarError(msg) {
+  const err = document.getElementById("loginError");
+  err.textContent = msg;
+  err.style.display = "block";
+}
+
+function cargarPedidos() {
+  fetch(sheetURL)
+    .then(r => r.json())
+    .then(data => {
+      todosLosPedidos = data.reverse();
+      mostrarPedidos(todosLosPedidos);
+    })
+    .catch(() => {
+      document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
+    });
+}
+
+function mostrarPedidos(lista) {
+  const cont = document.getElementById("pedidos");
+  cont.innerHTML = "";
+  actualizarResumenEstados(todosLosPedidos);
+
+  if (!lista.length) {
+    cont.innerHTML = "<p style='text-align:center;'>No hay pedidos disponibles.</p>";
+    return;
+  }
+
+  lista.forEach(p => {
+    const estado = (p.estado || "Pendiente").trim().toLowerCase();
+    const clase = estado.replace(/\s/g, "");
+    const div = document.createElement("div");
+    div.className = `pedido estado-${clase}`;
+    div.dataset.ticket = p.ticket;
+
+    const emoji = estado === "en proceso" ? "🧁" :
+                  estado === "listo" ? "🎂" :
+                  estado === "entregado" ? "📦" : "⏳";
+
+    const productosHTML = p.productos
+      ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("")
+      : "";
+
+    const fechaEntrega = p.fecha_de_entrega
+      ? new Date(p.fecha_de_entrega).toLocaleDateString("es-ES")
+      : "";
+
+    div.innerHTML = `
+      <span class="estado">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
+      <p><strong>🕒 Pedido:</strong> ${new Date(p.timestamp).toLocaleString("es-ES")}</p>
+      <p><strong>👤 Cliente:</strong> ${p.nombre}</p>
+      <p><strong>📞 Teléfono:</strong> +${p.codigo_pais || ""} ${p.telefono}</p>
+      ${p.entrega === "si" ? `
+        <p><strong>📍 Dirección:</strong> ${p.direccion}</p>
+        <p><strong>🏘️ Reparto:</strong> ${p.reparto}</p>
+      ` : `<p><strong>🏠 Retira en tienda</strong></p>`}
+      <p><strong>📅 Entrega:</strong> ${fechaEntrega}</p>
+      <p><strong>🛍️ Productos:</strong></p>
+      <ul class="productos-lista">${productosHTML}</ul>
+      <p>💰 <strong>Total:</strong> ${p.total} CUP <small>(Subtotal: ${p.subtotal} + Envío: ${p.envio})</small></p>
+
+      <div class="accion">
+        <label>📌 Cambiar estado:</label>
+        <select onchange="cambiarEstado(this, this.closest('.pedido'))">
+          <option ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
+          <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
+          <option ${estado === "listo" ? "selected" : ""}>Listo</option>
+          <option ${estado === "entregado" ? "selected" : ""}>Entregado</option>
+        </select>
+      </div>
+    `;
+
+    cont.appendChild(div);
+  });
+}
+  </script>
+  <script>
+function cambiarEstado(select, box) {
+  const nuevoEstado = select.value.trim();
+  const ticket = box.dataset.ticket;
+  const claseEstado = nuevoEstado.toLowerCase().replace(/\s/g, "");
+
+  const badge = box.querySelector(".estado");
+  const emoji = nuevoEstado === "En proceso" ? "🧁"
+              : nuevoEstado === "Listo" ? "🎂"
+              : nuevoEstado === "Entregado" ? "📦"
+              : "⏳";
+
+  badge.textContent = `${emoji} ${nuevoEstado}`;
+  box.className = `pedido estado-${claseEstado}`;
+
+  fetch(sheetURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
+  })
+  .then(r => r.text())
+  .then(() => {
+    const pedido = todosLosPedidos.find(p => p.ticket === ticket);
+    if (pedido) pedido.estado = nuevoEstado;
+    mostrarPedidos(todosLosPedidos);
+  })
+  .catch(e => console.error("❌ Error actualizando estado:", e));
+}
+
+function actualizarResumenEstados(lista) {
+  const resumen = {
+    pendiente: 0,
+    "en proceso": 0,
+    listo: 0,
+    entregado: 0
+  };
+
+  lista.forEach(p => {
+    const est = (p.estado || "Pendiente").trim().toLowerCase();
+    if (resumen[est] !== undefined) resumen[est]++;
+  });
+
+  document.getElementById("btn-pendiente").textContent = `📦 Pendientes (${resumen.pendiente})`;
+  document.getElementById("btn-enproceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
+  document.getElementById("btn-listo").textContent     = `🎂 Listos (${resumen.listo})`;
+  document.getElementById("btn-entregado").textContent = `✅ Entregados (${resumen.entregado})`;
+}
+
+function filtrar(estadoSeleccionado) {
+  const botones = document.querySelectorAll(".btn-filtro");
+  botones.forEach(b => b.classList.remove("activo"));
+
+  if (estadoSeleccionado) {
+    const id = "btn-" + estadoSeleccionado.replace(/\s/g, "");
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.add("activo");
+  }
+
+  const fechaFiltro = document.getElementById("filtroFecha").value;
+  const filtrados = todosLosPedidos.filter(p => {
+    const estado = (p.estado || "Pendiente").trim().toLowerCase();
+    const coincideEstado = estadoSeleccionado === "todos" || estado === estadoSeleccionado;
+    const fechaPedido = (p.fecha_de_entrega || "").split("T")[0];
+    const coincideFecha = !fechaFiltro || fechaFiltro === fechaPedido;
+    return coincideEstado && coincideFecha;
+  });
+
+  mostrarPedidos(filtrados);
+}
+</script>
+</body>
+</html>
