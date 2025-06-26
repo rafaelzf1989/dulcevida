@@ -32,35 +32,35 @@
     }
 
     .btn-filtro {
-      background-color: #e6f9f1;
-      color: #128C7E;
-      border: 1px solid #c4efe0;
-      padding: 8px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
+    .btn-filtro {
+  background-color: #25D366;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
 
-    .btn-filtro:hover {
-      background-color: #d2f3e3;
-    }
+.btn-filtro:hover {
+  background-color: #20b358;
+}
 
-    .btn-filtro.activo {
-      background-color: #128C7E;
-      color: white;
-      border-color: transparent;
-    }
+.btn-filtro.activo {
+  background-color: #128C7E;
+}
 
     .pedido {
-      background-color: #ffffff;
-      border-radius: 6px;
-      margin: 16px auto;
-      padding: 14px 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      max-width: 600px;
-      width: 92%;
+  border-radius: 6px;
+  margin: 16px auto;
+  padding: 16px 20px;
+  max-width: 600px;
+  width: 92%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: background-color 0.3s ease;
     }
 
     .estado {
@@ -72,10 +72,7 @@
       font-size: 13px;
     }
 
-    .estado-pendiente   { background-color: #ffe6e6; color: #b30000; }
-    .estado-proceso     { background-color: #fff0cc; color: #cc7a00; }
-    .estado-listo       { background-color: #e0f7fa; color: #00796b; }
-    .estado-entregado   { background-color: #dcedc8; color: #33691e; }
+    
 
     .productos-lista {
       padding-left: 20px;
@@ -150,7 +147,7 @@ function mostrarPedidos(pedidos) {
 
   pedidos.forEach(p => {
     const div = document.createElement("div");
-    div.className = "pedido";
+    div.className = `pedido estado-${estado}`;
     div.dataset.ticket = p.ticket;
 
     const estado = (p.estado || "pendiente").toLowerCase();
