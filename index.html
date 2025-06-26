@@ -111,6 +111,32 @@
   text-align: center;
 }
 
+    #carritoFlotante {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(37, 211, 102, 0.9); /* verde WhatsApp con transparencia */
+  color: white;
+  padding: 10px 14px;
+  border-radius: 50px;
+  font-size: 1.2em;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  cursor: pointer;
+  z-index: 999;
+}
+
+#carritoFlotante span {
+  background: white;
+  color: #25D366;
+  border-radius: 50%;
+  padding: 2px 8px;
+  font-size: 0.9em;
+}
+
   </style>
 </head>
 <body>
@@ -389,6 +415,8 @@ function actualizarCarrito() {
   });
   document.getElementById('totalCarrito').textContent = subtotal;
   actualizarTarifa();
+  document.getElementById('contadorCarrito').textContent = carrito.reduce((acc, i) => acc + i.cantidad, 0);
+
 }
 
 function actualizarTarifa() {
@@ -486,6 +514,10 @@ document.getElementById('f_ticket').value = ticket;
 cargarProductos();
 actualizarCarrito();
 </script>
+  <div id="carritoFlotante" onclick="irAlCarrito()">
+  🛒 <span id="contadorCarrito">0</span>
+</div>
+
 </body>
 </html>
 
