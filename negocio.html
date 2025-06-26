@@ -2,108 +2,109 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Panel de Gestión – Dulce Vida</title>
   <style>
-  body {
-    background-color: #f0f2f5;
-    color: #202020;
-    font-family: 'Segoe UI', sans-serif;
-    margin: 0;
-    padding: 0;
-  }
+    body {
+      background-color: #f0f2f5;
+      color: #202020;
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
-  header {
-    background-color: #ffffff;
-    padding: 15px 20px;
-    color: #128C7E;
-    font-size: 20px;
-    font-weight: bold;
-    text-align: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
+    header {
+      background-color: #ffffff;
+      padding: 15px 20px;
+      color: #128C7E;
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
 
-  #filtros {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px;
-  }
+    #filtros {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      background-color: #ffffff;
+    }
 
-  .btn-filtro {
-    background-color: #25D366;
-    color: white;
-    border: none;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
-  }
-
-  .btn-filtro:hover {
-    background-color: #20b358;
-  }
-
-  .btn-filtro.activo {
-    background-color: #128C7E;
-  }
-
-  .pedido {
-    border-radius: 6px;
-    margin: 16px auto;
-    padding: 16px 20px;
-    max-width: 600px;
-    width: 92%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-    transition: background-color 0.3s ease;
-  }
-
-  .estado-pendiente   { background-color: #fdecea; color: #a30000; }
-  .estado-proceso     { background-color: #fff7e6; color: #b26b00; }
-  .estado-listo       { background-color: #e6f8f9; color: #00796b; }
-  .estado-entregado   { background-color: #e6f4ea; color: #2e7d32; }
-
-  .estado {
-    display: inline-block;
-    font-weight: bold;
-    margin-bottom: 6px;
-    padding: 4px 10px;
-    border-radius: 16px;
-    font-size: 13px;
-    background: rgba(0, 0, 0, 0.05);
-  }
-
-  .productos-lista {
-    padding-left: 20px;
-    margin: 6px 0;
-  }
-
-  .accion {
-    margin-top: 10px;
-  }
-
-  select {
-    padding: 6px;
-    border-radius: 6px;
-    width: 100%;
-    max-width: 250px;
-    margin-top: 6px;
-  }
-
-  @media screen and (max-width: 600px) {
     .btn-filtro {
+      background-color: #25D366;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .btn-filtro:hover {
+      background-color: #20b358;
+    }
+
+    .btn-filtro.activo {
+      background-color: #128C7E;
+    }
+
+    .pedido {
+      border-radius: 6px;
+      margin: 16px auto;
+      padding: 16px 20px;
+      max-width: 600px;
+      width: 92%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: background-color 0.3s ease;
+    }
+
+    .estado-pendiente   { background-color: #fdecea; color: #a30000; }
+    .estado-enproceso   { background-color: #fff7e6; color: #b26b00; }
+    .estado-listo       { background-color: #e6f8f9; color: #00796b; }
+    .estado-entregado   { background-color: #e6f4ea; color: #2e7d32; }
+
+    .estado {
+      display: inline-block;
+      font-weight: bold;
+      margin-bottom: 6px;
+      padding: 4px 10px;
+      border-radius: 16px;
       font-size: 13px;
-      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.05);
+    }
+
+    .productos-lista {
+      padding-left: 20px;
+      margin: 6px 0;
+    }
+
+    .accion {
+      margin-top: 10px;
     }
 
     select {
-      font-size: 14px;
+      padding: 6px;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 250px;
+      margin-top: 6px;
     }
-  }
+
+    @media screen and (max-width: 600px) {
+      .btn-filtro {
+        font-size: 13px;
+        padding: 6px 10px;
+      }
+
+      select {
+        font-size: 14px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -112,7 +113,7 @@
   <section id="filtros">
     <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
     <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
-    <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-proceso">🧁 En proceso (0)</button>
+    <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-enproceso">🧁 En proceso (0)</button>
     <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
     <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
     <div style="display:flex; align-items:center; gap: 6px;">
@@ -137,44 +138,50 @@ fetch(sheetURL)
     console.error("Error cargando datos:", err);
   });
 
-function mostrarPedidos(pedidos) {
+function mostrarPedidos(lista) {
   const cont = document.getElementById("pedidos");
   cont.innerHTML = "";
 
-  actualizarResumenEstados(todosLosPedidos); // Para actualizar los botones
+  actualizarResumenEstados(todosLosPedidos); // actualiza los botones
 
-  if (!pedidos.length) {
+  if (!lista.length) {
     cont.innerHTML = "<p style='text-align:center;'>No hay pedidos que coincidan con los filtros.</p>";
     return;
   }
 
-  pedidos.forEach(p => {
+  lista.forEach(p => {
+    const estado = (p.estado || "Pendiente").trim().toLowerCase();
+    const claseEstado = estado.replace(/\s/g, ""); // ej: "en proceso" → "enproceso"
     const div = document.createElement("div");
-    div.className = `pedido estado-${estado}`;
+    div.className = `pedido estado-${claseEstado}`;
     div.dataset.ticket = p.ticket;
 
-    const estado = (p.estado || "pendiente").toLowerCase();
-    let emoji = "⏳", clase = "estado-pendiente";
-    if (estado === "en proceso") { emoji = "🧁"; clase = "estado-proceso"; }
-    if (estado === "listo")      { emoji = "🎂"; clase = "estado-listo"; }
-    if (estado === "entregado")  { emoji = "📦"; clase = "estado-entregado"; }
+    const emoji = estado === "en proceso" ? "🧁"
+                : estado === "listo" ? "🎂"
+                : estado === "entregado" ? "📦"
+                : "⏳";
 
-    const lista = p.productos ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("") : "";
+    const productosHTML = p.productos
+      ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("")
+      : "";
+
+    const fechaEntrega = p.fecha_de_entrega
+      ? new Date(p.fecha_de_entrega).toLocaleDateString("es-ES")
+      : "";
 
     div.innerHTML = `
-      <span class="estado ${clase}">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
-      <p class="timestamp">🕒 ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : ""}</p>
+      <span class="estado">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
+      <p><strong>🕒 Pedido:</strong> ${new Date(p.timestamp).toLocaleString("es-ES")}</p>
       <p><strong>👤 Cliente:</strong> ${p.nombre}</p>
-      <p><strong>📞 Teléfono:</strong> +${p.codigopais || ""} ${p.telefono}</p>
+      <p><strong>📞 Teléfono:</strong> +${p.codigo_pais || ""} ${p.telefono}</p>
       ${p.entrega === "si" ? `
         <p><strong>📍 Dirección:</strong> ${p.direccion}</p>
         <p><strong>🏘️ Reparto:</strong> ${p.reparto}</p>
       ` : `<p><strong>🏠 Retira en tienda</strong></p>`}
-      ${p.fecha_entrega ? `<p><strong>📅 Entrega:</strong> ${new Date(p.fecha_entrega).toLocaleDateString("es-ES")}</p>` : ""}
+      <p><strong>📅 Entrega:</strong> ${fechaEntrega}</p>
       <p><strong>🛍️ Productos:</strong></p>
-      <ul class="productos-lista">${lista}</ul>
-      <p class="total">💰 Total: ${p.total} CUP</p>
-      <p class="detalle">(Subtotal: ${p.subtotal} + Envío: ${p.envio})</p>
+      <ul class="productos-lista">${productosHTML}</ul>
+      <p>💰 <strong>Total:</strong> ${p.total} CUP <small>(Subtotal: ${p.subtotal} + Envío: ${p.envio})</small></p>
 
       <div class="accion">
         <label>📌 Cambiar estado:</label>
@@ -192,128 +199,18 @@ function mostrarPedidos(pedidos) {
 }
 
 function cambiarEstado(select, box) {
-  const nuevoEstado = select.value.toLowerCase();
+  const nuevoEstado = select.value.trim();
   const ticket = box.dataset.ticket;
+  const claseEstado = nuevoEstado.toLowerCase().replace(/\s/g, "");
 
   const badge = box.querySelector(".estado");
-  const emoji = nuevoEstado === "en proceso" ? "🧁" :
-                nuevoEstado === "listo" ? "🎂" :
-                nuevoEstado === "entregado" ? "📦" : "⏳";
-  badge.textContent = `${emoji} ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`;
-  badge.className = `estado estado-${nuevoEstado}`;
-  box.className = `pedido estado-${nuevoEstado}`;
+  const emoji = nuevoEstado === "En proceso" ? "🧁"
+              : nuevoEstado === "Listo" ? "🎂"
+              : nuevoEstado === "Entregado" ? "📦"
+              : "⏳";
 
-  fetch(sheetURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
-  })
-  .then(r => r.text())
-  .then(() => actualizarResumenEstados(todosLosPedidos))
-  .catch(e => console.error("❌ Error:", e));
-}
-
-function actualizarResumenEstados(lista) {
-  const resumen = {
-    pendiente: 0,
-    "en proceso": 0,
-    listo: 0,
-    entregado: 0
-  };
-
-  lista.forEach(p => {
-    const estado = (p.estado || "pendiente").toLowerCase();
-    if (resumen[estado] !== undefined) resumen[estado]++;
-  });
-
-  document.getElementById("btn-pendiente").textContent = `📦 Pendientes (${resumen.pendiente})`;
-  document.getElementById("btn-proceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
-  document.getElementById("btn-listo").textContent     = `🎂 Listos (${resumen.listo})`;
-  document.getElementById("btn-entregado").textContent = `✅ Entregados (${resumen.entregado})`;
-}
-
-function filtrar(estadoSeleccionado) {
-<script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbyrDKSDPyWKzDNZmCjPufrhO3KELV1MPl5gOQ-xvtM6580kr4erBGZgRKwTeedy775P/exec";
-let todosLosPedidos = [];
-
-fetch(sheetURL)
-  .then(r => r.json())
-  .then(data => {
-    todosLosPedidos = data.reverse();
-    mostrarPedidos(todosLosPedidos);
-  })
-  .catch(err => {
-    document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
-    console.error("Error cargando datos:", err);
-  });
-
-function mostrarPedidos(pedidos) {
-  const cont = document.getElementById("pedidos");
-  cont.innerHTML = "";
-
-  actualizarResumenEstados(todosLosPedidos); // Actualiza los botones
-
-  if (!pedidos.length) {
-    cont.innerHTML = "<p style='text-align:center;'>No hay pedidos que coincidan con los filtros.</p>";
-    return;
-  }
-
-  pedidos.forEach(p => {
-    const div = document.createElement("div");
-    const estado = (p.estado || "pendiente").trim().toLowerCase();
-    div.className = `pedido estado-${estado}`;
-    div.dataset.ticket = p.ticket;
-
-    const emoji = estado === "en proceso" ? "🧁" :
-                  estado === "listo"      ? "🎂" :
-                  estado === "entregado"  ? "📦" : "⏳";
-
-    const lista = p.productos
-      ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("")
-      : "";
-
-    div.innerHTML = `
-      <span class="estado">${emoji} ${estado.charAt(0).toUpperCase() + estado.slice(1)}</span>
-      <p class="timestamp">🕒 ${p.timestamp ? new Date(p.timestamp).toLocaleString("es-ES") : ""}</p>
-      <p><strong>👤 Cliente:</strong> ${p.nombre}</p>
-      <p><strong>📞 Teléfono:</strong> +${p.codigopais || ""} ${p.telefono}</p>
-      ${p.entrega === "si" ? `
-        <p><strong>📍 Dirección:</strong> ${p.direccion}</p>
-        <p><strong>🏘️ Reparto:</strong> ${p.reparto}</p>
-      ` : `<p><strong>🏠 Retira en tienda</strong></p>`}
-      ${p.fecha_entrega ? `<p><strong>📅 Entrega:</strong> ${new Date(p.fecha_entrega).toLocaleDateString("es-ES")}</p>` : ""}
-      <p><strong>🛍️ Productos:</strong></p>
-      <ul class="productos-lista">${lista}</ul>
-      <p class="total">💰 Total: ${p.total} CUP</p>
-      <p class="detalle">(Subtotal: ${p.subtotal} + Envío: ${p.envio})</p>
-
-      <div class="accion">
-        <label>📌 Cambiar estado:</label>
-        <select onchange="cambiarEstado(this, this.closest('.pedido'))">
-          <option ${estado === "pendiente" ? "selected" : ""}>Pendiente</option>
-          <option ${estado === "en proceso" ? "selected" : ""}>En proceso</option>
-          <option ${estado === "listo" ? "selected" : ""}>Listo</option>
-          <option ${estado === "entregado" ? "selected" : ""}>Entregado</option>
-        </select>
-      </div>
-    `;
-
-    cont.appendChild(div);
-  });
-        }
-  function cambiarEstado(select, box) {
-  const nuevoEstado = select.value.trim().toLowerCase();
-  const ticket = box.dataset.ticket;
-
-  const badge = box.querySelector(".estado");
-  const emoji = nuevoEstado === "en proceso" ? "🧁" :
-                nuevoEstado === "listo" ? "🎂" :
-                nuevoEstado === "entregado" ? "📦" : "⏳";
-
-  badge.textContent = `${emoji} ${nuevoEstado.charAt(0).toUpperCase() + nuevoEstado.slice(1)}`;
-  badge.className = `estado`;
-  box.className = `pedido estado-${nuevoEstado}`;
+  badge.textContent = `${emoji} ${nuevoEstado}`;
+  box.className = `pedido estado-${claseEstado}`;
 
   fetch(sheetURL, {
     method: "POST",
@@ -322,7 +219,6 @@ function mostrarPedidos(pedidos) {
   })
   .then(r => r.text())
   .then(() => {
-    console.log("✅ Estado actualizado correctamente");
     const pedido = todosLosPedidos.find(p => p.ticket === ticket);
     if (pedido) pedido.estado = nuevoEstado;
     mostrarPedidos(todosLosPedidos);
@@ -339,12 +235,12 @@ function actualizarResumenEstados(lista) {
   };
 
   lista.forEach(p => {
-    const estado = (p.estado || "pendiente").trim().toLowerCase();
-    if (resumen[estado] !== undefined) resumen[estado]++;
+    const est = (p.estado || "Pendiente").trim().toLowerCase();
+    if (resumen[est] !== undefined) resumen[est]++;
   });
 
   document.getElementById("btn-pendiente").textContent = `📦 Pendientes (${resumen.pendiente})`;
-  document.getElementById("btn-proceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
+  document.getElementById("btn-enproceso").textContent = `🧁 En proceso (${resumen["en proceso"]})`;
   document.getElementById("btn-listo").textContent     = `🎂 Listos (${resumen.listo})`;
   document.getElementById("btn-entregado").textContent = `✅ Entregados (${resumen.entregado})`;
 }
@@ -354,17 +250,17 @@ function filtrar(estadoSeleccionado) {
   botones.forEach(b => b.classList.remove("activo"));
 
   if (estadoSeleccionado) {
-    const idBoton = "btn-" + estadoSeleccionado.replace(/\s/g, "");
-    const botonActivo = document.getElementById(idBoton);
-    if (botonActivo) botonActivo.classList.add("activo");
+    const id = "btn-" + estadoSeleccionado.replace(/\s/g, "");
+    const btn = document.getElementById(id);
+    if (btn) btn.classList.add("activo");
   }
 
-  const fecha = document.getElementById("filtroFecha").value;
+  const fechaFiltro = document.getElementById("filtroFecha").value;
   const filtrados = todosLosPedidos.filter(p => {
-    const estado = (p.estado || "pendiente").trim().toLowerCase();
-    const fechaEntrega = (p.fecha_entrega || "").split("T")[0];
-    const coincideEstado = !estadoSeleccionado || estadoSeleccionado === "todos" || estado === estadoSeleccionado;
-    const coincideFecha = !fecha || fecha === fechaEntrega;
+    const estado = (p.estado || "Pendiente").trim().toLowerCase();
+    const coincideEstado = estadoSeleccionado === "todos" || estado === estadoSeleccionado;
+    const fechaPedido = (p.fecha_de_entrega || "").split("T")[0];
+    const coincideFecha = !fechaFiltro || fechaFiltro === fechaPedido;
     return coincideEstado && coincideFecha;
   });
 
