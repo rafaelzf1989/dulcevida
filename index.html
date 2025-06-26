@@ -299,7 +299,12 @@
   <label for="fechaEntrega">Fecha y hora deseada de entrega</label>
   <input type="datetime-local" id="fechaEntrega" required />
 
-  <button onclick="enviarPedido()">📤 Enviar por WhatsApp</button>
+  <button onclick="enviarPedido()" style="display: flex; align-items: center; gap: 8px;">
+  <img src="https://file.garden/aEX2yhToiQk-s_Qq/IMG_COM_202506261242078500.png"
+       alt="Icono WhatsApp"
+       style="width: 20px; height: 20px; object-fit: contain;" />
+  Enviar por WhatsApp
+  </button>
 
   <p id="mensajeCompra"></p>
 </section>
