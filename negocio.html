@@ -122,9 +122,27 @@
     </div>
   </section>
 
-  <section id="pedidos"></section>
+  <div id="loginBox" style="max-width:400px; margin:40px auto; padding:20px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.1); border-radius:8px;">
+  <h2 style="color:#128C7E; text-align:center;">Acceso al Panel</h2>
+  <label>👤 Usuario</label>
+  <input type="text" id="loginUsuario" style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc;" />
+
+  <label>🔒 Contraseña</label>
+  <input type="password" id="loginClave" style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc;" />
+
+  <button onclick="iniciarSesion()" style="width:100%; background-color:#25D366; color:white; font-weight:bold; padding:10px; border:none; border-radius:6px; cursor:pointer;">
+    Iniciar sesión
+  </button>
+
+  <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;">Usuario o clave incorrectos.</p>
+</div>
+
+<!-- Contenedor de pedidos oculto por defecto -->
+<section id="pedidos" style="display:none;"></section>
+
+  
   <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbyrDKSDPyWKzDNZmCjPufrhO3KELV1MPl5gOQ-xvtM6580kr4erBGZgRKwTeedy775P/exec";
+const sheetURL = "https://script.google.com/macros/s/AKfycbzV5behE5NhIPnUEBbkyxSKauwmrcg2-McT_qP_pepTdAACd8a1-xuLZ0CrbYuzZFiG/exec";
 let todosLosPedidos = [];
 
 fetch(sheetURL)
@@ -267,5 +285,68 @@ function filtrar(estadoSeleccionado) {
   mostrarPedidos(filtrados);
 }
 </script>
+
+<script>
+const sheetURL = "https://script.google.com/macros/s/AKfycbzV5behE5NhIPnUEBbkyxSKauwmrcg2-McT_qP_pepTdAACd8a1-xuLZ0CrbYuzZFiG/exec";
+
+// Si ya hay sesión guardada, omite login
+if (sessionStorage.getItem("acceso") === "ok") {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("pedidos").style.display = "block";
+  cargarPedidos();
+}
+
+function iniciarSesion() {
+  const usuario = document.getElementById("loginUsuario").value.trim();
+  const clave = document.getElementById("loginClave").value.trim();
+
+  if (!usuario || !clave) {
+    mostrarError("Por favor completa ambos campos.");
+    return;
+  }
+
+  const body = `func=verificarCredenciales&usuario=${encodeURIComponent(usuario)}&clave=${encodeURIComponent(clave)}`;
+
+  fetch(sheetURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body
+  })
+    .then(r => r.json())
+    .then(resp => {
+      if (resp.acceso) {
+        sessionStorage.setItem("acceso", "ok");
+        document.getElementById("loginBox").style.display = "none";
+        document.getElementById("pedidos").style.display = "block";
+        cargarPedidos();
+      } else {
+        mostrarError("Usuario o clave incorrectos.");
+      }
+    })
+    .catch(() => mostrarError("Error de conexión."));
+}
+
+function mostrarError(msg) {
+  const err = document.getElementById("loginError");
+  err.textContent = msg;
+  err.style.display = "block";
+}
+
+let todosLosPedidos = [];
+
+function cargarPedidos() {
+  fetch(sheetURL)
+    .then(r => r.json())
+    .then(data => {
+      todosLosPedidos = data.reverse();
+      mostrarPedidos(todosLosPedidos);
+    })
+    .catch(err => {
+      document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
+      console.error("Error cargando datos:", err);
+    });
+}
+</script>
+  
 </body>
 </html>
