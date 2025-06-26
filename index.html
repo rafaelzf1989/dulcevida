@@ -137,6 +137,11 @@
   font-size: 0.9em;
 }
 
+      .producto.agotado img {
+  filter: grayscale(100%) brightness(0.9);
+  opacity: 0.7;
+      }
+
   </style>
 </head>
 <body>
@@ -403,7 +408,10 @@ function cargarProductos() {
 div.className = 'producto';
 
 const estado = estadosProductos[p.nombre] || '';
+const agotado = estado.toLowerCase().includes('agotado');
 
+if (agotado) div.classList.add('agotado');
+    
 div.innerHTML = `
   ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
   <img src="${p.img}" alt="${p.nombre}" />
@@ -411,11 +419,13 @@ div.innerHTML = `
   <p>${p.descripcion}</p>
   <p><strong>${p.precio} CUP</strong></p>
   <div class="control-cantidad">
-    <button onclick="modificarCantidad(${p.id}, -1)">−</button>
+    <button onclick="modificarCantidad(${p.id}, -1)" ${agotado ? 'disabled' : ''}>−</button>
     <span id="cantidad-${p.id}">0</span>
-    <button onclick="modificarCantidad(${p.id}, 1)">+</button>
+    <button onclick="modificarCantidad(${p.id}, 1)" ${agotado ? 'disabled' : ''}>+</button>
   </div>
-  <button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>
+  ${agotado
+    ? `<button disabled style="background: gray; cursor: not-allowed;">No disponible</button>`
+    : `<button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>`}
 `;
 
 
