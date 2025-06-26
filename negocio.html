@@ -23,6 +23,11 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
+    #filtros, .pedido, #loginBox {
+      max-width: 600px;
+      margin: auto;
+    }
+
     #filtros {
       display: flex;
       flex-wrap: wrap;
@@ -57,8 +62,6 @@
       border-radius: 6px;
       margin: 16px auto;
       padding: 16px 20px;
-      max-width: 600px;
-      width: 92%;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       transition: background-color 0.3s ease;
     }
@@ -87,12 +90,21 @@
       margin-top: 10px;
     }
 
-    select {
+    select, input {
       padding: 6px;
       border-radius: 6px;
       width: 100%;
       max-width: 250px;
       margin-top: 6px;
+      border: 1px solid #ccc;
+    }
+
+    #loginBox {
+      padding: 20px;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      margin-top: 40px;
     }
 
     @media screen and (max-width: 600px) {
@@ -100,8 +112,7 @@
         font-size: 13px;
         padding: 6px 10px;
       }
-
-      select {
+      select, input {
         font-size: 14px;
       }
     }
@@ -109,75 +120,106 @@
 </head>
 <body>
   <header>🎂 Panel de Gestión – Dulce Vida</header>
+  <!-- Formulario de acceso -->
+  <div id="loginBox">
+    <h2 style="color:#128C7E; text-align:center;">Acceso al Panel</h2>
+    <label>👤 Usuario</label>
+    <input type="text" id="loginUsuario" placeholder="Ej: admin" />
 
-  <section id="filtros">
-    <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
-    <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
-    <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-enproceso">🧁 En proceso (0)</button>
-    <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
-    <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
-    <div style="display:flex; align-items:center; gap: 6px;">
-      <span style="font-weight:bold;">📅 Por fecha:</span>
-      <input type="date" id="filtroFecha" onchange="filtrar()" style="color:#999;" oninput="this.style.color='#000';" />
-    </div>
-  </section>
+    <label>🔒 Contraseña</label>
+    <input type="password" id="loginClave" placeholder="Ej: clave123" />
 
-  <div id="loginBox" style="max-width:400px; margin:40px auto; padding:20px; background:#fff; box-shadow:0 2px 10px rgba(0,0,0,0.1); border-radius:8px;">
-  <h2 style="color:#128C7E; text-align:center;">Acceso al Panel</h2>
-  <label>👤 Usuario</label>
-  <input type="text" id="loginUsuario" style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc;" />
+    <button onclick="iniciarSesion()" style="margin-top:12px; background-color:#25D366; color:white; font-weight:bold; padding:10px; border:none; border-radius:6px; cursor:pointer;">
+      Iniciar sesión
+    </button>
 
-  <label>🔒 Contraseña</label>
-  <input type="password" id="loginClave" style="width:100%; padding:8px; margin-bottom:10px; border-radius:6px; border:1px solid #ccc;" />
+    <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;"></p>
+  </div>
 
-  <button onclick="iniciarSesion()" style="width:100%; background-color:#25D366; color:white; font-weight:bold; padding:10px; border:none; border-radius:6px; cursor:pointer;">
-    Iniciar sesión
-  </button>
+  <!-- Panel completo (oculto por defecto hasta login exitoso) -->
+  <div id="panel" style="display:none;">
+    <section id="filtros">
+      <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
+      <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
+      <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-enproceso">🧁 En proceso (0)</button>
+      <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
+      <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
+      <input type="date" id="filtroFecha" onchange="filtrar()" style="margin-left: 8px;" />
+    </section>
 
-  <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;">Usuario o clave incorrectos.</p>
-</div>
-
-<!-- Contenedor de pedidos oculto por defecto -->
-<section id="pedidos" style="display:none;"></section>
-
-  
+    <section id="pedidos"></section>
+  </div>
   <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbzIvYvqsOO8uz56kpeGKOBd7h_UTqic0XF8EfdxHtb97Pqi22evXL9FMp_M4fvPEFJ7/exec";
+const sheetURL = "https://script.google.com/macros/s/AKfycbww9f-dhSQGrBPswkWU_tEDvYLQNQ5E8cCcZj1lDxhm7sqNISGR5cUzJfntB4mNCied/exec";
 let todosLosPedidos = [];
 
-fetch(sheetURL)
-  .then(r => r.json())
-  .then(data => {
-    todosLosPedidos = data.reverse();
-    mostrarPedidos(todosLosPedidos);
+if (sessionStorage.getItem("acceso") === "ok") {
+  document.getElementById("loginBox").style.display = "none";
+  document.getElementById("panel").style.display = "block";
+  cargarPedidos();
+}
+
+function iniciarSesion() {
+  const usuario = document.getElementById("loginUsuario").value.trim();
+  const clave = document.getElementById("loginClave").value.trim();
+
+  fetch(sheetURL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `func=verificarCredenciales&usuario=${encodeURIComponent(usuario)}&clave=${encodeURIComponent(clave)}`
   })
-  .catch(err => {
-    document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
-    console.error("Error cargando datos:", err);
-  });
+  .then(r => r.json())
+  .then(resp => {
+    if (resp.acceso) {
+      sessionStorage.setItem("acceso", "ok");
+      document.getElementById("loginBox").style.display = "none";
+      document.getElementById("panel").style.display = "block";
+      cargarPedidos();
+    } else {
+      mostrarError("Usuario o clave incorrectos.");
+    }
+  })
+  .catch(() => mostrarError("Error de conexión."));
+}
+
+function mostrarError(msg) {
+  const err = document.getElementById("loginError");
+  err.textContent = msg;
+  err.style.display = "block";
+}
+
+function cargarPedidos() {
+  fetch(sheetURL)
+    .then(r => r.json())
+    .then(data => {
+      todosLosPedidos = data.reverse();
+      mostrarPedidos(todosLosPedidos);
+    })
+    .catch(() => {
+      document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
+    });
+}
 
 function mostrarPedidos(lista) {
   const cont = document.getElementById("pedidos");
   cont.innerHTML = "";
-
-  actualizarResumenEstados(todosLosPedidos); // actualiza los botones
+  actualizarResumenEstados(todosLosPedidos);
 
   if (!lista.length) {
-    cont.innerHTML = "<p style='text-align:center;'>No hay pedidos que coincidan con los filtros.</p>";
+    cont.innerHTML = "<p style='text-align:center;'>No hay pedidos disponibles.</p>";
     return;
   }
 
   lista.forEach(p => {
     const estado = (p.estado || "Pendiente").trim().toLowerCase();
-    const claseEstado = estado.replace(/\s/g, ""); // ej: "en proceso" → "enproceso"
+    const clase = estado.replace(/\s/g, "");
     const div = document.createElement("div");
-    div.className = `pedido estado-${claseEstado}`;
+    div.className = `pedido estado-${clase}`;
     div.dataset.ticket = p.ticket;
 
-    const emoji = estado === "en proceso" ? "🧁"
-                : estado === "listo" ? "🎂"
-                : estado === "entregado" ? "📦"
-                : "⏳";
+    const emoji = estado === "en proceso" ? "🧁" :
+                  estado === "listo" ? "🎂" :
+                  estado === "entregado" ? "📦" : "⏳";
 
     const productosHTML = p.productos
       ? p.productos.split(",").map(i => `<li>🍰 ${i.trim()}</li>`).join("")
@@ -215,7 +257,8 @@ function mostrarPedidos(lista) {
     cont.appendChild(div);
   });
 }
-
+  </script>
+  <script>
 function cambiarEstado(select, box) {
   const nuevoEstado = select.value.trim();
   const ticket = box.dataset.ticket;
@@ -285,68 +328,5 @@ function filtrar(estadoSeleccionado) {
   mostrarPedidos(filtrados);
 }
 </script>
-
-<script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbzIvYvqsOO8uz56kpeGKOBd7h_UTqic0XF8EfdxHtb97Pqi22evXL9FMp_M4fvPEFJ7/exec";
-
-// Si ya hay sesión guardada, omite login
-if (sessionStorage.getItem("acceso") === "ok") {
-  document.getElementById("loginBox").style.display = "none";
-  document.getElementById("pedidos").style.display = "block";
-  cargarPedidos();
-}
-
-function iniciarSesion() {
-  const usuario = document.getElementById("loginUsuario").value.trim();
-  const clave = document.getElementById("loginClave").value.trim();
-
-  if (!usuario || !clave) {
-    mostrarError("Por favor completa ambos campos.");
-    return;
-  }
-
-  const body = `func=verificarCredenciales&usuario=${encodeURIComponent(usuario)}&clave=${encodeURIComponent(clave)}`;
-
-  fetch(sheetURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body
-  })
-    .then(r => r.json())
-    .then(resp => {
-      if (resp.acceso) {
-        sessionStorage.setItem("acceso", "ok");
-        document.getElementById("loginBox").style.display = "none";
-        document.getElementById("pedidos").style.display = "block";
-        cargarPedidos();
-      } else {
-        mostrarError("Usuario o clave incorrectos.");
-      }
-    })
-    .catch(() => mostrarError("Error de conexión."));
-}
-
-function mostrarError(msg) {
-  const err = document.getElementById("loginError");
-  err.textContent = msg;
-  err.style.display = "block";
-}
-
-let todosLosPedidos = [];
-
-function cargarPedidos() {
-  fetch(sheetURL)
-    .then(r => r.json())
-    .then(data => {
-      todosLosPedidos = data.reverse();
-      mostrarPedidos(todosLosPedidos);
-    })
-    .catch(err => {
-      document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
-      console.error("Error cargando datos:", err);
-    });
-}
-</script>
-  
 </body>
 </html>
