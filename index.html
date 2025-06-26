@@ -221,6 +221,26 @@
     font-weight: bold;
     color: green;
   }
+
+    .etiqueta {
+  position: absolute;
+  background: rgba(255, 87, 34, 0.9); /* naranja fuerte */
+  color: white;
+  font-size: 0.75em;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 0 0 6px 0;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.producto {
+  position: relative;
+}
+
+
+  
 </style>
 
 <section id="cliente">
@@ -280,7 +300,7 @@
 
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycbww9f-dhSQGrBPswkWU_tEDvYLQNQ5E8cCcZj1lDxhm7sqNISGR5cUzJfntB4mNCied/exec"
+  action="https://script.google.com/macros/s/AKfycby6S9jOOZ5VFcKRNOfq8H7cVA7U2CJ1hylok43fMpWH5T_WzkB7aPChgrUpZjS4r-Dv/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input name="nombre"         id="f_nombre" />
   <input name="telefono"       id="f_telefono" />
@@ -299,6 +319,16 @@
 <iframe name="sheetResponse" style="display:none;"></iframe>
 
 <script>
+  let estadosProductos = {};
+
+fetch("https://script.google.com/macros/s/AKfycby6S9jOOZ5VFcKRNOfq8H7cVA7U2CJ1hylok43fMpWH5T_WzkB7aPChgrUpZjS4r-Dv/exec?func=obtenerEstadosProductos")
+  .then(r => r.json())
+  .then(data => {
+    estadosProductos = data;
+    cargarProductos(); // se llama después de tener los estados listos
+  });
+
+  
 const productos = [
   {
     id: 1,
@@ -368,8 +398,12 @@ function cargarProductos() {
   cont.innerHTML = '';
   productos.forEach(p => {
     const div = document.createElement('div');
-    div.className = 'producto';
-    div.innerHTML = `
+div.className = 'producto';
+
+const estado = estadosProductos[p.nombre] || '';
+
+div.innerHTML = `
+  ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
   <img src="${p.img}" alt="${p.nombre}" />
   <h3>${p.nombre}</h3>
   <p>${p.descripcion}</p>
@@ -381,6 +415,7 @@ function cargarProductos() {
   </div>
   <button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>
 `;
+
 
     cont.appendChild(div);
   });
