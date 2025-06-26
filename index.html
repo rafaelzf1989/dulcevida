@@ -240,6 +240,7 @@
 }
 
 
+
   
 </style>
 
@@ -300,7 +301,7 @@
 
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycby6S9jOOZ5VFcKRNOfq8H7cVA7U2CJ1hylok43fMpWH5T_WzkB7aPChgrUpZjS4r-Dv/exec"
+  action="https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input name="nombre"         id="f_nombre" />
   <input name="telefono"       id="f_telefono" />
@@ -321,12 +322,13 @@
 <script>
   let estadosProductos = {};
 
-fetch("https://script.google.com/macros/s/AKfycby6S9jOOZ5VFcKRNOfq8H7cVA7U2CJ1hylok43fMpWH5T_WzkB7aPChgrUpZjS4r-Dv/exec?func=obtenerEstadosProductos")
-  .then(r => r.json())
+fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
+  .then(respuesta => respuesta.json())
   .then(data => {
     estadosProductos = data;
-    cargarProductos(); // se llama después de tener los estados listos
+    cargarProductos(); // carga los productos después de tener los estados
   });
+
 
   
 const productos = [
@@ -415,6 +417,7 @@ div.innerHTML = `
   </div>
   <button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>
 `;
+
 
 
     cont.appendChild(div);
