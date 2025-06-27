@@ -543,7 +543,7 @@
   </section>
 </main>
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec"
+  action="https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input type="hidden" name="nombre" id="inputNombre" />
   <input type="hidden" name="telefono" id="inputTelefono" />
@@ -617,14 +617,14 @@
   // Primero cargamos los rellenos, luego los estados y productos
   function iniciarCarga() {
     Promise.all([
-      fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=rellenosDisponibles")
+      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec")
         .then(r => r.json())
         .then(data => {
           rellenosEspecial = data;
           rellenosEspecialCargados = true;
           cantidadesRellenos = Array(rellenosEspecial.length).fill(0);
         }),
-      fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
+      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec")
         .then(respuesta => respuesta.json())
         .then(data => {
           estadosProductos = data;
