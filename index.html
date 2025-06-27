@@ -6,63 +6,30 @@
   <title>Dulce Vida</title>
   <link rel="icon" type="image/png" href="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/favicon.png">
   <style>
-    html, body {
-      width: 100%;
-      min-width: 0;
-      max-width: 100vw;
-      overflow-x: hidden;
-      box-sizing: border-box;
-    }
     body {
-      margin: 0;
+      background-color: #f5f5f5;
+      color: #202020;
       font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #333;
+      margin: 0;
+      padding: 0;
       width: 100vw;
       max-width: 100vw;
       overflow-x: hidden;
     }
-    #loader {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(255,255,255,0.93);
-      z-index: 2000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      transition: opacity 0.4s;
-      font-size: 1.4em;
-    }
-    #loader.oculto {
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s;
-    }
-    .loader-spinner {
-      border: 6px solid #eee;
-      border-top: 6px solid #25D366;
-      border-radius: 50%;
-      width: 46px;
-      height: 46px;
-      animation: spin 1s linear infinite;
-      margin-bottom: 18px;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg);}
-      100% { transform: rotate(360deg);}
-    }
     header {
       background: #fff;
-      padding: 10px;
+      padding: 10px 10px 0 10px;
       text-align: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       border-bottom: 2px solid #ccc;
       max-width: 100vw;
       overflow: hidden;
     }
     header img {
-      max-width: 100%;
+      max-width: 170px;
       height: auto;
+      margin: 10px auto 0 auto;
+      display: block;
     }
     .marquesina {
       background: #25D366;
@@ -71,10 +38,11 @@
       font-weight: bold;
       overflow: hidden;
       position: relative;
-      height: 40px;
+      height: 36px;
       display: flex;
       align-items: center;
       max-width: 100vw;
+      font-size: 1em;
     }
     .marquesina .infinite-scroll {
       display: flex;
@@ -89,448 +57,415 @@
       0% { transform: translateX(0);}
       100% { transform: translateX(-50%);}
     }
-    main {
-      width: 100vw;
-      max-width: 100vw;
-      overflow-x: hidden;
-    }
-    .productos {
+    #productos {
       display: flex;
       flex-wrap: wrap;
-      gap: 15px;
+      gap: 14px;
       justify-content: center;
-      padding: 20px 0;
-      width: 100vw;
-      box-sizing: border-box;
-      max-width: 100vw;
-      overflow-x: hidden;
+      margin: 18px auto 15px auto;
+      max-width: 1100px;
+      width: 99vw;
     }
     .producto {
-      background: white;
-      border-radius: 6px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      padding: 10px;
-      width: 220px;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 2px 10px rgba(60,40,120,0.07);
+      padding: 20px 16px 16px 16px;
+      width: 310px;
+      max-width: 95vw;
+      margin: 0 3px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
-      position: relative;
       transition: box-shadow 0.2s;
-      box-sizing: border-box;
-      max-width: 95vw;
-    }
-    .producto.agregado {
-      box-shadow: 0 0 0 4px #25D36677;
+      position: relative;
+      min-height: 380px;
     }
     .producto img {
-      width: 180px;
-      height: 180px;
+      max-width: 150px;
+      max-height: 110px;
+      margin-bottom: 12px;
+      border-radius: 12px;
       object-fit: cover;
-      border-radius: 6px;
-      margin-bottom: 5px;
-      max-width: 90vw;
+      box-shadow: 0 2px 10px #3b2eae13;
     }
     .producto h3 {
-      margin: 5px 0 2px;
-      font-size: 1.1em;
+      margin: 0 0 7px 0;
+      color: #3b2eae;
+      font-size: 1.2em;
+      font-weight: bold;
     }
     .producto p {
-      margin: 4px 0;
-      font-size: 0.95em;
+      margin: 0 0 8px 0;
+      font-size: 1em;
     }
-    .producto button {
+    .producto .etiqueta {
+      position: absolute;
+      top: 13px;
+      left: 17px;
       background: #3b2eae;
       color: #fff;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: background 0.15s;
+      font-size: 0.85em;
+      font-weight: bold;
+      padding: 4px 12px;
+      border-radius: 7px;
+      box-shadow: 0 2px 8px #3b2eae18;
     }
-    .producto button:hover {
-      background: #231d66;
+    .producto.agotado {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+    /* Panetela Especial: controles de relleno */
+    .btn-relleno {
+      background: #25D366;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 27px;
+      height: 27px;
+      font-size: 1.2em;
+      cursor: pointer;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #25d36621;
+      transition: background 0.18s;
+      margin: 0 2px;
+    }
+    .btn-relleno:disabled {
+      background: #ddd !important;
+      color: #aaa !important;
+      cursor: not-allowed;
+    }
+    .producto button {
+      background: linear-gradient(60deg,#3b2eae 70%, #25D366 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1em;
+      padding: 10px 32px;
+      margin-top: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px #3b2eae11;
+      transition: background 0.2s;
+    }
+    .producto button:disabled {
+      background: gray !important;
+      cursor: not-allowed;
     }
     .control-cantidad {
       display: flex;
       align-items: center;
       justify-content: center;
+      margin: 0 0 8px 0;
       gap: 8px;
-      margin-top: 8px;
-      margin-bottom: 6px;
     }
     .control-cantidad button {
-      background: #4b2e1e;
-      color: white;
-      border: none;
-      width: 32px;
-      height: 32px;
-      font-size: 1.2em;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .control-cantidad span {
-      font-weight: bold;
-      font-size: 1.1em;
-      min-width: 24px;
-      text-align: center;
-      display:inline-block;
-    }
-    #carritoFlotante {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: linear-gradient(60deg,#3b2eae 70%, #25D366 100%);
-      color: #fff;
-      padding: 12px 18px;
-      border-radius: 50px;
-      font-size: 1.3em;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      box-shadow: 0 2px 16px rgba(70,20,100,0.30);
-      cursor: pointer;
-      z-index: 999;
-      border: 2px solid #fff;
-      transition: box-shadow 0.2s, background 0.3s;
-    }
-    #carritoFlotante:active {
-      box-shadow: 0 0 0 4px #25D36655;
-    }
-    #carritoFlotante span {
-      background: white;
-      color: #25D366;
-      border-radius: 50%;
-      padding: 2px 10px;
-      font-size: 1em;
-    }
-    .producto.agotado img {
-      filter: grayscale(100%) brightness(0.9);
-      opacity: 0.7;
-    }
-    .etiqueta {
-      position: absolute;
-      background: rgba(255, 87, 34, 0.9);
-      color: white;
-      font-size: 0.75em;
-      font-weight: bold;
-      padding: 4px 8px;
-      border-radius: 0 0 6px 0;
-      top: 0;
-      left: 0;
-      z-index: 2;
-    }
-    #cliente {
-      max-width: 500px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px 25px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      box-sizing: border-box;
-      width: 95vw;
-    }
-    #cliente h3 {
-      margin-top: 0;
-      text-align: center;
-      font-size: 1.3em;
-      color: #25D366;
-    }
-    #cliente label {
-      display: block;
-      margin-top: 12px;
-      margin-bottom: 5px;
-      font-weight: bold;
-      color: #333;
-    }
-    #cliente input,
-    #cliente select {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 0.95em;
-      box-sizing: border-box;
-    }
-    #cliente input:focus,
-    #cliente select:focus {
-      border-color: #25D366;
-      outline: none;
-    }
-    #zonaEntrega {
-      margin-top: 10px;
-      display: none;
-    }
-    #cliente button {
       background: #25D366;
-      color: white;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      font-size: 1.18em;
+      font-weight: bold;
+      color: #fff;
       border: none;
-      padding: 12px 20px;
-      font-size: 1em;
-      border-radius: 6px;
       cursor: pointer;
-      display: block;
-      margin: 20px auto 5px;
-      transition: background 0.15s;
+      box-shadow: 0 2px 8px #25d36614;
+      transition: background 0.18s;
+      margin: 0 2px;
     }
-    #cliente button[disabled] {
-      background: #cccccc;
+    .control-cantidad button:disabled {
+      background: #ddd !important;
+      color: #aaa !important;
       cursor: not-allowed;
     }
-    #cliente button:hover:not([disabled]) {
-      background: #1ebd5a;
+    /* Carrito */
+    #carrito {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 2px 10px #3b2eae1a;
+      margin: 22px auto 0 auto;
+      padding: 18px 18px 8px 18px;
+      max-width: 600px;
+      width: 99vw;
     }
-    #mensajeCompra {
-      text-align: center;
-      margin-top: 10px;
+    #carrito h2 {
+      font-size: 1.2em;
+      color: #3b2eae;
+      margin-bottom: 8px;
+    }
+    .carrito-controls {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 6px;
+    }
+    .carrito-controls button {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 17px;
+      font-size: 1em;
       font-weight: bold;
-      color: green;
-    }
-    .carrito-img {
-      width: 38px;
-      height: 38px;
-      object-fit: cover;
-      border-radius: 5px;
-      margin-right: 7px;
-      vertical-align: middle;
+      cursor: pointer;
+      margin-bottom: 6px;
     }
     .carrito-item {
       display: flex;
       align-items: center;
-      margin-bottom: 8px;
-      box-sizing: border-box;
-      max-width: 95vw;
-      overflow-x: auto;
+      gap: 8px;
+      border-bottom: 1px solid #eee;
+      padding: 7px 0;
+      font-size: 1em;
+    }
+    .carrito-item:last-child {
+      border-bottom: none;
+    }
+    .carrito-img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin-right: 8px;
+      border: 1px solid #eee;
+      background: #fafafa;
     }
     .carrito-cantidad-box {
       display: flex;
       align-items: center;
-      gap: 0px;
+      gap: 5px;
     }
     .carrito-cantidad-btn {
-      background: #3b2eae;
-      border: none;
+      background: #25D366;
       color: #fff;
-      width: 26px;
-      height: 26px;
-      border-radius: 3px;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
       font-size: 1em;
+      font-weight: bold;
       cursor: pointer;
-      margin: 0 2px;
-      transition: background 0.15s;
-      flex-shrink: 0;
+      box-shadow: 0 1px 6px #25d3661a;
+      transition: background 0.18s;
     }
-    .carrito-cantidad-btn:hover { background: #231d66; }
+    .carrito-cantidad-btn:disabled {
+      background: #ddd;
+      color: #aaa;
+      cursor: not-allowed;
+    }
     .carrito-cantidad-input {
       width: 34px;
-      margin: 0 2px;
       text-align: center;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 3px;
       font-size: 1em;
-      padding: 2px 0 2px 0;
-      flex-shrink: 0;
+      padding: 1px 2px;
+    }
+    .carrito-totals-row, .carrito-total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 4px;
+      font-size: 1em;
+    }
+    .carrito-total-row {
+      font-weight: bold;
+      color: #3b2eae;
+      font-size: 1.1em;
+    }
+    .carrito-total-valor {
+      font-weight: bold;
+      color: #25D366;
+      font-size: 1.13em;
     }
     .empty-cart {
       text-align: center;
       color: #aaa;
-      font-size: 1.1em;
-      margin: 20px 0;
+      font-style: italic;
+      margin: 16px 0;
     }
-    .carrito-controls {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      gap: 16px;
-      margin-bottom: 10px;
-      margin-top: 0;
-    }
-    .carrito-controls button {
-      background: #dc3545;
-      color: white;
-      border: none;
-      padding: 6px 16px;
-      border-radius: 5px;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .carrito-controls button:hover { background: #a02a36; }
-    .carrito-totals-row {
-      display: flex;
-      justify-content: flex-end;
-      gap: 35px;
-      margin-top: 12px;
-      align-items: center;
-      font-size: 1.1em;
-      max-width: 100vw;
-    }
-    .carrito-totals-row label {
-      min-width: 110px;
-      color: #333;
-      font-weight: 500;
-      text-align: right;
-    }
-    .carrito-total-row {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      margin-top: 2px;
-      margin-bottom: 15px;
-      gap: 30px;
-      max-width: 100vw;
-    }
-    .carrito-total-row label {
-      color: #231d66;
-      font-size: 1.3em;
-      font-weight: bold;
-      letter-spacing: 2px;
-      margin-right: 0;
-      text-align: right;
-    }
-    .carrito-total-row .carrito-total-valor {
-      font-size: 2.1em;
-      font-weight: bold;
-      background: linear-gradient(90deg,#3b2eae 60%,#25d366 110%);
-      color: #fff;
-      padding: 7px 30px;
+    /* Cliente y formulario */
+    #cliente {
+      background: #fff;
       border-radius: 14px;
-      min-width: 110px;
-      text-align: right;
-      box-shadow: 0 2px 10px #3b2eae22;
-      letter-spacing: 1.5px;
+      box-shadow: 0 2px 10px #3b2eae1a;
+      margin: 22px auto 40px auto;
+      padding: 18px 18px 10px 18px;
+      max-width: 600px;
+      width: 99vw;
     }
-    /* Toast styles */
-    .toast-msg {
-      position: fixed;
-      bottom: 70px;
-      right: 30px;
-      background: #25D366;
-      color: #fff;
-      padding: 12px 22px;
-      border-radius: 8px;
-      z-index: 9999;
+    #cliente h3 {
+      color: #3b2eae;
+      margin-bottom: 8px;
+      font-size: 1.1em;
+    }
+    #clienteForm label {
+      font-weight: bold;
+      color: #3b2eae;
+      margin-top: 8px;
+      display: block;
+    }
+    #clienteForm input, #clienteForm select {
+      margin-bottom: 10px;
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid #ccc;
+      width: 100%;
       font-size: 1em;
-      box-shadow: 0 2px 10px #0003;
-      opacity: 0;
-      animation: fadeInOut 1.8s;
-      pointer-events: none;
+      margin-top: 2px;
+      box-sizing: border-box;
     }
-    @keyframes fadeInOut {
-      0% { opacity: 0;}
-      10% { opacity: 1;}
-      90% { opacity: 1;}
-      100% { opacity: 0;}
+    #clienteForm button {
+      background: linear-gradient(60deg,#3b2eae 70%, #25D366 100%);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 1.1em;
+      padding: 10px 32px;
+      margin-top: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px #3b2eae11;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .modal-bg {
+    #mensajeCompra {
+      color: #25D366;
+      font-weight: bold;
+      text-align: center;
+      margin: 10px 0 0 0;
+    }
+    /* Loader */
+    #loader {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(46,0,60,0.21);
-      z-index: 4000;
+      background: rgba(255,255,255,0.94);
+      z-index: 2000;
       display: flex;
       align-items: center;
       justify-content: center;
-      animation: modalBgShow 0.25s;
+      flex-direction: column;
+      font-size: 1.4em;
+      transition: opacity 0.4s;
+      opacity: 1;
     }
-    @keyframes modalBgShow { from { opacity: 0; } to { opacity: 1; } }
+    #loader.oculto { opacity: 0; pointer-events: none; }
+    .loader-spinner {
+      border: 6px solid #eee;
+      border-top: 6px solid #25D366;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 18px;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg);}
+      100% { transform: rotate(360deg);}
+    }
+    /* Modal confirmación */
+    .modal-bg {
+      position: fixed;
+      top:0;left:0;right:0;bottom:0;
+      background: rgba(0,0,0,0.32);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
     .modal-confirm {
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 36px #3b2eae33;
-      padding: 34px 28px 26px 28px;
-      min-width: 340px;
-      max-width: 95vw;
-      animation: modalBoxShow 0.22s;
-      position: relative;
-      text-align: center;
-      box-sizing: border-box;
+      max-width: 380px;
+      padding: 24px 14px 14px 14px;
+      box-shadow: 0 2px 18px #3b2eae30;
+      margin: 0 10px;
+      animation: fadeIn 0.18s;
     }
-    @keyframes modalBoxShow { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    .modal-confirm h2 {
-      margin-top: 0;
-      color: #3b2eae;
-      font-size: 1.7em;
-      font-weight: bold;
-      letter-spacing: 1px;
-      line-height: 1.1;
-    }
-    .modal-confirm .modal-section {
-      margin-bottom: 19px;
-      font-size: 1.08em;
-      text-align: left;
-    }
-    .modal-confirm .modal-section strong {
-      color: #25D366;
-    }
-    .modal-confirm .modal-total-row {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      margin-top: 10px;
-      margin-bottom: 0;
-      gap: 18px;
-    }
-    .modal-confirm .modal-total-row label {
-      font-size: 1.18em;
-      color: #231d66;
-      font-weight: bold;
-      margin-right: 4px;
-    }
-    .modal-confirm .modal-total-row .modal-total-valor {
-      font-size: 1.85em;
-      font-weight: bold;
-      background: linear-gradient(90deg,#3b2eae 60%,#25d366 110%);
-      color: #fff;
-      padding: 7px 22px;
-      border-radius: 10px;
-      text-align: right;
-      box-shadow: 0 2px 10px #3b2eae22;
-      letter-spacing: 1.2px;
-    }
-    .modal-confirm .modal-btns {
-      margin-top: 24px;
-      display: flex;
-      gap: 22px;
-      justify-content: center;
-    }
-    .modal-confirm .modal-btns button {
+    @keyframes fadeIn { from { transform: scale(0.94); opacity: 0.3; } to { transform: scale(1); opacity: 1; } }
+    .modal-section {
+      margin-bottom: 10px;
       font-size: 1em;
-      padding: 12px 26px;
-    border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background 0.15s;
+    }
+    .modal-total-row {
       font-weight: bold;
-      box-shadow: 0 2px 8px #3b2eae14;
-    }
-    .modal-confirm .modal-btns .btn-cancelar {
-      background: #f3f3f3;
       color: #3b2eae;
-      border: 1px solid #d8d8d8;
+      font-size: 1.1em;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 12px;
+      border-top: 1.5px solid #eee;
+      padding-top: 5px;
     }
-    .modal-confirm .modal-btns .btn-confirmar {
+    .modal-total-valor {
+      font-weight: bold;
+      color: #25D366;
+      font-size: 1.13em;
+    }
+    .modal-btns {
+      display: flex;
+      gap: 15px;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+    .btn-cancelar {
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-confirmar {
       background: #25D366;
       color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
     }
-    @media (max-width:700px) {
-      .carrito-item {
-        font-size: 0.92em;
-      }
-      .modal-confirm { padding: 17px 3vw 12px 3vw; min-width: 0; }
-      .modal-confirm h2 { font-size: 1.1em;}
-      .modal-confirm .modal-total-row .modal-total-valor { font-size: 1.13em; padding: 7px 7px;}
-      .carrito-total-row .carrito-total-valor { font-size: 1.16em; padding: 7px 7px;}
+    /* Carrito flotante */
+    #carritoFlotante {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 4000;
+      background: linear-gradient(60deg,#3b2eae 70%, #25D366 100%);
+      color: #fff;
+      font-size: 1.5em;
+      border-radius: 50px;
+      padding: 12px 30px 12px 20px;
+      box-shadow: 0 2px 14px #231d662c;
+      cursor: pointer;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      transition: background 0.2s, box-shadow 0.2s;
     }
-    @media (max-width:420px) {
-      .carrito-item { font-size: 0.84em;}
-      .modal-confirm h2 { font-size: 0.97em;}
+    #carritoFlotante:hover {
+      background: #3b2eae;
+      box-shadow: 0 2px 18px #231d663a;
+    }
+    /* Responsive */
+    @media (max-width: 700px) {
+      #productos { gap: 10px; }
+      .producto { width: 98vw; min-width: 0; }
+      .carrito-img { width: 30px; height: 30px; }
+      #carritoFlotante { padding: 11px 18px 11px 14px; bottom: 14px; right: 8px; font-size: 1.08em;}
+      .modal-confirm { padding: 13px 4vw 8px 4vw; }
+    }
+    @media (max-width: 400px) {
+      .modal-confirm { padding: 7px 1vw 5px 1vw; }
+      .producto { padding: 10px 2vw 10px 2vw; }
     }
   </style>
 </head>
 <body>
-<!-- Loader -->
 <div id="loader" aria-label="Cargando página">
   <div class="loader-spinner"></div>
   Cargando, por favor espere...
@@ -565,53 +500,38 @@
   <section id="cliente" aria-label="Formulario de datos del cliente">
     <h3>📝 Datos del Cliente</h3>
     <form id="clienteForm" autocomplete="off" onsubmit="return false;">
-      <label for="codigoPais">Código de país</label>
-      <select id="codigoPais" required aria-label="Código de país">
-        <option disabled selected>Selecciona tu país</option>
-        <option value="53">🇨🇺 Cuba (+53)</option>
-        <option value="1">🇺🇸 EE. UU. (+1)</option>
-        <option value="34">🇪🇸 España (+34)</option>
-        <option value="52">🇲🇽 México (+52)</option>
-        <option value="55">🇧🇷 Brasil (+55)</option>
-      </select>
-      <span id="val-codigoPais" style="color:#c00; font-size:0.95em; display:none;"></span>
-      <label for="telefono">Número de teléfono</label>
-      <input id="telefono" type="tel" placeholder="Ej: 52123456" required aria-label="Número de teléfono" />
-      <span id="val-telefono" style="color:#c00; font-size:0.95em; display:none;"></span>
-      <label for="nombre">Nombre completo</label>
-      <input id="nombre" type="text" placeholder="Tu nombre y apellidos" required aria-label="Nombre completo"/>
-      <span id="val-nombre" style="color:#c00; font-size:0.95em; display:none;"></span>
-      <label for="entrega">¿Deseas entrega a domicilio?</label>
-      <select id="entrega" onchange="toggleDireccion()" required aria-label="Entrega a domicilio">
-        <option value="">Selecciona una opción</option>
-        <option value="si">Sí</option>
-        <option value="no">No</option>
-      </select>
-      <span id="val-entrega" style="color:#c00; font-size:0.95em; display:none;"></span>
-      <div id="zonaEntrega">
-        <label for="direccion">Dirección exacta</label>
-        <input id="direccion" type="text" placeholder="Ej: Calle 10 #123 entre A y B" aria-label="Dirección exacta"/>
-        <span id="val-direccion" style="color:#c00; font-size:0.95em; display:none;"></span>
-        <label for="reparto">Reparto o zona</label>
-        <select id="reparto" onchange="actualizarTarifa()" aria-label="Reparto o zona">
-          <option disabled selected>Selecciona tu reparto</option>
-          <option>Santa Lucía</option>
-          <option>Tasajera</option>
-          <option>Las Casitas</option>
-          <option>Progreso</option>
-          <option>Nuevo Progreso</option>
-          <option>Cepero Bonilla</option>
-          <option>El Triángulo</option>
-          <option>Alba Flores</option>
-          <option>Borbollón</option>
-          <option>La Compañía</option>
-          <option>La Maravilla</option>
+      <label>Nombre completo:</label>
+      <input type="text" id="nombre" required maxlength="60" autocomplete="name" placeholder="Ej: Ana Pérez" />
+
+      <label>Teléfono:</label>
+      <div style="display: flex; gap: 8px;">
+        <select id="codigoPais" style="width: 70px;">
+          <option value="53">+53</option>
+          <option value="1">+1</option>
+          <option value="34">+34</option>
         </select>
-        <span id="val-reparto" style="color:#c00; font-size:0.95em; display:none;"></span>
+        <input type="tel" id="telefono" required maxlength="15" autocomplete="tel" placeholder="Ej: 58707434" pattern="[0-9]+" />
       </div>
-      <label for="fechaEntrega">Fecha y hora deseada de entrega</label>
-      <input type="datetime-local" id="fechaEntrega" required aria-label="Fecha y hora de entrega"/>
-      <span id="val-fechaEntrega" style="color:#c00; font-size:0.95em; display:none;"></span>
+
+      <label>¿Desea entrega a domicilio?</label>
+      <select id="entrega" required onchange="mostrarDireccion()">
+        <option value="no" selected>Retiro en tienda</option>
+        <option value="si">Sí, entrega a domicilio</option>
+      </select>
+      <div id="direccionEntrega" style="display:none;">
+        <label>Dirección:</label>
+        <input type="text" id="direccion" maxlength="100" placeholder="Ej: Calle 1ra #100 entre 2 y 4, Vedado" />
+        <label>Reparto:</label>
+        <select id="reparto" onchange="actualizarTarifa()">
+          <option value="">Seleccionar reparto</option>
+          <option value="Vedado">Vedado</option>
+          <option value="Plaza">Plaza</option>
+          <option value="Centro Habana">Centro Habana</option>
+          <option value="Playa">Playa</option>
+        </select>
+      </div>
+      <label>Fecha de entrega:</label>
+      <input type="date" id="fechaEntrega" required />
       <button id="btnEnviar" type="button" onclick="mostrarResumenConfirmacion()" style="display: flex; align-items: center; gap: 8px;">
         <img src="https://file.garden/aEX2yhToiQk-s_Qq/IMG_COM_202506261242078500.png"
           alt="Icono WhatsApp"
@@ -622,42 +542,108 @@
     <p id="mensajeCompra"></p>
   </section>
 </main>
-<!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycbwM-01A8td4EMKwn2AyYDxSyl21cY1rLnukar3i8q_IFpQ71BF6tvV4ns8DVBNaQ0r9/exec"
+  action="https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec"
   method="post" target="sheetResponse" style="display:none;">
-  <input name="nombre"         id="f_nombre" />
-  <input name="telefono"       id="f_telefono" />
-  <input name="direccion"      id="f_direccion" />
-  <input name="reparto"        id="f_reparto" />
-  <input name="codigoPais"     id="f_codigoPais" />
-  <input name="productos"      id="f_productos" />
-  <input name="subtotal"       id="f_subtotal" />
-  <input name="envio"          id="f_envio" />
-  <input name="total"          id="f_total" />
-  <input name="entrega"        id="f_entrega" />
-  <input name="fecha_entrega"  id="f_fecha_entrega" />
-  <input name="estado" id="f_estado" />
-  <input name="ticket" id="f_ticket" />
+  <input type="hidden" name="nombre" id="inputNombre" />
+  <input type="hidden" name="telefono" id="inputTelefono" />
+  <input type="hidden" name="codigoPais" id="inputCodigoPais" />
+  <input type="hidden" name="direccion" id="inputDireccion" />
+  <input type="hidden" name="reparto" id="inputReparto" />
+  <input type="hidden" name="productos" id="inputProductos" />
+  <input type="hidden" name="subtotal" id="inputSubtotal" />
+  <input type="hidden" name="envio" id="inputEnvio" />
+  <input type="hidden" name="total" id="inputTotal" />
+  <input type="hidden" name="entrega" id="inputEntrega" />
+  <input type="hidden" name="fecha_entrega" id="inputFechaEntrega" />
+  <input type="hidden" name="estado" id="inputEstado" />
+  <input type="hidden" name="ticket" id="inputTicket" />
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
 <script>
-  // ==== INICIO CAMBIOS PANETELA ESPECIAL ====
-  // Guardar rellenos y su disponibilidad
+  // Marquesina infinita
+  const textoMarquesina = "🎉 ¡Bienvenido a Dulce Vida! Haz tu pedido con tiempo y vive la experiencia de un dulce momento 🎂✨ 🚚 Entregamos a domicilio toda la semana 📅 Los pedidos deben realizarse con al menos 1 día de antelación 📞 WhatsApp 5358707434";
+  function ponerMarquesinaInfinita() {
+    const ms = document.getElementById("marquesinaScroll");
+    ms.innerHTML = `<span>${textoMarquesina}</span><span>${textoMarquesina}</span>`;
+  }
+  ponerMarquesinaInfinita();
+
+  // ==== INICIO PANETELA ESPECIAL ====
   let rellenosEspecial = [];
   let rellenosEspecialCargados = false;
+  let cantidadesRellenos = [];
 
-  // Fetch de rellenos desde Google Sheets
-  function cargarRellenosEspecial() {
-    return fetch("https://script.google.com/macros/s/AKfycbwM-01A8td4EMKwn2AyYDxSyl21cY1rLnukar3i8q_IFpQ71BF6tvV4ns8DVBNaQ0r9/exec")
-      .then(r => r.json())
-      .then(data => {
-        rellenosEspecial = data;
-        rellenosEspecialCargados = true;
-      });
+  // Productos base
+  let productos = [
+    {
+      id: 1,
+      nombre: 'Panetela Clásica',
+      precio: 3500,
+      descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla. Ideal para todo tipo de celebraciones y para acompañar el café.',
+      img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
+    },
+    {
+      id: 2,
+      nombre: 'Panetela de Chocolate',
+      precio: 3800,
+      descripcion: 'Rellena de chocolate con cubierta de cacao oscuro. Una delicia para los amantes del chocolate y los postres intensos.',
+      img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
+    },
+    {
+      id: 3,
+      nombre: 'Panetela Especial',
+      precio: 4300,
+      descripcion: 'Decorada con crema batida y frutas confitadas. ¡Puedes elegir el relleno de cada unidad!',
+      img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
+    }
+  ];
+
+  // Loader y estados
+  let estadosProductos = {};
+  let carrito = [];
+  const cantidadesSeleccionadas = {};
+  let ultimoTicketGenerado = "";
+  let tarifas = {
+    "Vedado": 300,
+    "Plaza": 400,
+    "Centro Habana": 400,
+    "Playa": 500
+  };
+
+  // Loader
+  document.getElementById('loader').style.display = "flex";
+
+  // Primero cargamos los rellenos, luego los estados y productos
+  function iniciarCarga() {
+    Promise.all([
+      fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=rellenosDisponibles")
+        .then(r => r.json())
+        .then(data => {
+          rellenosEspecial = data;
+          rellenosEspecialCargados = true;
+          cantidadesRellenos = Array(rellenosEspecial.length).fill(0);
+        }),
+      fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
+        .then(respuesta => respuesta.json())
+        .then(data => {
+          estadosProductos = data;
+        })
+    ]).then(() => {
+      cargarProductos();
+      setTimeout(() => {
+        document.getElementById('loader').classList.add("oculto");
+        setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
+      }, 250);
+    }).catch(() => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add("oculto");
+        setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
+      }, 600);
+    });
   }
+  iniciarCarga();
 
-  // Modificar cargarProductos para integrar el selector avanzado solo en Panetela Especial
   function cargarProductos() {
     const cont = document.getElementById('productos');
     cont.innerHTML = '';
@@ -670,9 +656,8 @@
       const agotado = estado.toLowerCase().includes('agotado');
       if (agotado) div.classList.add('agotado');
 
-      // Panetela Especial con selección de rellenos
+      // Panetela Especial con selector de rellenos
       if (p.nombre === 'Panetela Especial') {
-        // Si no se han cargado los rellenos, mostrar un loader pequeño
         if (!rellenosEspecialCargados) {
           div.innerHTML = `
             ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
@@ -681,110 +666,8 @@
             <p>${p.descripcion}</p>
             <div style="text-align:center;padding:20px 0;">Cargando opciones de relleno...</div>
           `;
-        } else {
-          // Hay al menos un relleno disponible?
-          const hayDisponible = rellenosEspecial.some(r => r.disponible === "sí");
-          if (!hayDisponible) {
-            div.innerHTML = `
-              ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
-              <img src="${p.img}" alt="${p.nombre}" />
-              <h3>${p.nombre}</h3>
-              <p>${p.descripcion}</p>
-              <div style="margin:14px 0 6px 0;font-weight:bold;color:#c00;">No hay rellenos disponibles</div>
-              <button disabled style="background:gray;cursor:not-allowed;">No disponible</button>
-            `;
-          } else {
-            // Relleno: cantidades seleccionadas por tipo
-            let rellenoControles = '';
-            rellenosEspecial.forEach((r, idx) => {
-              const idR = `relleno_${idx}`;
-              rellenoControles += `
-                <div style="display:flex;align-items:center;gap:7px;margin:5px 0;">
-                  <span style="flex:1;min-width:110px;font-weight:500;${r.disponible==='no'?'color:#aaa;':''}">${r.nombre}</span>
-                  <button type="button" class="btn-relleno" onclick="modificarCantidadRelleno(${idx},-1)" ${r.disponible==='no'?'disabled style="background:#ddd;color:#aaa;cursor:not-allowed;"':''}>−</button>
-                  <span id="cantRelleno_${idx}" style="width:27px;display:inline-block;text-align:center;font-weight:bold;">0</span>
-                  <button type="button" class="btn-relleno" onclick="modificarCantidadRelleno(${idx},1)" ${r.disponible==='no'?'disabled style="background:#ddd;color:#aaa;cursor:not-allowed;"':''}>+</button>
-                  ${r.disponible==='no'?'<span style="color:#e00;font-size:0.88em;">Agotado</span>':''}
-                </div>
-              `;
-            });
-            div.innerHTML = `
-              ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
-              <img src="${p.img}" alt="${p.nombre}" />
-              <h3>${p.nombre}</h3>
-              <p>${p.descripcion}</p>
-              <div style="margin:7px 0 3px 0;font-weight:bold;">Elige los rellenos y cantidades:</div>
-              <div id="rellenoControles">${rellenoControles}</div>
-              <button onclick="agregarPanetelaEspecialAlCarrito()" style="margin-top:13px;">Añadir al carrito</button>
-            `;
-          }
-        }
-      } else {
-        // Otros productos (igual que original)
-        div.innerHTML = `
-          ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
-          <img src="${p.img}" alt="${p.nombre}" />
-          <h3>${p.nombre}</h3>
-          <p>${p.descripcion}</p>
-          <p><strong>${p.precio} CUP</strong></p>
-          <div class="control-cantidad">
-            <button aria-label="Quitar uno" onclick="modificarCantidad(${p.id}, -1)" ${agotado ? 'disabled' : ''}>−</button>
-            <span id="cantidad-${p.id}">0</span>
-            <button aria-label="Agregar uno" onclick="modificarCantidad(${p.id}, 1)" ${agotado ? 'disabled' : ''}>+</button>
-          </div>
-          ${agotado
-            ? `<button disabled style="background: gray; cursor: not-allowed;">No disponible</button>`
-            : `<button onclick="agregarAlCarritoDesdeBoton(${p.id})" aria-label="Añadir ${p.nombre} al carrito">Añadir al carrito</button>`}
-        `;
-      }
-      cont.appendChild(div);
-    });
-    actualizarCarrito();
-  }
 
-  // Controlar cantidades de cada relleno para la Panetela Especial
-  let cantidadesRellenos = [];
-  function modificarCantidadRelleno(idx, delta) {
-    if (!cantidadesRellenos[idx]) cantidadesRellenos[idx] = 0;
-    cantidadesRellenos[idx] += delta;
-    if (cantidadesRellenos[idx] < 0) cantidadesRellenos[idx] = 0;
-    document.getElementById(`cantRelleno_${idx}`).textContent = cantidadesRellenos[idx];
-  }
 
-  // Agregar Panetela Especial al carrito, cada combinación es un ítem único
-  function agregarPanetelaEspecialAlCarrito() {
-    let totalUnidades = cantidadesRellenos.reduce((a, b) => a + b, 0);
-    if (totalUnidades === 0) {
-      mostrarToast('Selecciona al menos una unidad de algún relleno.');
-      return;
-    }
-    // Construir objeto de detalles
-    const detalleRellenos = rellenosEspecial
-      .map((r, idx) => cantidadesRellenos[idx] > 0 ? `${r.nombre} x${cantidadesRellenos[idx]}` : '')
-      .filter(Boolean)
-      .join(', ');
-
-    // Combinación única como clave
-    const key = detalleRellenos;
-
-    // Precio unitario
-    const precioUnitario = productos.find(p => p.nombre === "Panetela Especial").precio;
-
-    // Cada combinación es un ítem único
-    carrito.push({
-      id: 1000 + Math.floor(Math.random()*100000), // ID único por combinación
-      nombre: "Panetela Especial",
-      precio: precioUnitario,
-      cantidad: totalUnidades,
-      detalleRellenos: detalleRellenos
-    });
-
-    mostrarToast('Panetela Especial agregada al carrito');
-    // Reset cantidades
-    cantidadesRellenos = Array(rellenosEspecial.length).fill(0);
-    cargarProductos(); // Redibujar para resetear los contadores
-    actualizarCarrito();
-  }
 
   // Mostrar detalle de rellenos en el carrito
   function actualizarCarrito() {
