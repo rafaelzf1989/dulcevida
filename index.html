@@ -12,7 +12,6 @@
       background: #f5f5f5;
       color: #333;
     }
-    /* Loader styles */
     #loader {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -56,20 +55,26 @@
     .marquesina {
       background: #25D366;
       color: white;
-      padding: 10px;
+      padding: 0;
       font-weight: bold;
       overflow: hidden;
       position: relative;
+      height: 40px;
+      display: flex;
+      align-items: center;
     }
-    .marquesina .banner-scroll {
-      display: inline-block;
+    .marquesina .infinite-scroll {
+      display: flex;
+      width: max-content;
+      animation: scroll-infinite 24s linear infinite;
+    }
+    .marquesina .infinite-scroll span {
       white-space: nowrap;
-      animation: scroll-left 18s linear infinite;
-      font-size: 1em;
+      padding-right: 60px;
     }
-    @keyframes scroll-left {
-      from { transform: translateX(100%);}
-      to   { transform: translateX(-100%);}
+    @keyframes scroll-infinite {
+      0% { transform: translateX(0);}
+      100% { transform: translateX(-50%);}
     }
     .productos {
       display: flex;
@@ -110,7 +115,7 @@
       font-size: 0.95em;
     }
     .producto button {
-      background: #28a745;
+      background: #3b2eae;
       color: #fff;
       border: none;
       padding: 6px 12px;
@@ -120,7 +125,7 @@
       transition: background 0.15s;
     }
     .producto button:hover {
-      background: #1e7e34;
+      background: #231d66;
     }
     .control-cantidad {
       display: flex;
@@ -131,12 +136,11 @@
       margin-bottom: 6px;
     }
     .control-cantidad button {
-      background: #4b2e1e; /* café oscuro */
+      background: #4b2e1e;
       color: white;
       border: none;
-      padding: 6px 10px;
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       font-size: 1.2em;
       border-radius: 4px;
       cursor: pointer;
@@ -146,24 +150,26 @@
       font-size: 1.1em;
       min-width: 24px;
       text-align: center;
+      display:inline-block;
     }
     #carritoFlotante {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: rgba(37, 211, 102, 0.93); /* verde WhatsApp con transparencia */
-      color: white;
-      padding: 10px 14px;
+      background: linear-gradient(60deg,#3b2eae 70%, #25D366 100%);
+      color: #fff;
+      padding: 12px 18px;
       border-radius: 50px;
-      font-size: 1.2em;
+      font-size: 1.3em;
       font-weight: bold;
       display: flex;
       align-items: center;
-      gap: 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      gap: 9px;
+      box-shadow: 0 2px 16px rgba(70,20,100,0.30);
       cursor: pointer;
       z-index: 999;
-      transition: box-shadow 0.2s;
+      border: 2px solid #fff;
+      transition: box-shadow 0.2s, background 0.3s;
     }
     #carritoFlotante:active {
       box-shadow: 0 0 0 4px #25D36655;
@@ -172,8 +178,8 @@
       background: white;
       color: #25D366;
       border-radius: 50%;
-      padding: 2px 8px;
-      font-size: 0.9em;
+      padding: 2px 10px;
+      font-size: 1em;
     }
     .producto.agotado img {
       filter: grayscale(100%) brightness(0.9);
@@ -181,7 +187,7 @@
     }
     .etiqueta {
       position: absolute;
-      background: rgba(255, 87, 34, 0.9); /* naranja fuerte */
+      background: rgba(255, 87, 34, 0.9);
       color: white;
       font-size: 0.75em;
       font-weight: bold;
@@ -268,19 +274,96 @@
       align-items: center;
       margin-bottom: 8px;
     }
+    .carrito-cantidad-box {
+      display: flex;
+      align-items: center;
+      gap: 0px;
+    }
+    .carrito-cantidad-btn {
+      background: #3b2eae;
+      border: none;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 3px;
+      font-size: 1em;
+      cursor: pointer;
+      margin: 0 2px;
+      transition: background 0.15s;
+    }
+    .carrito-cantidad-btn:hover { background: #231d66; }
     .carrito-cantidad-input {
-      width: 38px;
-      margin: 0 8px;
+      width: 34px;
+      margin: 0 2px;
       text-align: center;
       border: 1px solid #ccc;
       border-radius: 3px;
       font-size: 1em;
+      padding: 2px 0 2px 0;
     }
     .empty-cart {
       text-align: center;
       color: #aaa;
       font-size: 1.1em;
       margin: 20px 0;
+    }
+    .carrito-controls {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      margin-bottom: 10px;
+      margin-top: 0;
+    }
+    .carrito-controls button {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .carrito-controls button:hover { background: #a02a36; }
+    .carrito-totals-row {
+      display: flex;
+      justify-content: flex-end;
+      gap: 35px;
+      margin-top: 12px;
+      align-items: center;
+      font-size: 1.1em;
+    }
+    .carrito-totals-row label {
+      min-width: 110px;
+      color: #333;
+      font-weight: 500;
+      text-align: right;
+    }
+    .carrito-total-row {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 2px;
+      margin-bottom: 15px;
+    }
+    .carrito-total-row label {
+      color: #231d66;
+      font-size: 1.3em;
+      font-weight: bold;
+      letter-spacing: 2px;
+      margin-right: 30px;
+    }
+    .carrito-total-row .carrito-total-valor {
+      font-size: 2.1em;
+      font-weight: bold;
+      background: linear-gradient(90deg,#3b2eae 60%,#25d366 110%);
+      color: #fff;
+      padding: 7px 30px;
+      border-radius: 14px;
+      min-width: 110px;
+      text-align: right;
+      box-shadow: 0 2px 10px #3b2eae22;
     }
     /* Toast styles */
     .toast-msg {
@@ -304,16 +387,99 @@
       90% { opacity: 1;}
       100% { opacity: 0;}
     }
-    /* Accesibilidad y contraste */
-    .producto button,
-    #cliente button,
-    #carritoFlotante {
-      outline: none;
+    .modal-bg {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(46,0,60,0.21);
+      z-index: 4000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: modalBgShow 0.25s;
     }
-    .producto button:focus,
-    #cliente button:focus,
-    #carritoFlotante:focus {
-      box-shadow: 0 0 0 3px #25D36666;
+    @keyframes modalBgShow { from { opacity: 0; } to { opacity: 1; } }
+    .modal-confirm {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 36px #3b2eae33;
+      padding: 34px 28px 26px 28px;
+      min-width: 340px;
+      max-width: 95vw;
+      animation: modalBoxShow 0.22s;
+      position: relative;
+      text-align: center;
+    }
+    @keyframes modalBoxShow { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .modal-confirm h2 {
+      margin-top: 0;
+      color: #3b2eae;
+      font-size: 1.7em;
+      font-weight: bold;
+      letter-spacing: 1px;
+      line-height: 1.1;
+    }
+    .modal-confirm .modal-section {
+      margin-bottom: 19px;
+      font-size: 1.08em;
+      text-align: left;
+    }
+    .modal-confirm .modal-section strong {
+      color: #25D366;
+    }
+    .modal-confirm .modal-total-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 10px;
+      margin-bottom: 0;
+      gap: 18px;
+    }
+    .modal-confirm .modal-total-row label {
+      font-size: 1.18em;
+      color: #231d66;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+    .modal-confirm .modal-total-row .modal-total-valor {
+      font-size: 1.85em;
+      font-weight: bold;
+      background: linear-gradient(90deg,#3b2eae 60%,#25d366 110%);
+      color: #fff;
+      padding: 7px 22px;
+      border-radius: 10px;
+      text-align: right;
+      box-shadow: 0 2px 10px #3b2eae22;
+    }
+    .modal-confirm .modal-btns {
+      margin-top: 24px;
+      display: flex;
+      gap: 22px;
+      justify-content: center;
+    }
+    .modal-confirm .modal-btns button {
+      font-size: 1em;
+      padding: 12px 26px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s;
+      font-weight: bold;
+      box-shadow: 0 2px 8px #3b2eae14;
+    }
+    .modal-confirm .modal-btns .btn-cancelar {
+      background: #f3f3f3;
+      color: #3b2eae;
+      border: 1px solid #d8d8d8;
+    }
+    .modal-confirm .modal-btns .btn-confirmar {
+      background: #25D366;
+      color: #fff;
+    }
+    @media (max-width:500px) {
+      .modal-confirm { padding: 17px 3vw 12px 3vw; min-width: 0; }
+      .modal-confirm h2 { font-size: 1.1em;}
+      .modal-confirm .modal-total-row .modal-total-valor { font-size: 1.2em; padding: 7px 10px;}
+      .carrito-total-row .carrito-total-valor { font-size: 1.25em; padding: 7px 10px;}
     }
   </style>
 </head>
@@ -327,18 +493,28 @@
   <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Dulce Vida" />
 </header>
 <div class="marquesina" aria-label="Avisos importantes">
-  <span class="banner-scroll">
-    🎉 ¡Bienvenido a Dulce Vida! Haz tu pedido con tiempo y vive la experiencia de un dulce momento 🎂✨ 🚚 Entregamos a domicilio toda la semana 📅 Los pedidos deben realizarse con al menos 1 día de antelación 📞 WhatsApp 5358707434
-  </span>
+  <div class="infinite-scroll" id="marquesinaScroll"></div>
 </div>
 <main>
   <section id="productos" class="productos" aria-label="Lista de productos"></section>
-  <section id="carrito" style="max-width: 500px; margin: auto; text-align: left;">
-    <h2>Carrito 🛒</h2>
+  <section id="carrito" style="max-width: 600px; margin: auto; text-align: left;">
+    <div class="carrito-controls" id="carritoControls" style="display:none">
+      <button onclick="vaciarCarrito()" title="Vaciar carrito">Vaciar carrito</button>
+    </div>
+    <h2 style="margin-bottom: 8px;">Carrito 🛒</h2>
     <ul id="listaCarrito" style="padding-left: 0;"></ul>
-    <p>Subtotal: <span id="totalCarrito">0</span> CUP</p>
-    <p>Envío: <span id="tarifaReparto">0</span> CUP</p>
-    <p><strong>Total: <span id="totalFinal">0</span> CUP</strong></p>
+    <div class="carrito-totals-row">
+      <label>Subtotal:</label>
+      <span id="totalCarrito">0</span> CUP
+    </div>
+    <div class="carrito-totals-row">
+      <label>Envío:</label>
+      <span id="tarifaReparto">0</span> CUP
+    </div>
+    <div class="carrito-total-row">
+      <label>TOTAL:</label>
+      <span class="carrito-total-valor" id="totalFinalBox">`0`</span>
+    </div>
   </section>
   <section id="cliente" aria-label="Formulario de datos del cliente">
     <h3>📝 Datos del Cliente</h3>
@@ -390,7 +566,7 @@
       <label for="fechaEntrega">Fecha y hora deseada de entrega</label>
       <input type="datetime-local" id="fechaEntrega" required aria-label="Fecha y hora de entrega"/>
       <span id="val-fechaEntrega" style="color:#c00; font-size:0.95em; display:none;"></span>
-      <button id="btnEnviar" type="button" onclick="enviarPedido()" style="display: flex; align-items: center; gap: 8px;">
+      <button id="btnEnviar" type="button" onclick="mostrarResumenConfirmacion()" style="display: flex; align-items: center; gap: 8px;">
         <img src="https://file.garden/aEX2yhToiQk-s_Qq/IMG_COM_202506261242078500.png"
           alt="Icono WhatsApp"
           style="width: 20px; height: 20px; object-fit: contain;" />
@@ -453,6 +629,7 @@
   };
   let carrito = [];
   const cantidadesSeleccionadas = {};
+  let ultimoTicketGenerado = "";
   // Loader
   document.getElementById('loader').style.display = "flex";
   fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
@@ -471,9 +648,17 @@
         setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
       }, 600);
     });
-  // Persistencia del carrito
+  // Marquesina infinita
+  const textoMarquesina = "🎉 ¡Bienvenido a Dulce Vida! Haz tu pedido con tiempo y vive la experiencia de un dulce momento 🎂✨ 🚚 Entregamos a domicilio toda la semana 📅 Los pedidos deben realizarse con al menos 1 día de antelación 📞 WhatsApp 5358707434";
+  function ponerMarquesinaInfinita() {
+    const ms = document.getElementById("marquesinaScroll");
+    // Repite el texto para cubrir el doble del ancho de pantalla
+    ms.innerHTML = `<span>${textoMarquesina}</span><span>${textoMarquesina}</span>`;
+  }
+  ponerMarquesinaInfinita();
+  // Persistencia del carrito y fecha mínima
   document.addEventListener('DOMContentLoaded', () => {
-    // Restringe fechas pasadas en entrega
+    // Fecha mínima
     const fechaInput = document.getElementById('fechaEntrega');
     if (fechaInput) {
       const now = new Date();
@@ -558,6 +743,14 @@
     carrito = carrito.filter(i => i.id !== id);
     actualizarCarrito();
   }
+  function cambiarCantidadCarrito(id, delta) {
+    const prod = carrito.find(i => i.id === id);
+    if (prod) {
+      prod.cantidad += delta;
+      if (prod.cantidad < 1) prod.cantidad = 1;
+      actualizarCarrito();
+    }
+  }
   function actualizarCantidadEnCarrito(id, valor) {
     let val = parseInt(valor);
     if (isNaN(val) || val < 1) val = 1;
@@ -567,13 +760,22 @@
       actualizarCarrito();
     }
   }
+  function vaciarCarrito() {
+    if (confirm("¿Seguro que deseas vaciar el carrito?")) {
+      carrito = [];
+      actualizarCarrito();
+    }
+  }
   function actualizarCarrito() {
     const lista = document.getElementById('listaCarrito');
+    const controls = document.getElementById('carritoControls');
     lista.innerHTML = '';
     let subtotal = 0;
     if (carrito.length === 0) {
       lista.innerHTML = `<li class="empty-cart">El carrito está vacío. Añade productos para continuar.</li>`;
+      controls.style.display = "none";
     } else {
+      controls.style.display = "flex";
       carrito.forEach(item => {
         subtotal += item.precio * item.cantidad;
         const li = document.createElement('li');
@@ -581,8 +783,11 @@
         li.innerHTML = `
           <img src="${item.img}" class="carrito-img" alt="${item.nombre}">
           <span style="min-width:120px; flex:1;">${item.nombre}</span>
-          <input class="carrito-cantidad-input" type="number" min="1" value="${item.cantidad}" aria-label="Cantidad de ${item.nombre}" 
-            onchange="actualizarCantidadEnCarrito(${item.id}, this.value)">
+          <div class="carrito-cantidad-box">
+            <button class="carrito-cantidad-btn" aria-label="Disminuir" onclick="cambiarCantidadCarrito(${item.id}, -1)">−</button>
+            <input class="carrito-cantidad-input" type="number" min="1" value="${item.cantidad}" aria-label="Cantidad de ${item.nombre}" onchange="actualizarCantidadEnCarrito(${item.id}, this.value)">
+            <button class="carrito-cantidad-btn" aria-label="Aumentar" onclick="cambiarCantidadCarrito(${item.id}, 1)">+</button>
+          </div>
           <span style="min-width:80px;">${item.precio * item.cantidad} CUP</span>
           <button onclick="quitarDelCarrito(${item.id})" aria-label="Quitar ${item.nombre}">❌</button>
         `;
@@ -600,7 +805,8 @@
     const tarifa = tarifas[reparto] || 0;
     const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
     document.getElementById('tarifaReparto').textContent = tarifa;
-    document.getElementById('totalFinal').textContent = subtotal + tarifa;
+    const total = subtotal + tarifa;
+    document.getElementById('totalFinalBox').textContent = '`'+total+'`';
   }
   function toggleDireccion() {
     const entrega = document.getElementById('entrega').value;
@@ -633,11 +839,9 @@
   // Validación de formulario con mensajes visuales
   function validarFormularioCliente() {
     let valid = true;
-    // Limpiar mensajes previos
     ['codigoPais','telefono','nombre','entrega','direccion','reparto','fechaEntrega'].forEach(id=>{
       document.getElementById('val-'+id)?.style.setProperty('display','none');
     });
-    // Validaciones
     const codigoPais = document.getElementById('codigoPais').value;
     const telefono = document.getElementById('telefono').value.trim();
     const nombre = document.getElementById('nombre').value.trim();
@@ -691,14 +895,74 @@
       span.style.display = 'block';
     }
   }
-  // Enviar pedido
-  function enviarPedido() {
+  // Modal de confirmación profesional
+  function mostrarResumenConfirmacion() {
     if (carrito.length === 0) {
       mostrarToast('El carrito está vacío.');
       return;
     }
-    // Validación visual
     if (!validarFormularioCliente()) return;
+    // Generar ticket
+    const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    ultimoTicketGenerado = ticket;
+    // Resumen visual del pedido
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const codigoPais = document.getElementById('codigoPais').value;
+    const entrega = document.getElementById('entrega').value;
+    const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
+    const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
+    const fechaEntrega = document.getElementById('fechaEntrega').value;
+    const telefonoLimpio = telefono.startsWith(codigoPais)
+      ? telefono.slice(codigoPais.length)
+      : telefono;
+    const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+    const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
+    const total = subtotal + envio;
+    // Modal
+    let modal = document.createElement('div');
+    modal.className = "modal-bg";
+    modal.innerHTML = `
+      <div class="modal-confirm">
+        <h2>Confirmar pedido</h2>
+        <div class="modal-section">
+          <strong>Ticket:</strong> <span style="font-size:1.1em;">${ticket}</span>
+        </div>
+        <div class="modal-section">
+          <strong>Productos:</strong>
+          <ul style="list-style:none;padding:0; margin:5px 0 0 0;">
+            ${carrito.map(i=>`<li style="margin-bottom:3px;">🍰 ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} CUP</li>`).join("")}
+          </ul>
+        </div>
+        <div class="modal-section">
+          <strong>Reparto:</strong> ${reparto || '<span style="color:#888;">Sin reparto</span>'} ${envio>0 ? `(+${envio} CUP)` : ''}
+        </div>
+        <div class="modal-section">
+          <strong>Cliente:</strong> ${nombre}<br>
+          <strong>Tel.:</strong> +${codigoPais} ${telefonoLimpio}<br>
+          ${direccion ? `<strong>Dirección:</strong> ${direccion}<br>` : ''}
+          ${fechaEntrega ? `<strong>Entrega:</strong> ${new Date(fechaEntrega).toLocaleString("es-ES")}` : ''}
+        </div>
+        <div class="modal-section modal-total-row">
+          <label>TOTAL:</label>
+          <span class="modal-total-valor">\`${total}\`</span>
+        </div>
+        <div class="modal-btns">
+          <button class="btn-cancelar" onclick="document.body.removeChild(this.closest('.modal-bg'));">Cancelar</button>
+          <button class="btn-confirmar" onclick="confirmarEnvioPedido()">Confirmar y enviar</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+  // Confirmar y enviar pedido tras modal
+  function confirmarEnvioPedido() {
+    const modal = document.querySelector('.modal-bg');
+    if (modal) document.body.removeChild(modal);
+    enviarPedido();
+  }
+  // Enviar pedido
+  function enviarPedido() {
     // Deshabilitar botón
     const btnEnviar = document.getElementById('btnEnviar');
     btnEnviar.disabled = true;
@@ -712,7 +976,7 @@
     const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
     const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
     const fechaEntrega = document.getElementById('fechaEntrega').value;
-    const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const ticket = ultimoTicketGenerado || `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     document.getElementById('f_ticket').value = ticket;
     const telefonoLimpio = telefono.startsWith(codigoPais)
       ? telefono.slice(codigoPais.length)
@@ -735,18 +999,20 @@
     document.getElementById('f_fecha_entrega').value = fechaEntrega;
     document.getElementById('f_estado').value = "Pendiente";
     document.getElementById('sheetForm').submit();
-    // Resumen visual del pedido
+    // Mensaje WhatsApp
     let resumen = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
+    resumen += `N.º de ticket: ${ticket}\n`;
     carrito.forEach(i => {
       resumen += `🍰 ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`;
     });
     resumen += `-------------------------\n` +
-             `🚚 Reparto: ${reparto || 'Sin reparto'} (+${envio} CUP)\n` +
-             `💰 Subtotal: ${subtotal} CUP\n💰 Total: ${total} CUP\n` +
-             `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n` +
-             (direccion ? `🏠 ${direccion}\n` : '') +
-             (fechaEntrega ? `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n` : '') +
-             `¡Gracias por su compra! 😊`;
+               `🚚 Reparto: ${reparto || 'Sin reparto'}${envio>0?` (+${envio} CUP)`:''}\n` +
+               `💰 Subtotal: ${subtotal} CUP\n` +
+               `💰 Envío: ${envio} CUP\n` +
+               `TOTAL: \`${total}\`\n` +
+               `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n` +
+               (direccion ? `🏠 ${direccion}\n` : '') +
+               (fechaEntrega ? `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n` : '');
     // WhatsApp
     const numero = "5358707434";
     window.open(`https://wa.me/${numero}?text=${encodeURIComponent(resumen)}`, '_blank');
@@ -758,6 +1024,7 @@
     document.getElementById('zonaEntrega').style.display = 'none';
     document.getElementById('mensajeCompra').textContent = '¡Pedido enviado correctamente!';
     setTimeout(()=>{document.getElementById('mensajeCompra').textContent='';},3500);
+    ultimoTicketGenerado = "";
   }
   // Exponer funciones necesarias globalmente
   window.modificarCantidad = modificarCantidad;
@@ -767,6 +1034,10 @@
   window.toggleDireccion = toggleDireccion;
   window.enviarPedido = enviarPedido;
   window.irAlCarrito = irAlCarrito;
+  window.cambiarCantidadCarrito = cambiarCantidadCarrito;
+  window.vaciarCarrito = vaciarCarrito;
+  window.mostrarResumenConfirmacion = mostrarResumenConfirmacion;
+  window.confirmarEnvioPedido = confirmarEnvioPedido;
 </script>
 <div id="carritoFlotante" onclick="irAlCarrito()" aria-label="Ver carrito" tabindex="0">
   🛒 <span id="contadorCarrito">0</span>
