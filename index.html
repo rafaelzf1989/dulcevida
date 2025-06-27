@@ -298,6 +298,80 @@
         max-width: 340px;
       }
     }
+
+    /* Carrito vacío */
+#carritoVacio {
+  color: #888;
+  font-size: 1.1em;
+  margin: 18px 0;
+}
+
+#vaciarCarrito {
+  background: #e74c3c;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px;
+  margin: 12px 0 18px 0;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background 0.2s;
+}
+#vaciarCarrito:hover, #vaciarCarrito:focus {
+  background: #c0392b;
+}
+
+#resumenTotales {
+  background: #f7f7f7;
+  border: 2px solid #25D366;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 12px 0 0 0;
+  font-size: 1.1em;
+  box-shadow: 0 4px 14px rgba(37,211,102,0.07);
+  position: sticky;
+  top: 10px;
+  z-index: 10;
+}
+
+.carrito-item-animado {
+  animation: flashCarrito 0.5s;
+}
+@keyframes flashCarrito {
+  0% { background: #e8ffe7;}
+  100% { background: transparent;}
+}
+
+.carrito-cantidad-btn {
+  background: #25D366;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1em;
+  cursor: pointer;
+  margin: 0 2px;
+  transition: background 0.2s;
+}
+.carrito-cantidad-btn:active {
+  background: #1ebd5a;
+}
+.carrito-cantidad-btn[disabled] {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+  #resumenTotales {
+    padding: 14px 6vw;
+    font-size: 1em;
+  }
+  #carrito {
+    padding-left: 2vw;
+    padding-right: 2vw;
+  }
+}
   </style>
 </head>
 
@@ -323,13 +397,28 @@
 
 <main>
   <section id="productos" class="productos"></section>
-  <section id="carrito" style="max-width: 500px; margin: auto; text-align: left;">
-    <h2>Carrito 🛒</h2>
-    <ul id="listaCarrito" style="padding-left: 20px;"></ul>
+  <!-- ...dentro de tu sección del carrito... -->
+<section id="carrito" style="max-width: 500px; margin: auto; text-align: left;">
+  <h2>Carrito 🛒</h2>
+  <ul id="listaCarrito" style="padding-left: 20px; min-height: 55px;"></ul>
+
+  <!-- Mensaje cuando el carrito está vacío -->
+  <div id="carritoVacio" style="display:none; text-align:center; color:#888; margin-top:20px;">
+    Tu carrito está vacío. ¡Agrega algo delicioso!
+  </div>
+
+  <!-- Botón para vaciar carrito -->
+  <button id="vaciarCarrito" style="display:none; background:#e74c3c; color:#fff; border:none; border-radius:5px; padding:8px 16px; margin:12px 0 18px 0; cursor:pointer;">
+    Vaciar carrito
+  </button>
+
+  <!-- Resumen fijo y destacado -->
+  <div id="resumenTotales" style="background: #f7f7f7; border: 2px solid #25D366; border-radius: 10px; padding: 16px 20px; margin: 12px 0 0 0; font-size:1.1em;">
     <p>Subtotal: <span id="totalCarrito">0</span> CUP</p>
     <p>Envío: <span id="tarifaReparto">0</span> CUP</p>
-    <p><strong>Total: <span id="totalFinal">0</span> CUP</strong></p>
-  </section>
+    <p style="font-size:1.2em;"><strong>Total: <span id="totalFinal">0</span> CUP</strong></p>
+  </div>
+</section>
 
   <section id="cliente">
     <h3>📝 Datos del Cliente</h3>
@@ -547,42 +636,110 @@ function quitarDelCarrito(id) {
 }
 
 // --- Carrito, totales, tarifas ---
+// --- ACTUALIZAR CARRITO CON MEJORAS ---
 function actualizarCarrito() {
-  const lista = document.getElementById('listaCarrito');
-  lista.innerHTML = '';
+  const listaCarrito = document.getElementById('listaCarrito');
+  const vaciarCarritoBtn = document.getElementById('vaciarCarrito');
+  const carritoVacioMsg = document.getElementById('carritoVacio');
+  listaCarrito.innerHTML = '';
   let subtotal = 0;
+  let totalItems = 0;
   carrito.forEach(item => {
     subtotal += item.precio * item.cantidad;
+    totalItems += item.cantidad;
+    const agotado = (typeof estadosProductos !== "undefined" && estadosProductos[item.nombre] && estadosProductos[item.nombre].toLowerCase().includes('agotado'));
     const li = document.createElement('li');
-    li.innerHTML = `${item.nombre} x${item.cantidad} - ${item.precio * item.cantidad} CUP <button onclick="quitarDelCarrito(${item.id})">❌</button>`;
     li.style.textAlign = 'left';
-    lista.appendChild(li);
+    li.style.marginBottom = '10px';
+    li.className = 'carrito-item-animado';
+    li.innerHTML = `
+      <strong>${item.nombre}</strong>
+      <div style="display:inline-block; margin-left:8px;">
+        <button class="carrito-cantidad-btn" onclick="cambiarCantidadCarrito(${item.id}, -1)" ${item.cantidad <= 1 ? 'disabled' : ''} aria-label="Disminuir cantidad">-</button>
+        <span style="margin:0 6px; font-weight:bold;">${item.cantidad}</span>
+        <button class="carrito-cantidad-btn" onclick="cambiarCantidadCarrito(${item.id}, 1)" ${agotado ? 'disabled' : ''} aria-label="Aumentar cantidad">+</button>
+      </div>
+      <span style="margin-left:14px;">${item.precio * item.cantidad} CUP</span>
+      <button onclick="quitarDelCarrito(${item.id})" title="Quitar" style="background:none; color:#e74c3c; border:none; font-size:1.2em; cursor:pointer;" aria-label="Quitar producto">&times;</button>
+      ${agotado ? '<span style="color:#e74c3c; font-size:0.9em;"> (Agotado)</span>' : ''}
+    `;
+    listaCarrito.appendChild(li);
+    setTimeout(() => li.classList.remove('carrito-item-animado'), 500);
   });
   document.getElementById('totalCarrito').textContent = subtotal;
   actualizarTarifa();
-  document.getElementById('contadorCarrito').textContent = carrito.reduce((acc, i) => acc + i.cantidad, 0);
+  document.getElementById('contadorCarrito').textContent = totalItems;
   actualizarEstadoBotonEnviar();
-  guardarCarrito();
-}
-function actualizarTarifa() {
-  const reparto = document.getElementById('reparto')?.value;
-  const tarifa = tarifas[reparto] || 0;
-  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  document.getElementById('tarifaReparto').textContent = tarifa;
-  document.getElementById('totalFinal').textContent = subtotal + tarifa;
-}
-function toggleDireccion() {
-  const entrega = document.getElementById('entrega').value;
-  document.getElementById('zonaEntrega').style.display =
-    entrega === 'si' ? 'block' : 'none';
-  actualizarTarifa();
-  actualizarEstadoBotonEnviar();
-}
-function irAlCarrito() {
-  const carritoSection = document.getElementById('carrito');
-  if(carritoSection) {
-    carritoSection.scrollIntoView({behavior: "smooth", block: "start"});
+  if (carrito.length === 0) {
+    carritoVacioMsg.style.display = 'block';
+    vaciarCarritoBtn.style.display = 'none';
+  } else {
+    carritoVacioMsg.style.display = 'none';
+    vaciarCarritoBtn.style.display = 'inline-block';
   }
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+// --- CAMBIAR CANTIDAD EN CARRITO ---
+function cambiarCantidadCarrito(id, delta) {
+  const prod = carrito.find(i => i.id === id);
+  if (!prod) return;
+  prod.cantidad += delta;
+  if (prod.cantidad <= 0) quitarDelCarrito(id);
+  else actualizarCarrito();
+}
+
+// --- BOTÓN VACIAR CARRITO ---
+document.getElementById('vaciarCarrito').onclick = function() {
+  if (carrito.length === 0) return;
+  if (confirm('¿Seguro que quieres vaciar tu carrito? Esta acción no se puede deshacer.')) {
+    carrito = [];
+    actualizarCarrito();
+    localStorage.removeItem('carrito');
+  }
+};
+
+// --- SINCRONIZACIÓN ENTRE PESTAÑAS ---
+window.addEventListener('storage', function(e) {
+  if (e.key === 'carrito') {
+    try {
+      carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+      actualizarCarrito();
+    } catch { /* ignore */ }
+  }
+});
+
+// --- AGREGAR AL CARRITO DESDE BOTÓN (evita duplicados y feedback) ---
+function agregarAlCarritoDesdeBoton(id) {
+  const cantidad = cantidadesSeleccionadas[id] || 0;
+  if (cantidad === 0) {
+    alert("Selecciona al menos una unidad para agregar.");
+    return;
+  }
+  const producto = productos.find(p => p.id === id);
+  let existe = carrito.find(i => i.id === id);
+  if (existe) {
+    existe.cantidad += cantidad;
+    setTimeout(() => {
+      const items = document.querySelectorAll('#listaCarrito li');
+      items.forEach(li => {
+        if (li.textContent.includes(producto.nombre)) {
+          li.classList.add('carrito-item-animado');
+          setTimeout(() => li.classList.remove('carrito-item-animado'), 500);
+        }
+      });
+    }, 50);
+  } else {
+    carrito.push({ ...producto, cantidad });
+  }
+  cantidadesSeleccionadas[id] = 0;
+  document.getElementById(`cantidad-${id}`).textContent = 0;
+  actualizarCarrito();
+  const carritoFlot = document.getElementById('carritoFlotante');
+  carritoFlot.classList.remove('pulse');
+  void carritoFlot.offsetWidth;
+  carritoFlot.classList.add('pulse');
+  setTimeout(() => carritoFlot.classList.remove('pulse'), 500);
 }
 
 // --- Validación avanzada de formulario ---
