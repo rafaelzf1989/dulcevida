@@ -81,7 +81,49 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      position: relative;
+      transition: box-shadow 0.2s, transform 0.2s;
     }
+
+    /* --- SUGERENCIAS VISUALES Y ESTÉTICA --- */
+
+    /* Efecto hover en tarjetas de producto */
+    .producto:hover {
+      box-shadow: 0 4px 14px rgba(37,211,102,0.16);
+      transform: translateY(-2px) scale(1.02);
+      z-index: 1;
+    }
+
+    /* Aumenta el tamaño de los botones principales */
+    .producto button,
+    #cliente button {
+      font-size: 1.07em;
+      padding: 10px 16px;
+    }
+
+    /* Espaciado extra entre secciones */
+    section {
+      margin-bottom: 32px;
+    }
+
+    /* Separador visual entre productos y carrito */
+    #carrito {
+      border-top: 1px solid #e0e0e0;
+      box-shadow: 0 -2px 5px rgba(0,0,0,0.03);
+      padding-top: 20px;
+      margin-top: 16px;
+    }
+
+    /* Carrito flotante animación al agregar */
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(37,211,102,0.5);}
+      100% { box-shadow: 0 0 0 18px rgba(37,211,102,0);}
+    }
+    #carritoFlotante.pulse {
+      animation: pulse 0.4s;
+    }
+
+    /* --- FIN DE SUGERENCIAS VISUALES Y ESTÉTICA --- */
 
     .producto img {
       width: 180px;
@@ -105,7 +147,6 @@
       background: #28a745;
       color: #fff;
       border: none;
-      padding: 6px 12px;
       border-radius: 4px;
       cursor: pointer;
       margin-top: 8px;
@@ -222,6 +263,7 @@
     #cliente select:focus {
       border-color: #25D366;
       outline: none;
+      box-shadow: 0 0 0 2px #25D36666;
     }
     #zonaEntrega {
       margin-top: 10px;
@@ -231,8 +273,6 @@
       background: #25D366;
       color: white;
       border: none;
-      padding: 12px 20px;
-      font-size: 1em;
       border-radius: 6px;
       cursor: pointer;
       display: block;
@@ -247,10 +287,24 @@
       font-weight: bold;
       color: green;
     }
+    /* Responsive mejoras */
+    @media (max-width: 600px) {
+      .productos {
+        flex-direction: column;
+        align-items: center;
+      }
+      .producto {
+        width: 92vw;
+        max-width: 340px;
+      }
+    }
   </style>
 </head>
-<body>
 
+
+
+
+<body>
 <!-- Loader -->
 <div id="loader">
   <div class="loader-spinner"></div>
@@ -263,7 +317,7 @@
 
 <div class="marquesina">
   <marquee behavior="scroll" direction="left" scrollamount="10">
-    🎉 ¡Bienvenido a Dulce Vida! Haz tu pedido con tiempo y vive la experiencia de un dulce momento 🎂✨ 🚚 Entregamos a domicilio toda la semana 📅 Los pedidos deben realizarse con al menos[...]
+    🎉 ¡Bienvenido a Dulce Vida! Haz tu pedido con tiempo y vive la experiencia de un dulce momento 🎂✨ 🚚 Entregamos a domicilio toda la semana 📅 Los pedidos deben realizarse con al menos un día de antelación. ¡Gracias por preferirnos!
   </marquee>
 </div>
 
@@ -279,7 +333,7 @@
 
   <section id="cliente">
     <h3>📝 Datos del Cliente</h3>
-    <label for="codigoPais">Código de país</label>
+    <label for="codigoPais">Código de país <span style="color:red">*</span></label>
     <select id="codigoPais" required>
       <option disabled selected>Selecciona tu país</option>
       <option value="53">🇨🇺 Cuba (+53)</option>
@@ -288,20 +342,20 @@
       <option value="52">🇲🇽 México (+52)</option>
       <option value="55">🇧🇷 Brasil (+55)</option>
     </select>
-    <label for="telefono">Número de teléfono</label>
+    <label for="telefono">Número de teléfono <span style="color:red">*</span></label>
     <input id="telefono" type="tel" placeholder="Ej: 52123456" required />
-    <label for="nombre">Nombre completo</label>
+    <label for="nombre">Nombre completo <span style="color:red">*</span></label>
     <input id="nombre" type="text" placeholder="Tu nombre y apellidos" required />
-    <label for="entrega">¿Deseas entrega a domicilio?</label>
+    <label for="entrega">¿Deseas entrega a domicilio? <span style="color:red">*</span></label>
     <select id="entrega" onchange="toggleDireccion()" required>
       <option value="">Selecciona una opción</option>
       <option value="si">Sí</option>
       <option value="no">No</option>
     </select>
     <div id="zonaEntrega">
-      <label for="direccion">Dirección exacta</label>
+      <label for="direccion">Dirección exacta <span style="color:red">*</span></label>
       <input id="direccion" type="text" placeholder="Ej: Calle 10 #123 entre A y B" />
-      <label for="reparto">Reparto o zona</label>
+      <label for="reparto">Reparto o zona <span style="color:red">*</span></label>
       <select id="reparto" onchange="actualizarTarifa()">
         <option disabled selected>Selecciona tu reparto</option>
         <option>Santa Lucía</option>
@@ -317,9 +371,9 @@
         <option>La Maravilla</option>
       </select>
     </div>
-    <label for="fechaEntrega">Fecha y hora deseada de entrega</label>
+    <label for="fechaEntrega">Fecha y hora deseada de entrega <span style="color:red">*</span></label>
     <input type="datetime-local" id="fechaEntrega" required />
-    <button onclick="enviarPedido()" style="display: flex; align-items: center; gap: 8px;">
+    <button id="btnEnviar" style="display: flex; align-items: center; gap: 8px;" disabled>
       <img src="https://file.garden/aEX2yhToiQk-s_Qq/IMG_COM_202506261242078500.png"
            alt="Icono WhatsApp"
            style="width: 20px; height: 20px; object-fit: contain;" />
@@ -349,253 +403,386 @@
 </form>
 <iframe name="sheetResponse" style="display:none;"></iframe>
 
-<script>
-  let estadosProductos = {};
+<!-- MODAL DE CONFIRMACIÓN -->
+<div id="modalResumen" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.35); z-index:3000; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:10px; max-width:90vw; width:340px; margin:auto; padding:22px 18px; box-shadow:0 6px 24px rgba(0,0,0,0.25); position:relative;">
+    <h3 style="margin-top:0; color:#25D366;">¿Confirmar pedido?</h3>
+    <div id="resumenPedido" style="font-size:1em; margin-bottom:16px;"></div>
+    <button id="btnConfirmarEnviar" style="background:#25D366; color:#fff; border:none; border-radius:6px; padding:10px 20px; font-size:1.1em; margin-right:10px; cursor:pointer;">Sí, enviar</button>
+    <button onclick="cerrarModalResumen()" style="background:#eee; color:#333; border:none; border-radius:6px; padding:10px 18px; font-size:1em; cursor:pointer;">Cancelar</button>
+  </div>
+</div>
 
-  // Mostramos loader por defecto
-  document.getElementById('loader').style.display = "flex";
-
-  fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
-    .then(respuesta => respuesta.json())
-    .then(data => {
-      estadosProductos = data;
-      cargarProductos();
-      // Cuando todo esté listo, ocultar loader
-      setTimeout(() => {
-        document.getElementById('loader').classList.add("oculto");
-        setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
-      }, 250); // pequeño delay para suavidad
-    })
-    .catch(() => {
-      // En caso de error, también ocultar loader después de un tiempo
-      setTimeout(() => {
-        document.getElementById('loader').classList.add("oculto");
-        setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
-      }, 600);
-    });
-
-  const productos = [
-    {
-      id: 1,
-      nombre: 'Panetela Clásica',
-      precio: 3500,
-      descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.',
-      img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
-    },
-    {
-      id: 2,
-      nombre: 'Panetela de Chocolate',
-      precio: 3800,
-      descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.',
-      img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
-    },
-    {
-      id: 3,
-      nombre: 'Panetela Especial',
-      precio: 4300,
-      descripcion: 'Decorada con crema batida y frutas confitadas.',
-      img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
-    }
-  ];
-
-  const tarifas = {
-    'Santa Lucía': 50, 'Tasajera': 50, 'Las Casitas': 50,
-    'Progreso': 50, 'Nuevo Progreso': 50,
-    'Cepero Bonilla': 100, 'El Triángulo': 100,
-    'Alba Flores': 100, 'Borbollón': 100,
-    'La Compañía': 100, 'La Maravilla': 100
-  };
-
-  let carrito = [];
-  const cantidadesSeleccionadas = {};
-
-  function modificarCantidad(id, delta) {
-    if (!cantidadesSeleccionadas[id]) cantidadesSeleccionadas[id] = 0;
-    cantidadesSeleccionadas[id] += delta;
-    if (cantidadesSeleccionadas[id] < 0) cantidadesSeleccionadas[id] = 0;
-    document.getElementById(`cantidad-${id}`).textContent = cantidadesSeleccionadas[id];
-  }
-
-  function agregarAlCarritoDesdeBoton(id) {
-    const cantidad = cantidadesSeleccionadas[id] || 0;
-    if (cantidad === 0) {
-      alert("Selecciona al menos una unidad para agregar.");
-      return;
-    }
-
-    const producto = productos.find(p => p.id === id);
-    const existe = carrito.find(i => i.id === id);
-    if (existe) {
-      existe.cantidad += cantidad;
-    } else {
-      carrito.push({ ...producto, cantidad });
-    }
-
-    cantidadesSeleccionadas[id] = 0;
-    document.getElementById(`cantidad-${id}`).textContent = 0;
-    actualizarCarrito();
-  }
-
-  function cargarProductos() {
-    const cont = document.getElementById('productos');
-    cont.innerHTML = '';
-    productos.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'producto';
-
-      const estado = estadosProductos[p.nombre] || '';
-      const agotado = estado.toLowerCase().includes('agotado');
-
-      if (agotado) div.classList.add('agotado');
-
-      div.innerHTML = `
-        ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
-        <img src="${p.img}" alt="${p.nombre}" />
-        <h3>${p.nombre}</h3>
-        <p>${p.descripcion}</p>
-        <p><strong>${p.precio} CUP</strong></p>
-        <div class="control-cantidad">
-          <button onclick="modificarCantidad(${p.id}, -1)" ${agotado ? 'disabled' : ''}>−</button>
-          <span id="cantidad-${p.id}">0</span>
-          <button onclick="modificarCantidad(${p.id}, 1)" ${agotado ? 'disabled' : ''}>+</button>
-        </div>
-        ${agotado
-          ? `<button disabled style="background: gray; cursor: not-allowed;">No disponible</button>`
-          : `<button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>`}
-      `;
-      cont.appendChild(div);
-    });
-    actualizarCarrito();
-  }
-
-  function agregarAlCarrito(id) {
-    const prod = productos.find(p => p.id === id);
-    const existe = carrito.find(i => i.id === id);
-    if (existe) {
-      existe.cantidad += 1;
-    } else {
-      carrito.push({ ...prod, cantidad: 1 });
-    }
-    actualizarCarrito();
-  }
-
-  function quitarDelCarrito(id) {
-    carrito = carrito.filter(i => i.id !== id);
-    actualizarCarrito();
-  }
-
-  function actualizarCarrito() {
-    const lista = document.getElementById('listaCarrito');
-    lista.innerHTML = '';
-    let subtotal = 0;
-    carrito.forEach(item => {
-      subtotal += item.precio * item.cantidad;
-      const li = document.createElement('li');
-      li.innerHTML = `${item.nombre} x${item.cantidad} - ${item.precio * item.cantidad} CUP <button onclick="quitarDelCarrito(${item.id})">❌</button>`;
-      li.style.textAlign = 'left';
-      lista.appendChild(li);
-    });
-    document.getElementById('totalCarrito').textContent = subtotal;
-    actualizarTarifa();
-    document.getElementById('contadorCarrito').textContent = carrito.reduce((acc, i) => acc + i.cantidad, 0);
-  }
-
-  function actualizarTarifa() {
-    const reparto = document.getElementById('reparto')?.value;
-    const tarifa = tarifas[reparto] || 0;
-    const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-    document.getElementById('tarifaReparto').textContent = tarifa;
-    document.getElementById('totalFinal').textContent = subtotal + tarifa;
-  }
-
-  function toggleDireccion() {
-    const entrega = document.getElementById('entrega').value;
-    document.getElementById('zonaEntrega').style.display =
-      entrega === 'si' ? 'block' : 'none';
-    actualizarTarifa();
-  }
-  function enviarPedido() {
-    if (carrito.length === 0) {
-      alert('El carrito está vacío.');
-      return;
-    }
-
-    const nombre = document.getElementById('nombre').value.trim();
-    const telefono = document.getElementById('telefono').value.trim();
-    const codigoPais = document.getElementById('codigoPais').value;
-    const entrega = document.getElementById('entrega').value;
-    const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
-    const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
-    const fechaEntrega = document.getElementById('fechaEntrega').value;
-    const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    document.getElementById('f_ticket').value = ticket;
-
-    if (!nombre || !telefono || !codigoPais || (entrega === 'si' && (!direccion || !reparto))) {
-      alert('Por favor, completa todos los campos requeridos.');
-      return;
-    }
-
-    const telefonoLimpio = telefono.startsWith(codigoPais)
-      ? telefono.slice(codigoPais.length)
-      : telefono;
-
-    const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-    const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
-    const total = subtotal + envio;
-    const productosTxt = carrito.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
-
-    // Llenar el formulario oculto
-    document.getElementById('f_nombre').value = nombre;
-    document.getElementById('f_telefono').value = telefonoLimpio;
-    document.getElementById('f_codigoPais').value = codigoPais;
-    document.getElementById('f_direccion').value = direccion;
-    document.getElementById('f_reparto').value = reparto;
-    document.getElementById('f_productos').value = productosTxt;
-    document.getElementById('f_subtotal').value = subtotal;
-    document.getElementById('f_envio').value = envio;
-    document.getElementById('f_total').value = total;
-    document.getElementById('f_entrega').value = entrega;
-    document.getElementById('f_fecha_entrega').value = fechaEntrega;
-    document.getElementById('f_estado').value = "Pendiente";
-
-    document.getElementById('sheetForm').submit();
-
-    // Generar mensaje para WhatsApp
-    const numero = "5358707434";
-    let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
-    carrito.forEach(i => {
-      texto += `🍰 ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`;
-    });
-    texto += `-------------------------\n` +
-             `🚚 Reparto: ${reparto || 'Sin reparto'} (+${envio} CUP)\n` +
-             `💰 Subtotal: ${subtotal} CUP\n💰 Total: ${total} CUP\n` +
-             `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n` +
-             (direccion ? `🏠 ${direccion}\n` : '') +
-             (fechaEntrega ? `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n` : '') +
-             `¡Gracias por su compra! 😊`;
-
-    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
-
-    // Limpiar todo
-    carrito = [];
-    actualizarCarrito();
-
-    document.getElementById('nombre').value = '';
-    document.getElementById('telefono').value = '';
-    document.getElementById('codigoPais').selectedIndex = 0;
-    document.getElementById('direccion').value = '';
-    document.getElementById('reparto').selectedIndex = 0;
-    document.getElementById('entrega').selectedIndex = 0;
-    document.getElementById('fechaEntrega').value = '';
-    document.getElementById('zonaEntrega').style.display = 'none';
-    document.getElementById('mensajeCompra').textContent = '';
-  }
-
-  // No llamamos a cargarProductos ni actualizarCarrito aquí porque lo hace el fetch después de obtener los estados
-
-</script>
-<div id="carritoFlotante" onclick="irAlCarrito()">
+<div id="carritoFlotante" onclick="irAlCarrito()" role="button" aria-label="Ver carrito de compras" tabindex="0">
   🛒 <span id="contadorCarrito">0</span>
 </div>
+
+
+
+<script>
+let estadosProductos = {};
+let carrito = [];
+const cantidadesSeleccionadas = {};
+const tarifas = {
+  'Santa Lucía': 50, 'Tasajera': 50, 'Las Casitas': 50,
+  'Progreso': 50, 'Nuevo Progreso': 50,
+  'Cepero Bonilla': 100, 'El Triángulo': 100,
+  'Alba Flores': 100, 'Borbollón': 100,
+  'La Compañía': 100, 'La Maravilla': 100
+};
+const productos = [
+  {
+    id: 1,
+    nombre: 'Panetela Clásica',
+    precio: 3500,
+    descripcion: 'Bizcocho suave y esponjoso con aroma a vainilla.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/clasica.png'
+  },
+  {
+    id: 2,
+    nombre: 'Panetela de Chocolate',
+    precio: 3800,
+    descripcion: 'Rellena de chocolate con cubierta de cacao oscuro.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/chocolate.png'
+  },
+  {
+    id: 3,
+    nombre: 'Panetela Especial',
+    precio: 4300,
+    descripcion: 'Decorada con crema batida y frutas confitadas.',
+    img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
+  }
+];
+
+// Loader
+document.getElementById('loader').style.display = "flex";
+fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
+  .then(respuesta => respuesta.json())
+  .then(data => {
+    estadosProductos = data;
+    cargarProductos();
+    setTimeout(() => {
+      document.getElementById('loader').classList.add("oculto");
+      setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
+    }, 250);
+  })
+  .catch(() => {
+    setTimeout(() => {
+      document.getElementById('loader').classList.add("oculto");
+      setTimeout(() => { document.getElementById('loader').style.display = "none"; }, 400);
+    }, 600);
+  });
+
+// --- Persistencia carrito localStorage ---
+if (localStorage.getItem('carrito')) {
+  try {
+    carrito = JSON.parse(localStorage.getItem('carrito'));
+  } catch(e) { carrito = []; }
+}
+function guardarCarrito() {
+  localStorage.setItem('carrito', JSON.stringify(carrito));
+}
+
+// --- Productos y control de cantidades ---
+function modificarCantidad(id, delta) {
+  if (!cantidadesSeleccionadas[id]) cantidadesSeleccionadas[id] = 0;
+  cantidadesSeleccionadas[id] += delta;
+  if (cantidadesSeleccionadas[id] < 0) cantidadesSeleccionadas[id] = 0;
+  document.getElementById(`cantidad-${id}`).textContent = cantidadesSeleccionadas[id];
+}
+function agregarAlCarritoDesdeBoton(id) {
+  const cantidad = cantidadesSeleccionadas[id] || 0;
+  if (cantidad === 0) {
+    alert("Selecciona al menos una unidad para agregar.");
+    return;
+  }
+  const producto = productos.find(p => p.id === id);
+  const existe = carrito.find(i => i.id === id);
+  if (existe) {
+    existe.cantidad += cantidad;
+  } else {
+    carrito.push({ ...producto, cantidad });
+  }
+  cantidadesSeleccionadas[id] = 0;
+  document.getElementById(`cantidad-${id}`).textContent = 0;
+  actualizarCarrito();
+  // Feedback visual
+  const carritoFlot = document.getElementById('carritoFlotante');
+  carritoFlot.classList.remove('pulse');
+  void carritoFlot.offsetWidth;
+  carritoFlot.classList.add('pulse');
+  setTimeout(() => carritoFlot.classList.remove('pulse'), 500);
+}
+function cargarProductos() {
+  const cont = document.getElementById('productos');
+  cont.innerHTML = '';
+  productos.forEach(p => {
+    const div = document.createElement('div');
+    div.className = 'producto';
+    const estado = estadosProductos[p.nombre] || '';
+    const agotado = estado.toLowerCase().includes('agotado');
+    if (agotado) div.classList.add('agotado');
+    div.innerHTML = `
+      ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
+      <img src="${p.img}" alt="${p.nombre}" />
+      <h3>${p.nombre}</h3>
+      <p>${p.descripcion}</p>
+      <p><strong>${p.precio} CUP</strong></p>
+      <div class="control-cantidad">
+        <button onclick="modificarCantidad(${p.id}, -1)" ${agotado ? 'disabled' : ''}>−</button>
+        <span id="cantidad-${p.id}">0</span>
+        <button onclick="modificarCantidad(${p.id}, 1)" ${agotado ? 'disabled' : ''}>+</button>
+      </div>
+      ${agotado
+        ? `<button disabled style="background: gray; cursor: not-allowed;">No disponible</button>`
+        : `<button onclick="agregarAlCarritoDesdeBoton(${p.id})">Añadir al carrito</button>`}
+    `;
+    cont.appendChild(div);
+  });
+  actualizarCarrito();
+}
+function quitarDelCarrito(id) {
+  carrito = carrito.filter(i => i.id !== id);
+  actualizarCarrito();
+}
+
+// --- Carrito, totales, tarifas ---
+function actualizarCarrito() {
+  const lista = document.getElementById('listaCarrito');
+  lista.innerHTML = '';
+  let subtotal = 0;
+  carrito.forEach(item => {
+    subtotal += item.precio * item.cantidad;
+    const li = document.createElement('li');
+    li.innerHTML = `${item.nombre} x${item.cantidad} - ${item.precio * item.cantidad} CUP <button onclick="quitarDelCarrito(${item.id})">❌</button>`;
+    li.style.textAlign = 'left';
+    lista.appendChild(li);
+  });
+  document.getElementById('totalCarrito').textContent = subtotal;
+  actualizarTarifa();
+  document.getElementById('contadorCarrito').textContent = carrito.reduce((acc, i) => acc + i.cantidad, 0);
+  actualizarEstadoBotonEnviar();
+  guardarCarrito();
+}
+function actualizarTarifa() {
+  const reparto = document.getElementById('reparto')?.value;
+  const tarifa = tarifas[reparto] || 0;
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  document.getElementById('tarifaReparto').textContent = tarifa;
+  document.getElementById('totalFinal').textContent = subtotal + tarifa;
+}
+function toggleDireccion() {
+  const entrega = document.getElementById('entrega').value;
+  document.getElementById('zonaEntrega').style.display =
+    entrega === 'si' ? 'block' : 'none';
+  actualizarTarifa();
+  actualizarEstadoBotonEnviar();
+}
+function irAlCarrito() {
+  const carritoSection = document.getElementById('carrito');
+  if(carritoSection) {
+    carritoSection.scrollIntoView({behavior: "smooth", block: "start"});
+  }
+}
+
+// --- Validación avanzada de formulario ---
+function marcarCamposObligatorios() {
+  let error = false;
+  const campos = [
+    {id: 'codigoPais', tipo: 'select'},
+    {id: 'telefono'},
+    {id: 'nombre'},
+    {id: 'entrega', tipo: 'select'},
+    {id: 'fechaEntrega'}
+  ];
+  campos.forEach(({id, tipo}) => {
+    const elem = document.getElementById(id);
+    const valor = (tipo === 'select') ? elem.value : elem.value.trim();
+    if (!valor || valor === "" || valor === "Selecciona tu país" || valor === "Selecciona una opción") {
+      elem.style.borderColor = "red";
+      error = true;
+    } else {
+      elem.style.borderColor = "#ccc";
+    }
+  });
+  if (document.getElementById('entrega').value === "si") {
+    ['direccion', 'reparto'].forEach(id => {
+      const elem = document.getElementById(id);
+      const valor = elem.value.trim();
+      if (!valor || valor === "" || valor === "Selecciona tu reparto") {
+        elem.style.borderColor = "red";
+        error = true;
+      } else {
+        elem.style.borderColor = "#ccc";
+      }
+    });
+  } else {
+    ['direccion', 'reparto'].forEach(id => {
+      document.getElementById(id).style.borderColor = "#ccc";
+    });
+  }
+  return error;
+}
+function formularioCompleto() {
+  if(carrito.length === 0) return false;
+  if(!document.getElementById('codigoPais').value ||
+    !document.getElementById('telefono').value.trim() ||
+    !document.getElementById('nombre').value.trim() ||
+    !document.getElementById('entrega').value ||
+    !document.getElementById('fechaEntrega').value
+  ) return false;
+  if(document.getElementById('entrega').value === "si" &&
+    (
+      !document.getElementById('direccion').value.trim() ||
+      !document.getElementById('reparto').value ||
+      document.getElementById('reparto').value === "Selecciona tu reparto"
+    )
+  ) return false;
+  return true;
+}
+function actualizarEstadoBotonEnviar() {
+  document.getElementById('btnEnviar').disabled = !formularioCompleto();
+}
+["codigoPais", "telefono", "nombre", "entrega", "fechaEntrega", "direccion", "reparto"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', actualizarEstadoBotonEnviar);
+    el.addEventListener('change', actualizarEstadoBotonEnviar);
+  }
+});
+
+// --- Modal de confirmación ---
+const btnEnviar = document.getElementById('btnEnviar');
+if(btnEnviar) {
+  btnEnviar.onclick = mostrarModalResumen;
+}
+function mostrarModalResumen(e) {
+  if(e) e.preventDefault();
+  if(carrito.length === 0) {
+    alert('El carrito está vacío.');
+    return;
+  }
+  if (typeof marcarCamposObligatorios === "function" && marcarCamposObligatorios()) {
+    alert('Por favor, completa todos los campos requeridos.');
+    return;
+  }
+  const nombre = document.getElementById('nombre').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const codigoPais = document.getElementById('codigoPais').value;
+  const entrega = document.getElementById('entrega').value;
+  const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
+  const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
+  const fechaEntrega = document.getElementById('fechaEntrega').value;
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
+  const total = subtotal + envio;
+  let html = `<strong>Productos:</strong><br>`;
+  carrito.forEach(i => {
+    html += `🍰 ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} CUP<br>`;
+  });
+  html += `<br>🚚 <strong>Reparto:</strong> ${reparto || 'Sin reparto'} (+${envio} CUP)<br>`;
+  html += `💰 <strong>Subtotal:</strong> ${subtotal} CUP<br>`;
+  html += `<strong>Total:</strong> ${total} CUP<br>`;
+  html += `<br>👤 ${nombre}<br>📞 +${codigoPais} ${telefono}<br>`;
+  if(direccion) html += `🏠 ${direccion}<br>`;
+  if(fechaEntrega) html += `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}<br>`;
+  document.getElementById('resumenPedido').innerHTML = html;
+  document.getElementById('modalResumen').style.display = "flex";
+}
+document.getElementById('btnConfirmarEnviar').onclick = function() {
+  document.getElementById('modalResumen').style.display = "none";
+  enviarPedidoFinal();
+};
+function cerrarModalResumen() {
+  document.getElementById('modalResumen').style.display = "none";
+}
+
+// --- Enviar pedido final ---
+function enviarPedidoFinal() {
+  const nombre = document.getElementById('nombre').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const codigoPais = document.getElementById('codigoPais').value;
+  const entrega = document.getElementById('entrega').value;
+  const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
+  const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
+  const fechaEntrega = document.getElementById('fechaEntrega').value;
+  const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  document.getElementById('f_ticket').value = ticket;
+  const telefonoLimpio = telefono.startsWith(codigoPais)
+    ? telefono.slice(codigoPais.length)
+    : telefono;
+  const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
+  const total = subtotal + envio;
+  const productosTxt = carrito.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
+
+  document.getElementById('f_nombre').value = nombre;
+  document.getElementById('f_telefono').value = telefonoLimpio;
+  document.getElementById('f_codigoPais').value = codigoPais;
+  document.getElementById('f_direccion').value = direccion;
+  document.getElementById('f_reparto').value = reparto;
+  document.getElementById('f_productos').value = productosTxt;
+  document.getElementById('f_subtotal').value = subtotal;
+  document.getElementById('f_envio').value = envio;
+  document.getElementById('f_total').value = total;
+  document.getElementById('f_entrega').value = entrega;
+  document.getElementById('f_fecha_entrega').value = fechaEntrega;
+  document.getElementById('f_estado').value = "Pendiente";
+
+  document.getElementById('sheetForm').submit();
+
+  const numero = "5358707434";
+  let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
+  carrito.forEach(i => {
+    texto += `🍰 ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`;
+  });
+  texto += `-------------------------\n` +
+           `🚚 Reparto: ${reparto || 'Sin reparto'} (+${envio} CUP)\n` +
+           `💰 Subtotal: ${subtotal} CUP\n💰 Total: ${total} CUP\n` +
+           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n` +
+           (direccion ? `🏠 ${direccion}\n` : '') +
+           (fechaEntrega ? `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n` : '') +
+           `¡Gracias por su compra! 😊`;
+
+  window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
+
+  carrito = [];
+  actualizarCarrito();
+  localStorage.removeItem('carrito');
+  document.getElementById('nombre').value = '';
+  document.getElementById('telefono').value = '';
+  document.getElementById('codigoPais').selectedIndex = 0;
+  document.getElementById('direccion').value = '';
+  document.getElementById('reparto').selectedIndex = 0;
+  document.getElementById('entrega').selectedIndex = 0;
+  document.getElementById('fechaEntrega').value = '';
+  document.getElementById('zonaEntrega').style.display = 'none';
+  document.getElementById('mensajeCompra').textContent = '';
+  actualizarEstadoBotonEnviar();
+}
+
+// --- Accesibilidad y responsive ---
+document.querySelectorAll('#cliente input, #cliente select').forEach(el => {
+  el.addEventListener('focus', function() {
+    this.style.boxShadow = '0 0 0 2px #25D36666';
+  });
+  el.addEventListener('blur', function() {
+    this.style.boxShadow = 'none';
+  });
+});
+window.addEventListener('resize', adaptarProductos);
+function adaptarProductos() {
+  const productosCont = document.getElementById('productos');
+  if(window.innerWidth < 600 && productosCont) {
+    productosCont.style.flexDirection = 'column';
+    productosCont.style.alignItems = 'center';
+  } else if(productosCont) {
+    productosCont.style.flexDirection = '';
+    productosCont.style.alignItems = '';
+  }
+}
+adaptarProductos();
+</script>
 </body>
-        </html>
+</html>
+  
