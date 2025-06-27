@@ -708,14 +708,17 @@ function enviarPedidoFinal() {
   const fechaEntrega = document.getElementById('fechaEntrega').value;
   const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
   document.getElementById('f_ticket').value = ticket;
+
   const telefonoLimpio = telefono.startsWith(codigoPais)
     ? telefono.slice(codigoPais.length)
     : telefono;
+
   const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
   const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
   const total = subtotal + envio;
   const productosTxt = carrito.map(i => `${i.nombre} x${i.cantidad}`).join(', ');
 
+  // Llenar el formulario oculto
   document.getElementById('f_nombre').value = nombre;
   document.getElementById('f_telefono').value = telefonoLimpio;
   document.getElementById('f_codigoPais').value = codigoPais;
@@ -731,21 +734,28 @@ function enviarPedidoFinal() {
 
   document.getElementById('sheetForm').submit();
 
+  // Generar mensaje para WhatsApp (ACTUALIZADO)
   const numero = "5358707434";
-  let texto = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
+  let texto = '';
+  texto += '🧾 *Ticket de Compra* 🧾\n';
+  texto += `*Ticket:* ${ticket}\n`;
+  texto += '-------------------------\n';
   carrito.forEach(i => {
     texto += `🍰 ${i.nombre} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`;
   });
-  texto += `-------------------------\n` +
-           `🚚 Reparto: ${reparto || 'Sin reparto'} (+${envio} CUP)\n` +
-           `💰 Subtotal: ${subtotal} CUP\n💰 Total: ${total} CUP\n` +
-           `-------------------------\n👤 ${nombre}\n📞 +${codigoPais} ${telefonoLimpio}\n` +
-           (direccion ? `🏠 ${direccion}\n` : '') +
-           (fechaEntrega ? `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n` : '') +
-           `¡Gracias por su compra! 😊`;
+  texto += `-------------------------\n`;
+  texto += `🚚 Reparto: ${reparto || 'Sin reparto'} (+${envio} CUP)\n`;
+  texto += `💰 Subtotal: ${subtotal} CUP\n`;
+  texto += `*Total:* \`${total} CUP\`\n`;
+  texto += `-------------------------\n`;
+  texto += `👤 ${nombre}\n`;
+  texto += `📞 +${codigoPais} ${telefonoLimpio}\n`;
+  if (direccion) texto += `🏠 ${direccion}\n`;
+  if (fechaEntrega) texto += `📅 Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n`;
 
   window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank');
 
+  // Limpiar todo
   carrito = [];
   actualizarCarrito();
   localStorage.removeItem('carrito');
