@@ -110,6 +110,7 @@
       padding: 4px 12px;
       border-radius: 7px;
       box-shadow: 0 2px 8px #3b2eae18;
+      z-index: 5;
     }
     .producto.agotado {
       opacity: 0.5;
@@ -569,12 +570,10 @@
   }
   ponerMarquesinaInfinita();
 
-  // ==== INICIO PANETELA ESPECIAL ====
+  // ==== Variables y funciones principales ====
   let rellenosEspecial = [];
   let rellenosEspecialCargados = false;
   let cantidadesRellenos = [];
-
-  // Productos base
   let productos = [
     {
       id: 1,
@@ -598,11 +597,8 @@
       img: 'https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/especial%201.png'
     }
   ];
-
-  // Loader y estados
   let estadosProductos = {};
   let carrito = [];
-  const cantidadesSeleccionadas = {};
   let ultimoTicketGenerado = "";
   let tarifas = {
     "Vedado": 300,
@@ -611,20 +607,28 @@
     "Playa": 500
   };
 
-  // Loader
   document.getElementById('loader').style.display = "flex";
 
-  // Primero cargamos los rellenos, luego los estados y productos
+  function estadoAmigable(valor) {
+    if (typeof valor !== "string") return valor;
+    if (valor.trim().toLowerCase() === "si") return "Disponible";
+    if (valor.trim().toLowerCase() === "sí") return "Disponible";
+    if (valor.trim().toLowerCase() === "no") return "Agotado";
+    if (valor.trim().toLowerCase() === "agotado") return "Agotado";
+    if (valor.trim().toLowerCase() === "disponible") return "Disponible";
+    return valor;
+  }
+
   function iniciarCarga() {
     Promise.all([
-      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec")
+      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec?func=rellenosDisponibles")
         .then(r => r.json())
         .then(data => {
           rellenosEspecial = data;
           rellenosEspecialCargados = true;
           cantidadesRellenos = Array(rellenosEspecial.length).fill(0);
         }),
-      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec")
+      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec?func=obtenerEstadosProductos")
         .then(respuesta => respuesta.json())
         .then(data => {
           estadosProductos = data;
@@ -652,8 +656,8 @@
       div.className = 'producto';
       div.setAttribute('tabindex', '0');
       div.setAttribute('aria-label', p.nombre);
-      const estado = estadosProductos[p.nombre] || '';
-      const agotado = estado.toLowerCase().includes('agotado');
+      const estado = estadoAmigable(estadosProductos[p.nombre] || '');
+      const agotado = estado === "Agotado";
       if (agotado) div.classList.add('agotado');
 
       // Panetela Especial con selector de rellenos
@@ -666,10 +670,128 @@
             <p>${p.descripcion}</p>
             <div style="text-align:center;padding:20px 0;">Cargando opciones de relleno...</div>
           `;
+        } else {
+          const hayDisponible = rellenosEspecial.some(r => r.disponible === "sí");
+          if (!hayDisponible) {
+            div.innerHTML = `
+              ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
+              <img src="${p.img}" alt="${p.nombre}" />
+              <h3>${p.nombre}</h3>
+              <p>${p.descripcion}</p>
+              <div style="margin:14px 0 6px 0;font-weight:bold;color:#c00;">No hay rellenos disponibles</div>
+              <button disabled style="background:gray;cursor:not-allowed;">No disponible</button>
+            `;
+          } else {
+            let rellenoControles = '';
+            rellenosEspecial.forEach((r, idx) => {
+              rellenoControles += `
+                <div style="display:flex;align-items:center;gap:7px;margin:5px 0;">
+                  <span style="flex:1;min-width:110px;font-weight:500;${r.disponible==='no'?'color:#aaa;':''}">${r.nombre}</span>
+                  <button type="button" class="btn-relleno" onclick="modificarCantidadRelleno(${idx},-1)" ${r.disponible==='no'?'disabled style="background:#ddd;color:#aaa;cursor:not-allowed;"':''}>−</button>
+                  <span id="cantRelleno_${idx}" style="width:27px;display:inline-block;text-align:center;font-weight:bold;">${cantidadesRellenos[idx]||0}</span>
+                  <button type="button" class="btn-relleno" onclick="modificarCantidadRelleno(${idx},1)" ${r.disponible==='no'?'disabled style="background:#ddd;color:#aaa;cursor:not-allowed;"':''}>+</button>
+                  ${r.disponible==='no'?'<span style="color:#e00;font-size:0.88em;">Agotado</span>':''}
+                </div>
+              `;
+            });
+            div.innerHTML = `
+              ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
+              <img src="${p.img}" alt="${p.nombre}" />
+              <h3>${p.nombre}</h3>
+              <p>${p.descripcion}</p>
+              <div style="margin:7px 0 3px 0;font-weight:bold;">Elige los rellenos y cantidades:</div>
+              <div id="rellenoControles">${rellenoControles}</div>
+              <button onclick="agregarPanetelaEspecialAlCarrito()" style="margin-top:13px;">Añadir al carrito</button>
+            `;
+          }
+        }
+      } else {
+        // Otros productos
+        div.innerHTML = `
+          ${estado ? `<div class="etiqueta">${estado}</div>` : ''}
+          <img src="${p.img}" alt="${p.nombre}" />
+          <h3>${p.nombre}</h3>
+          <p>${p.descripcion}</p>
+          <p><strong>${p.precio} CUP</strong></p>
+          <div class="control-cantidad">
+            <button aria-label="Quitar uno" onclick="modificarCantidad(${p.id}, -1)" ${agotado ? 'disabled' : ''}>−</button>
+            <span id="cantidad-${p.id}">0</span>
+            <button aria-label="Agregar uno" onclick="modificarCantidad(${p.id}, 1)" ${agotado ? 'disabled' : ''}>+</button>
+          </div>
+          ${agotado
+            ? `<button disabled style="background: gray; cursor: not-allowed;">No disponible</button>`
+            : `<button onclick="agregarAlCarritoDesdeBoton(${p.id})" aria-label="Añadir ${p.nombre} al carrito">Añadir al carrito</button>`}
+        `;
+      }
+      cont.appendChild(div);
+    });
+    actualizarCarrito();
+  }
 
+  
+  function modificarCantidad(id, delta) {
+    let input = document.getElementById("cantidad-" + id);
+    let cantidad = parseInt(input.textContent, 10) || 0;
+    cantidad += delta;
+    if (cantidad < 0) cantidad = 0;
+    input.textContent = cantidad;
+  }
 
+  function agregarAlCarritoDesdeBoton(id) {
+    let input = document.getElementById("cantidad-" + id);
+    let cantidad = parseInt(input.textContent, 10) || 0;
+    if (cantidad < 1) {
+      mostrarToast('Debes seleccionar al menos una unidad.');
+      return;
+    }
+    let producto = productos.find(p => p.id === id);
+    let itemExistente = carrito.find(i => i.id === id && !i.detalleRellenos);
+    if (itemExistente) {
+      itemExistente.cantidad += cantidad;
+    } else {
+      carrito.push({
+        id: producto.id,
+        nombre: producto.nombre,
+        precio: producto.precio,
+        cantidad: cantidad
+      });
+    }
+    input.textContent = 0;
+    mostrarToast('Producto agregado al carrito');
+    actualizarCarrito();
+  }
 
-  // Mostrar detalle de rellenos en el carrito
+  function modificarCantidadRelleno(idx, delta) {
+    if (!cantidadesRellenos[idx]) cantidadesRellenos[idx] = 0;
+    cantidadesRellenos[idx] += delta;
+    if (cantidadesRellenos[idx] < 0) cantidadesRellenos[idx] = 0;
+    document.getElementById(`cantRelleno_${idx}`).textContent = cantidadesRellenos[idx];
+  }
+
+  function agregarPanetelaEspecialAlCarrito() {
+    let totalUnidades = cantidadesRellenos.reduce((a, b) => a + b, 0);
+    if (totalUnidades === 0) {
+      mostrarToast('Selecciona al menos una unidad de algún relleno.');
+      return;
+    }
+    const detalleRellenos = rellenosEspecial
+      .map((r, idx) => cantidadesRellenos[idx] > 0 ? `${r.nombre} x${cantidadesRellenos[idx]}` : '')
+      .filter(Boolean)
+      .join(', ');
+    const precioUnitario = productos.find(p => p.nombre === "Panetela Especial").precio;
+    carrito.push({
+      id: 1000 + Math.floor(Math.random()*100000),
+      nombre: "Panetela Especial",
+      precio: precioUnitario,
+      cantidad: totalUnidades,
+      detalleRellenos: detalleRellenos
+    });
+    mostrarToast('Panetela Especial agregada al carrito');
+    cantidadesRellenos = Array(rellenosEspecial.length).fill(0);
+    cargarProductos();
+    actualizarCarrito();
+  }
+
   function actualizarCarrito() {
     const lista = document.getElementById('listaCarrito');
     const controls = document.getElementById('carritoControls');
@@ -706,19 +828,44 @@
     actualizarTarifa();
     document.getElementById('contadorCarrito').textContent = carrito.reduce((acc, i) => acc + i.cantidad, 0);
     localStorage.setItem('carrito', JSON.stringify(carrito));
+    document.getElementById('totalFinalBox').textContent = (subtotal + (parseInt(document.getElementById('tarifaReparto').textContent, 10)||0)) + " CUP";
   }
 
-  // Modifica el resumen del pedido y WhatsApp para mostrar detalles de rellenos
+  function cambiarCantidadCarrito(id, delta) {
+    let item = carrito.find(i => i.id === id);
+    if (!item) return;
+    item.cantidad += delta;
+    if (item.cantidad < 1) quitarDelCarrito(id);
+    actualizarCarrito();
+  }
+
+  function actualizarCantidadEnCarrito(id, valor) {
+    let item = carrito.find(i => i.id === id);
+    if (!item) return;
+    let v = parseInt(valor, 10);
+    if (isNaN(v) || v < 1) v = 1;
+    item.cantidad = v;
+    actualizarCarrito();
+  }
+
+  function quitarDelCarrito(id) {
+    carrito = carrito.filter(i => i.id !== id);
+    actualizarCarrito();
+  }
+
+  function vaciarCarrito() {
+    carrito = [];
+    actualizarCarrito();
+  }
+
   function mostrarResumenConfirmacion() {
     if (carrito.length === 0) {
       mostrarToast('El carrito está vacío.');
       return;
     }
     if (!validarFormularioCliente()) return;
-    // Generar ticket
     const ticket = `PED-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
     ultimoTicketGenerado = ticket;
-    // Resumen visual del pedido
     const nombre = document.getElementById('nombre').value.trim();
     const telefono = document.getElementById('telefono').value.trim();
     const codigoPais = document.getElementById('codigoPais').value;
@@ -732,10 +879,6 @@
     const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
     const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
     const total = subtotal + envio;
-    let productosResumen = carrito.map(i =>
-      `🍰 ${i.nombre}${i.detalleRellenos ? ' ('+i.detalleRellenos+')' : ''} x${i.cantidad} = ${i.precio * i.cantidad} CUP`
-    ).join('\n');
-    // Modal
     let modal = document.createElement('div');
     modal.className = "modal-bg";
     modal.innerHTML = `
@@ -772,24 +915,127 @@
     document.body.appendChild(modal);
   }
 
-  // Modifica el mensaje de WhatsApp para mostrar detalles de rellenos
+  function mostrarToast(msg) {
+    let toast = document.createElement('div');
+    toast.style.position = 'fixed';
+    toast.style.bottom = '30px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.background = '#3b2eae';
+    toast.style.color = '#fff';
+    toast.style.padding = '12px 34px';
+    toast.style.fontSize = '1.08em';
+    toast.style.borderRadius = '12px';
+    toast.style.boxShadow = '0 2px 10px #1116';
+    toast.style.zIndex = '9000';
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(()=>{ toast.style.opacity = "0"; }, 1500);
+    setTimeout(()=>{ if (toast.parentNode) toast.parentNode.removeChild(toast); }, 1950);
+  }
+
+  function validarFormularioCliente() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const fechaEntrega = document.getElementById('fechaEntrega').value;
+    if (!nombre) { mostrarToast('Debes ingresar tu nombre.'); return false; }
+    if (!telefono.match(/^[0-9]{7,15}$/)) { mostrarToast('El teléfono debe ser numérico y válido.'); return false; }
+    if (!fechaEntrega) { mostrarToast('Debes seleccionar la fecha de entrega.'); return false; }
+    if (document.getElementById('entrega').value === 'si') {
+      if (!document.getElementById('direccion').value.trim()) { mostrarToast('Debes ingresar una dirección.'); return false; }
+      if (!document.getElementById('reparto').value) { mostrarToast('Debes seleccionar el reparto.'); return false; }
+    }
+    return true;
+  }
+
+  function actualizarTarifa() {
+    let reparto = document.getElementById('reparto')?.value;
+    let entrega = document.getElementById('entrega')?.value;
+    let tarifa = (entrega === 'si' && reparto && tarifas[reparto]) ? tarifas[reparto] : 0;
+    document.getElementById('tarifaReparto').textContent = tarifa;
+    let subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+    document.getElementById('totalFinalBox').textContent = (subtotal + tarifa) + " CUP";
+  }
+
+  function mostrarDireccion() {
+    let entrega = document.getElementById('entrega').value;
+    document.getElementById('direccionEntrega').style.display = (entrega === "si" ? "block" : "none");
+    actualizarTarifa();
+  }
+
+  function confirmarEnvioPedido() {
+    enviarPedido();
+    document.body.querySelector('.modal-bg')?.remove();
+  }
+
   function enviarPedido() {
-    // ... (resto igual)
+    // Datos
+    const nombre = document.getElementById('nombre').value.trim();
+    const telefono = document.getElementById('telefono').value.trim();
+    const codigoPais = document.getElementById('codigoPais').value;
+    const entrega = document.getElementById('entrega').value;
+    const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
+    const reparto = entrega === 'si' ? document.getElementById('reparto').value : '';
+    const fechaEntrega = document.getElementById('fechaEntrega').value;
+    const subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+    const envio = entrega === 'si' ? (tarifas[reparto] || 0) : 0;
+    const total = subtotal + envio;
+    const productosFormateados = carrito.map(i =>
+      `${i.nombre}${i.detalleRellenos ? ' ('+i.detalleRellenos+')' : ''} x${i.cantidad}`
+    ).join('; ');
+
+    // Enviar a Sheets
+    document.getElementById('inputNombre').value = nombre;
+    document.getElementById('inputTelefono').value = telefono;
+    document.getElementById('inputCodigoPais').value = codigoPais;
+    document.getElementById('inputDireccion').value = direccion;
+    document.getElementById('inputReparto').value = reparto;
+    document.getElementById('inputProductos').value = productosFormateados;
+    document.getElementById('inputSubtotal').value = subtotal;
+    document.getElementById('inputEnvio').value = envio;
+    document.getElementById('inputTotal').value = total;
+    document.getElementById('inputEntrega').value = entrega;
+    document.getElementById('inputFechaEntrega').value = fechaEntrega;
+    document.getElementById('inputEstado').value = "Pendiente";
+    document.getElementById('inputTicket').value = ultimoTicketGenerado;
+    document.getElementById('sheetForm').submit();
+
+    // Redactar mensaje WhatsApp
     let resumen = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
     resumen += `N.º de ticket: ${ultimoTicketGenerado}\n`;
     carrito.forEach(i => {
       resumen += `🍰 ${i.nombre}${i.detalleRellenos ? ' ('+i.detalleRellenos+')' : ''} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`;
     });
-    // ... (resto igual)
-    // El resto del código no cambia
+    resumen += `-------------------------\nSubtotal: ${subtotal} CUP\n`;
+    if (envio > 0) resumen += `Envío: ${envio} CUP\n`;
+    resumen += `TOTAL: ${total} CUP\n-------------------------\n`;
+    resumen += `Cliente: ${nombre}\nTel: +${codigoPais} ${telefono}\n`;
+    if (direccion) resumen += `Dirección: ${direccion}\n`;
+    if (reparto) resumen += `Reparto: ${reparto}\n`;
+    if (fechaEntrega) resumen += `Entrega: ${new Date(fechaEntrega).toLocaleString("es-ES")}\n`;
+
+    // Enviar WhatsApp
+    let numeroWsp = "5358707434";
+    let urlWsp = `https://wa.me/${numeroWsp}?text=${encodeURIComponent(resumen)}`;
+    setTimeout(()=>{ window.open(urlWsp, '_blank'); }, 350);
+    vaciarCarrito();
+    mostrarToast("¡Pedido enviado!");
   }
 
-  // Cargar los rellenos antes de mostrar productos
-  cargarRellenosEspecial().then(() => {
-    cargarProductos();
-  });
+  function irAlCarrito() {
+    document.getElementById('carrito').scrollIntoView({ behavior: "smooth" });
+  }
 
-  // ==== FIN CAMBIOS PANETELA ESPECIAL ====
+  // Recuperar carrito de localStorage si existe
+  window.addEventListener('DOMContentLoaded', function() {
+    let guardado = localStorage.getItem('carrito');
+    if (guardado) {
+      try {
+        carrito = JSON.parse(guardado);
+      } catch(e){}
+      actualizarCarrito();
+    }
+  });
 </script>
 <div id="carritoFlotante" onclick="irAlCarrito()" aria-label="Ver carrito" tabindex="0">
   🛒 <span id="contadorCarrito">0</span>
