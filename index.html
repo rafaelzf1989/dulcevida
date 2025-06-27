@@ -624,7 +624,7 @@
 </main>
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec"
+  action="https://script.google.com/macros/s/AKfycbwM-01A8td4EMKwn2AyYDxSyl21cY1rLnukar3i8q_IFpQ71BF6tvV4ns8DVBNaQ0r9/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input name="nombre"         id="f_nombre" />
   <input name="telefono"       id="f_telefono" />
@@ -649,7 +649,7 @@
 
   // Fetch de rellenos desde Google Sheets
   function cargarRellenosEspecial() {
-    return fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=rellenosDisponibles")
+    return fetch("https://script.google.com/macros/s/AKfycbwM-01A8td4EMKwn2AyYDxSyl21cY1rLnukar3i8q_IFpQ71BF6tvV4ns8DVBNaQ0r9/exec")
       .then(r => r.json())
       .then(data => {
         rellenosEspecial = data;
