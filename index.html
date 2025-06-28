@@ -624,7 +624,7 @@
 </main>
 <!-- Formulario oculto para Google Sheets -->
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec"
+  action="https://script.google.com/macros/s/AKfycbxcw9TD2SmgDgimOi3hmJQ7FN7SGTjZN5BIaiIBxGpLeG6_XtFDDqSflQjLoB4X4UT5/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input name="nombre"         id="f_nombre" />
   <input name="telefono"       id="f_telefono" />
@@ -678,7 +678,7 @@
   let ultimoTicketGenerado = "";
   // Loader
   document.getElementById('loader').style.display = "flex";
-  fetch("https://script.google.com/macros/s/AKfycby4SAL62SMWK1sn0e9ddVYzyXneQP1VssYRtldtIGCgesqmQtJgxKkIh0_VF6ahhLhU/exec?func=obtenerEstadosProductos")
+  fetch("https://script.google.com/macros/s/AKfycbxcw9TD2SmgDgimOi3hmJQ7FN7SGTjZN5BIaiIBxGpLeG6_XtFDDqSflQjLoB4X4UT5/exec?func=obtenerEstadosProductos")
     .then(respuesta => respuesta.json())
     .then(data => {
       estadosProductos = data;
