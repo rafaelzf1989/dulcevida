@@ -544,7 +544,7 @@
   </section>
 </main>
 <form id="sheetForm"
-  action="https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec"
+  action="https://script.google.com/macros/s/AKfycbxcw9TD2SmgDgimOi3hmJQ7FN7SGTjZN5BIaiIBxGpLeG6_XtFDDqSflQjLoB4X4UT5/exec"
   method="post" target="sheetResponse" style="display:none;">
   <input type="hidden" name="nombre" id="inputNombre" />
   <input type="hidden" name="telefono" id="inputTelefono" />
@@ -621,14 +621,14 @@
 
   function iniciarCarga() {
     Promise.all([
-      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec?func=rellenosDisponibles")
+      fetch("https://script.google.com/macros/s/AKfycbxcw9TD2SmgDgimOi3hmJQ7FN7SGTjZN5BIaiIBxGpLeG6_XtFDDqSflQjLoB4X4UT5/exec?func=rellenosDisponibles")
         .then(r => r.json())
         .then(data => {
           rellenosEspecial = data;
           rellenosEspecialCargados = true;
           cantidadesRellenos = Array(rellenosEspecial.length).fill(0);
         }),
-      fetch("https://script.google.com/macros/s/AKfycbzsdZrzJiE3LHrXZHDwNITcJ4XKqRpp-cX5mUE-426bRUy_daCYBIevk0_Ax9U6XTJs/exec?func=obtenerEstadosProductos")
+      fetch("https://script.google.com/macros/s/AKfycbxcw9TD2SmgDgimOi3hmJQ7FN7SGTjZN5BIaiIBxGpLeG6_XtFDDqSflQjLoB4X4UT5/exec?func=obtenerEstadosProductos")
         .then(respuesta => respuesta.json())
         .then(data => {
           estadosProductos = data;
