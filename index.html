@@ -92,7 +92,7 @@
 </header>
 <div class="marquesina"><div class="scroll" id="marquesinaScroll"></div></div>
 <main>
-  <div id="errorMsg"></div>
+    <div id="errorMsg"></div>
   <section id="productos" class="productos-grid" aria-label="Lista de productos"></section>
   <section id="carritoBox" style="margin-top:20px;">
     <h2>Carrito 🛒</h2>
@@ -143,65 +143,6 @@
 </main>
 <div id="carritoFlotante" onclick="document.getElementById('carritoBox').scrollIntoView({behavior:'smooth'});" aria-label="Ver carrito" tabindex="0" style="display:none;">🛒 <span id="contadorCarrito">0</span></div>
 <script>
-const scriptId = "1uEnTWoRqMVKYdAp4qOP6MDbwyYXLft69N8Y2hdnoKco";
-const endpoint = "https://script.google.com/macros/s/AKfycbxnYsciq5EhfzgcgcF2FnyGECGarxqmF7zdDI0R9bizekqvB48W0RdBA4zZ0EGkDlWt/exec?func=catalogo";
-const configEndpoint = "https://script.google.com/macros/s/AKfycbxnYsciq5EhfzgcgcF2FnyGECGarxqmF7zdDI0R9bizekqvB48W0RdBA4zZ0EGkDlWt/exec?func=config";
-let productosData = [];
-let carrito = [];
-let cantidadesPorProducto = {};
-let rellenosPorProducto = {};
-let repartosConfig = [];
-let repartosPrecios = {};
-let velocidadMarquesina = 18;
-
-function cargarConfiguraciones() {
-  fetch(configEndpoint).then(r=>r.json()).then(config=>{
-    // Marquesina
-    document.getElementById('marquesinaScroll').textContent = config.anuncio || '¡Bienvenido!';
-    velocidadMarquesina = config.velocidad || 18;
-    repartosConfig = config.repartos || [];
-    repartosPrecios = config.repartosPrecios || {};
-    actualizarRepartos();
-    setMarquesinaSpeed();
-    // Imagen de cabecera
-    if(config.cabeceraImg) {
-      document.getElementById('cabeceraImg').src = config.cabeceraImg;
-    }
-  }).catch(()=>{
-    document.getElementById('marquesinaScroll').textContent = "¡Bienvenido!";
-    setMarquesinaSpeed();
-  });
-}
-function setMarquesinaSpeed() {
-  const el = document.querySelector('.marquesina .scroll');
-  if(el) {
-    el.style.animation = `scroll-lr ${velocidadMarquesina}s linear infinite`;
-    el.style.webkitAnimation = `scroll-lr ${velocidadMarquesina}s linear infinite`;
-  }
-}
-function actualizarRepartos() {
-  const select = document.getElementById('reparto');
-  select.innerHTML = '<option value="">Selecciona reparto</option>';
-  repartosConfig.forEach(r=>{
-    select.innerHTML += `<option value="${r}">${r}</option>`;
-  });
-}
-cargarConfiguraciones();
-
-window.addEventListener('resize', ajustarCabeceraImg);
-window.addEventListener('DOMContentLoaded', ajustarCabeceraImg);
-function ajustarCabeceraImg() {
-  let img = document.getElementById('cabeceraImg');
-  img.style.width = "330px";
-  img.style.maxWidth = "95vw";
-  img.style.height = "110px";
-  if(window.innerWidth < 500) {
-    img.style.width = "99vw";
-    img.style.height = "70px";
-  }
-}
-<script>
-const scriptId = "1uEnTWoRqMVKYdAp4qOP6MDbwyYXLft69N8Y2hdnoKco";
 const endpoint = "https://script.google.com/macros/s/AKfycbxnYsciq5EhfzgcgcF2FnyGECGarxqmF7zdDI0R9bizekqvB48W0RdBA4zZ0EGkDlWt/exec?func=catalogo";
 const configEndpoint = "https://script.google.com/macros/s/AKfycbxnYsciq5EhfzgcgcF2FnyGECGarxqmF7zdDI0R9bizekqvB48W0RdBA4zZ0EGkDlWt/exec?func=config";
 let productosData = [];
@@ -213,7 +154,7 @@ let repartosPrecios = {};
 let velocidadMarquesina = 18;
 let envioActual = 0;
 
-// Cargar configuración y cabecera
+// Configuración y cabecera
 function cargarConfiguraciones() {
   fetch(configEndpoint).then(r=>r.json()).then(config=>{
     document.getElementById('marquesinaScroll').textContent = config.anuncio || '¡Bienvenido!';
@@ -246,7 +187,6 @@ function actualizarRepartos() {
 }
 cargarConfiguraciones();
 
-// Ajuste responsivo de cabecera
 window.addEventListener('resize', ajustarCabeceraImg);
 window.addEventListener('DOMContentLoaded', ajustarCabeceraImg);
 function ajustarCabeceraImg() {
