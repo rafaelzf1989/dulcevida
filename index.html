@@ -14,20 +14,21 @@
     @keyframes scroll-lr { 0% { transform:translateX(0);} 100% { transform:translateX(-100%);} }
     main { max-width: 700px; margin: 0 auto; padding: 0 0 50px 0; }
     .productos-grid { display:flex; flex-wrap:wrap; gap:17px; justify-content:center; margin:18px 0 0 0;}
-    .producto-card { background:#fff; border-radius:22px; box-shadow:0 4px 18px #0002, 0 1.5px 6px #25d36611; padding:13px 11px 18px 11px; width:99vw; max-width:340px; display:flex; flex-direction:column; align-items:center; position:relative;}
-    .producto-card img { width:120px; height:90px; object-fit:cover; border-radius:15px; box-shadow:0 2px 12px #0002; margin-bottom:6px; }
+    .producto-card { background:#fff; border-radius:22px; box-shadow:0 2px 10px #3b2eae1a; padding:13px 11px 18px 11px; width:99vw; max-width:340px; display:flex; flex-direction:column; align-items:center; position:relative;}
+    .producto-card img { width:110px; height:110px; object-fit:contain; border-radius:15px; box-shadow:none; margin-bottom:6px; background:#f3f3f5; border:1px solid #eee;}
     .producto-nombre { font-weight:bold; color:#3b2eae; font-size:1.09em; padding:3px 0; text-align:center; }
     .producto-precio { color:#25D366; font-weight: bold; font-size:1.03em; margin-bottom:.2em;}
-    .producto-estado { position:absolute; top:11px; left:13px; background:#3b2eae; color:#fff; font-size:0.81em; font-weight:bold; padding:3px 10px; border-radius:7px; box-shadow:0 1px 5px #3b2eae11;}
+    .producto-estado { width:100%; margin:0 auto; margin-bottom:2px; margin-top:6px; text-align:center; background:#3b2eae; color:#fff; font-size:0.81em; font-weight:bold; padding:3px 10px; border-radius:7px; box-shadow:0 1px 5px #3b2eae11;}
     .producto-card.agotado, .producto-card .producto-estado.agotado { opacity:0.55; pointer-events:none;}
     .producto-card .producto-estado.agotado { background:#c0392b;}
+    .producto-top-line {width:100%;height:2px;background:#e0e0e0; margin-bottom:8px;}
     .producto-desc { font-size:0.99em; color:#222; min-height:38px; text-align:center; }
     .rellenos-lista { width:100%; margin:8px 0 6px 0; display:flex; flex-direction:column; gap:4px;}
-    .relleno-row { display:flex; align-items:center; gap:7px; font-size:.96em; justify-content:center;}
-    .relleno-nombre { flex:1; }
-    .relleno-btn { background:#25D366;color:#fff;border:none;border-radius:50%;width:25px;height:25px;font-weight:bold;font-size:1.1em;cursor:pointer;transition:background 0.18s;}
-    .relleno-btn:disabled { background:#ddd; color:#aaa; cursor:not-allowed;}
-    .relleno-cant { width:21px; text-align:center; font-weight:bold; }
+    .relleno-row,.cantidad-row { display:flex; align-items:center; gap:7px; font-size:.96em; justify-content:center;}
+    .relleno-nombre, .cantidad-nombre { flex:1; }
+    .relleno-btn, .cantidad-btn { background:#25D366;color:#fff;border:none;border-radius:50%;width:25px;height:25px;font-weight:bold;font-size:1.1em;cursor:pointer;transition:background 0.18s;}
+    .relleno-btn:disabled, .cantidad-btn:disabled { background:#ddd; color:#aaa; cursor:not-allowed;}
+    .relleno-cant, .cantidad-cant { width:21px; text-align:center; font-weight:bold; }
     .producto-agregar { margin-top:8px; background:linear-gradient(60deg,#3b2eae 70%, #25D366 100%); color:#fff; border:none; border-radius:9px; font-weight:bold; font-size:1.08em; padding: 8px 28px; cursor:pointer; box-shadow:0 2px 10px #3b2eae11;}
     #errorMsg { color: #c0392b; background: #fff6f6; border: 1px solid #e74c3c; padding: 16px; border-radius: 10px; max-width: 400px; margin: 30px auto; font-size: 1.15em; display:none; text-align:center;}
     #tryAgain { background: #25D366; color: #fff; border: none; border-radius: 6px; padding: 7px 15px; font-weight: bold; margin-top: 10px; font-size: 1em; cursor: pointer;}
@@ -51,13 +52,22 @@
     #clienteForm textarea{min-height:52px;}
     #clienteForm button{background:linear-gradient(60deg,#3b2eae 70%, #25D366 100%);color:#fff;border:none;border-radius:10px;font-weight:bold;font-size:1.08em;padding:8px 22px;margin-top:9px;cursor:pointer;box-shadow:0 2px 10px #3b2eae11;display:flex;align-items:center;gap:7px;}
     #mensajeCompra{color:#25D366;font-weight:bold;text-align:center;margin:10px 0 0 0;}
+    /* Modal confirmación */
+    .modal-bg{position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.2);z-index:9999;display:flex;align-items:center;justify-content:center;}
+    .modal-confirm{background:#fff;padding:17px 15px 15px 15px;border-radius:13px;box-shadow:0 2px 12px #3b2eae22;max-width:350px;width:92vw;font-size:1.03em;}
+    .modal-confirm h2{font-size:1.12em;color:#3b2eae;}
+    .modal-section{margin:7px 0 6px 0;}
+    .modal-total-row{display:flex;justify-content:space-between;font-weight:bold;color:#25D366;font-size:1.1em;}
+    .modal-btns{display:flex;gap:14px;justify-content:flex-end;margin-top:15px;}
+    .btn-confirmar{background:#25D366;color:#fff;padding:7px 20px;border-radius:8px;font-weight:bold;font-size:1em;border:none;cursor:pointer;}
+    .btn-cancelar{background:#eee;color:#3b2eae;padding:7px 15px;border-radius:8px;font-weight:bold;font-size:.98em;border:none;cursor:pointer;}
   </style>
 </head>
 <body>
 <header>
   <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Dulce Vida" />
 </header>
-<div class="marquesina"><div class="scroll" id="marquesinaScroll">🎉 ¡Bienvenido a Dulce Vida! Haz tu pedido con tiempo y vive la experiencia de un dulce momento 🎂✨ 🚚 Entregamos a domicilio toda la semana 📅 Los pedidos deben realizarse con al menos 1 día de antelación 📞 WhatsApp 5358707434</div></div>
+<div class="marquesina"><div class="scroll" id="marquesinaScroll"></div></div>
 <main>
   <div id="errorMsg"></div>
   <section id="productos" class="productos-grid" aria-label="Lista de productos"></section>
@@ -71,23 +81,35 @@
   <section id="cliente" aria-label="Formulario de datos del cliente">
     <h3>📝 Datos del Cliente</h3>
     <form id="clienteForm" autocomplete="off" onsubmit="return false;">
-      <label>Nombre completo:</label>
-      <input type="text" id="nombre" required maxlength="60" autocomplete="name" placeholder="Ej: Ana Pérez" />
+      <label>Código país:</label>
+      <select id="codigoPais" required>
+        <option value="53" selected>🇨🇺 +53 Cuba</option>
+        <option value="1">🇺🇸 +1 USA</option>
+        <option value="34">🇪🇸 +34 España</option>
+        <option value="52">🇲🇽 +52 México</option>
+        <option value="55">🇧🇷 +55 Brasil</option>
+        <option value="507">🇵🇦 +507 Panamá</option>
+        <option value="58">🇻🇪 +58 Venezuela</option>
+        <option value="54">🇦🇷 +54 Argentina</option>
+        <option value="57">🇨🇴 +57 Colombia</option>
+      </select>
       <label>Teléfono:</label>
       <input type="tel" id="telefono" required maxlength="15" autocomplete="tel" placeholder="Ej: 58707434" pattern="[0-9]+" />
-      <label>Código país:</label>
-      <input type="text" id="codigoPais" value="53" maxlength="5" required placeholder="Ej: 53" />
-      <label>Dirección:</label>
-      <input type="text" id="direccion" maxlength="100" placeholder="Ej: Calle 1ra #100 entre 2 y 4, Vedado" />
-      <label>Reparto:</label>
-      <input type="text" id="reparto" maxlength="50" placeholder="Ej: Vedado" />
+      <label>Nombre completo:</label>
+      <input type="text" id="nombre" required maxlength="60" autocomplete="name" placeholder="Ej: Ana Pérez" />
       <label>¿Desea entrega a domicilio?</label>
       <select id="entrega" required onchange="mostrarDireccion()"><option value="no" selected>Retiro en tienda</option><option value="si">Sí, entrega a domicilio</option></select>
+      <div id="direccionEntrega" style="display:none;">
+        <label>Dirección:</label>
+        <input type="text" id="direccion" maxlength="100" placeholder="Ej: Calle 1ra #100 entre 2 y 4" />
+        <label>Reparto:</label>
+        <select id="reparto"></select>
+      </div>
       <label>Fecha de entrega:</label>
       <input type="date" id="fechaEntrega" required />
       <label>Especificaciones del pedido:</label>
       <textarea id="especificaciones" maxlength="300" placeholder="¿Quieres algún detalle especial, dedicatoria, etc.?"></textarea>
-      <button id="btnEnviar" type="button" onclick="enviarPedido()" style="display:flex;align-items:center;gap:8px;">
+      <button id="btnEnviar" type="button" onclick="mostrarResumenConfirmacion()" style="display:flex;align-items:center;gap:8px;">
         <img src="https://file.garden/aEX2yhToiQk-s_Qq/IMG_COM_202506261242078500.png" alt="Icono WhatsApp" style="width:20px;height:20px;object-fit:contain;" />
         Enviar por WhatsApp
       </button>
@@ -97,11 +119,15 @@
 </main>
 <div id="carritoFlotante" onclick="document.getElementById('carritoBox').scrollIntoView({behavior:'smooth'});" aria-label="Ver carrito" tabindex="0" style="display:none;">🛒 <span id="contadorCarrito">0</span></div>
 <script>
-const endpoint = "https://script.google.com/macros/s/AKfycbyADsi4q0VSC1tcDftbWSwtnH2JjrxyS0D6TrNiJ5e6Skjkt6UiNQ1js6Ip30EL-WCW/exec?func=catalogo";
+const scriptId = "YOUR_SCRIPT_ID";
+const endpoint = "https://script.google.com/macros/s/AKfycbxSu1qI_DAxMehB1yGYhDSkjIPgiQVLmQLOb6VuFQq9iOS0Wh2-SPgPHKdLc_mhyUYq/exec?func=catalogo";
+const configEndpoint = "https://script.google.com/macros/s/AKfycbxSu1qI_DAxMehB1yGYhDSkjIPgiQVLmQLOb6VuFQq9iOS0Wh2-SPgPHKdLc_mhyUYq/exec?func=config";
 let productosData = [];
 let carrito = [];
 let cantidadesPorProducto = {};
 let rellenosPorProducto = {};
+let repartosConfig = [];
+
 function mostrarError(msg) {
   document.getElementById('errorMsg').innerHTML = `<div>${msg}</div><button id="tryAgain" onclick="window.location.reload()">Reintentar</button>`;
   document.getElementById('errorMsg').style.display = 'block';
@@ -115,6 +141,23 @@ function ocultarError() {
   document.getElementById('carritoBox').style.display = '';
   document.getElementById('cliente').style.display = '';
 }
+
+// Cargar anuncio y repartos desde Configuraciones
+function cargarConfiguraciones() {
+  fetch(configEndpoint).then(r=>r.json()).then(config=>{
+    document.getElementById('marquesinaScroll').textContent = config.anuncio || '¡Bienvenido!';
+    repartosConfig = config.repartos || [];
+    actualizarRepartos();
+  }).catch(()=>{document.getElementById('marquesinaScroll').textContent = "¡Bienvenido!";});
+}
+function actualizarRepartos() {
+  const select = document.getElementById('reparto');
+  select.innerHTML = '<option value="">Selecciona reparto</option>';
+  repartosConfig.forEach(r=>{
+    select.innerHTML += `<option value="${r}">${r}</option>`;
+  });
+}
+
 function cargarProductos() {
   fetch(endpoint).then(r=>{
     if(!r.ok) throw new Error('Respuesta HTTP no válida');
@@ -131,6 +174,7 @@ function cargarProductos() {
     mostrarError("No se pudieron cargar los productos desde la hoja de Google Sheets.<br><small>Error: "+err.message+"</small>");
   });
 }
+cargarConfiguraciones();
 cargarProductos();
 
 function renderProductos() {
@@ -153,18 +197,20 @@ function renderProductos() {
     }
     cont.innerHTML += `
     <div class="producto-card${agotado?' agotado':''}">
+      <div class="producto-top-line"></div>
+      ${estadoTxt? `<div class="producto-estado${agotado?' agotado':''}">${estadoTxt}</div>`:''}
       <img src="${p.Imagen||''}" alt="${p.Nombre}">
       <div class="producto-nombre">${p.Nombre}</div>
       <div class="producto-precio">${p.Precio} CUP</div>
       <div class="producto-desc">${p.Descripción||''}</div>
-      ${estadoTxt? `<div class="producto-estado${agotado?' agotado':''}">${estadoTxt}</div>`:''}
-      ${rellenosHTML}
-      <div style="display:flex;gap:7px;align-items:center;margin-top:7px;">
-        <button onclick="cambiarCantidad(${idx},-1)" ${agotado?'disabled':''}>−</button>
-        <span id="cant${idx}" style="min-width:22px;text-align:center;">${cantidadesPorProducto[idx]}</span>
-        <button onclick="cambiarCantidad(${idx},1)" ${agotado?'disabled':''}>+</button>
-        <button class="producto-agregar" onclick="agregarAlCarrito(${idx})" ${agotado?'disabled':''}>Agregar al Carrito</button>
+      <div class="cantidad-row">
+        <span class="cantidad-nombre"></span>
+        <button class="cantidad-btn" onclick="cambiarCantidad(${idx},-1)" ${agotado?'disabled':''}>−</button>
+        <span class="cantidad-cant" id="cant${idx}">${cantidadesPorProducto[idx]}</span>
+        <button class="cantidad-btn" onclick="cambiarCantidad(${idx},1)" ${agotado?'disabled':''}>+</button>
       </div>
+      ${rellenosHTML}
+      <button class="producto-agregar" onclick="agregarAlCarrito(${idx})" ${agotado?'disabled':''}>Agregar al Carrito</button>
     </div>
     `;
   });
@@ -266,8 +312,65 @@ function mostrarDireccion() {
   let entrega = document.getElementById('entrega').value;
   document.getElementById('direccionEntrega').style.display = (entrega === "si" ? "block" : "none");
 }
-function enviarPedido() {
+function mostrarResumenConfirmacion() {
   if (carrito.length === 0) { mostrarToast('El carrito está vacío.'); return; }
+  const nombre = document.getElementById('nombre').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
+  const codigoPais = document.getElementById('codigoPais').value.trim();
+  const entrega = document.getElementById('entrega').value;
+  const direccion = entrega === 'si' ? document.getElementById('direccion').value.trim() : '';
+  const reparto = entrega === 'si' ? document.getElementById('reparto').value.trim() : '';
+  const fechaEntrega = document.getElementById('fechaEntrega').value;
+  const especificaciones = document.getElementById('especificaciones').value.trim();
+  if (!nombre) { mostrarToast('Debes ingresar tu nombre.'); return; }
+  if (!telefono.match(/^[0-9]{7,15}$/)) { mostrarToast('El teléfono debe ser numérico y válido.'); return; }
+  if (!fechaEntrega) { mostrarToast('Debes seleccionar la fecha de entrega.'); return; }
+  if (entrega === 'si' && !direccion) { mostrarToast('Debes ingresar una dirección.'); return; }
+  if (entrega === 'si' && !reparto) { mostrarToast('Debes seleccionar el reparto.'); return; }
+  let subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
+  let envio = 0;
+  let total = subtotal + envio;
+  let productosResumen = carrito.map(i =>
+    `${i.nombre}${i.rellenos?' ('+i.rellenos+')':''} x${i.cantidad}`
+  ).join('; ');
+  let ticket = "PED-" + Date.now() + "-" + Math.floor(Math.random()*1000);
+  let modal = document.createElement('div');
+  modal.className = "modal-bg";
+  modal.innerHTML = `
+    <div class="modal-confirm">
+      <h2>Confirmar pedido</h2>
+      <div class="modal-section"><strong>Ticket:</strong> <span style="font-size:1.07em;">${ticket}</span></div>
+      <div class="modal-section"><strong>Productos:</strong>
+        <ul style="list-style:none;padding:0; margin:5px 0 0 0;">
+          ${carrito.map(i=>`<li style="margin-bottom:3px;">🍰 ${i.nombre}${i.rellenos?' ('+i.rellenos+')':''} x${i.cantidad} = ${i.precio * i.cantidad} CUP</li>`).join("")}
+        </ul>
+      </div>
+      <div class="modal-section">
+        <strong>Cliente:</strong> ${nombre}<br>
+        <strong>Tel:</strong> +${codigoPais} ${telefono}<br>
+        ${entrega==="si"?`<strong>Dirección:</strong> ${direccion}<br>`:""}
+        ${entrega==="si"?`<strong>Reparto:</strong> ${reparto}<br>`:""}
+        <strong>Entrega:</strong> ${entrega==="si"?"A domicilio":"Retiro en tienda"}<br>
+        <strong>Fecha:</strong> ${fechaEntrega}
+        ${especificaciones?`<br><strong>Especificaciones:</strong> ${especificaciones}`:""}
+      </div>
+      <div class="modal-section modal-total-row">
+        <label>TOTAL:</label>
+        <span class="modal-total-valor">${total} CUP</span>
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancelar" onclick="document.body.removeChild(this.closest('.modal-bg'));">Cancelar</button>
+        <button class="btn-confirmar" onclick="confirmarEnvioPedido('${ticket}')">Confirmar y enviar</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+function confirmarEnvioPedido(ticket) {
+  enviarPedido(ticket);
+  document.body.querySelector('.modal-bg')?.remove();
+}
+function enviarPedido(ticket) {
   const nombre = document.getElementById('nombre').value.trim();
   const telefono = document.getElementById('telefono').value.trim();
   const direccion = document.getElementById('direccion').value.trim();
@@ -276,19 +379,13 @@ function enviarPedido() {
   const entrega = document.getElementById('entrega').value;
   const fechaEntrega = document.getElementById('fechaEntrega').value;
   const especificaciones = document.getElementById('especificaciones').value.trim();
-  if (!nombre) { mostrarToast('Debes ingresar tu nombre.'); return; }
-  if (!telefono.match(/^[0-9]{7,15}$/)) { mostrarToast('El teléfono debe ser numérico y válido.'); return; }
-  if (!fechaEntrega) { mostrarToast('Debes seleccionar la fecha de entrega.'); return; }
-  if (entrega === 'si' && !direccion) { mostrarToast('Debes ingresar una dirección.'); return; }
   let subtotal = carrito.reduce((s, i) => s + i.precio * i.cantidad, 0);
-  let envio = 0; // Puedes poner lógica de envío si quieres
+  let envio = 0;
   let total = subtotal + envio;
   let productosResumen = carrito.map(i =>
     `${i.nombre}${i.rellenos?' ('+i.rellenos+')':''} x${i.cantidad}`
   ).join('; ');
-  let ticket = "PED-" + Date.now() + "-" + Math.floor(Math.random()*1000);
-  // Enviar a Apps Script
-  fetch("https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxSu1qI_DAxMehB1yGYhDSkjIPgiQVLmQLOb6VuFQq9iOS0Wh2-SPgPHKdLc_mhyUYq/exec", {
     method: "POST",
     body: new URLSearchParams({
       nombre,
@@ -317,7 +414,7 @@ function enviarPedido() {
   }).catch(()=>{
     mostrarToast("No se pudo enviar el pedido.");
   });
-  // WhatsApp (opcional)
+  // WhatsApp
   let resumen = '🧾 *Ticket de Compra* 🧾\n-------------------------\n';
   carrito.forEach(i => { resumen += `🍰 ${i.nombre}${i.rellenos ? ' ('+i.rellenos+')' : ''} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`; });
   resumen += `-------------------------\nSubtotal: ${subtotal} CUP\n`;
