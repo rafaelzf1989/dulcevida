@@ -92,9 +92,56 @@
 </header>
 <div class="marquesina"><div class="scroll" id="marquesinaScroll"></div></div>
 <main>
-  <!-- ...todo igual que antes (productos, carrito, cliente, etc)... -->
+  <div id="errorMsg"></div>
+  <section id="productos" class="productos-grid" aria-label="Lista de productos"></section>
+  <section id="carritoBox" style="margin-top:20px;">
+    <h2>Carrito 🛒</h2>
+    <div id="listaCarrito"></div>
+    <div class="carrito-totals-row"><label>Subtotal:</label><span id="subtotalCarrito">0</span> CUP</div>
+    <div class="carrito-totals-row"><label>Envío:</label><span id="envioCarrito">0</span> CUP</div>
+    <div class="carrito-total-row"><label>TOTAL:</label><span class="carrito-total-valor" id="totalFinalBox">0 CUP</span></div>
+    <div style="text-align:right;"><button onclick="vaciarCarrito()" style="background:#e74c3c;padding:6px 19px;font-size:.98em;border-radius:7px;">Vaciar carrito</button></div>
+  </section>
+  <section id="cliente" aria-label="Formulario de datos del cliente">
+    <h3>📝 Datos del Cliente</h3>
+    <form id="clienteForm" autocomplete="off" onsubmit="return false;">
+      <label>Código país:</label>
+      <select id="codigoPais" required>
+        <option value="53" selected>🇨🇺 +53 Cuba</option>
+        <option value="1">🇺🇸 +1 USA</option>
+        <option value="34">🇪🇸 +34 España</option>
+        <option value="52">🇲🇽 +52 México</option>
+        <option value="55">🇧🇷 +55 Brasil</option>
+        <option value="507">🇵🇦 +507 Panamá</option>
+        <option value="58">🇻🇪 +58 Venezuela</option>
+        <option value="54">🇦🇷 +54 Argentina</option>
+        <option value="57">🇨🇴 +57 Colombia</option>
+      </select>
+      <label>Teléfono:</label>
+      <input type="tel" id="telefono" required maxlength="15" autocomplete="tel" placeholder="Ej: 58707434" pattern="[0-9]+" />
+      <label>Nombre completo:</label>
+      <input type="text" id="nombre" required maxlength="60" autocomplete="name" placeholder="Ej: Ana Pérez" />
+      <label>¿Desea entrega a domicilio?</label>
+      <select id="entrega" required onchange="mostrarDireccion()"><option value="no" selected>Retiro en tienda</option><option value="si">Sí, entrega a domicilio</option></select>
+      <div id="direccionEntrega" style="display:none;">
+        <label>Dirección:</label>
+        <input type="text" id="direccion" maxlength="100" placeholder="Ej: Calle 1ra #100 entre 2 y 4" />
+        <label>Reparto:</label>
+        <select id="reparto"></select>
+      </div>
+      <label>Fecha y hora de entrega:</label>
+      <input type="datetime-local" id="fechaEntrega" required />
+      <label>Especificaciones del pedido:</label>
+      <textarea id="especificaciones" maxlength="300" placeholder="¿Quieres algún detalle especial, dedicatoria, etc.?"></textarea>
+      <button id="btnEnviar" type="button" onclick="mostrarResumenConfirmacion()" style="display:flex;align-items:center;gap:8px;">
+        <img src="https://file.garden/aEX2yhToiQk-s_Qq/IMG_COM_202506261242078500.png" alt="Icono WhatsApp" style="width:20px;height:20px;object-fit:contain;" />
+        Enviar por WhatsApp
+      </button>
+    </form>
+    <p id="mensajeCompra"></p>
+  </section>
 </main>
-<!-- ...resto del html igual... -->
+<div id="carritoFlotante" onclick="document.getElementById('carritoBox').scrollIntoView({behavior:'smooth'});" aria-label="Ver carrito" tabindex="0" style="display:none;">🛒 <span id="contadorCarrito">0</span></div>
 <script>
 const scriptId = "YOUR_SCRIPT_ID";
 const endpoint = "https://script.google.com/macros/s/AKfycbxnYsciq5EhfzgcgcF2FnyGECGarxqmF7zdDI0R9bizekqvB48W0RdBA4zZ0EGkDlWt/exec?func=catalogo";
@@ -140,7 +187,20 @@ function actualizarRepartos() {
   });
 }
 cargarConfiguraciones();
-// ...resto del JS igual...
+
+window.addEventListener('resize', ajustarCabeceraImg);
+window.addEventListener('DOMContentLoaded', ajustarCabeceraImg);
+function ajustarCabeceraImg() {
+  let img = document.getElementById('cabeceraImg');
+  img.style.width = "330px";
+  img.style.maxWidth = "95vw";
+  img.style.height = "110px";
+  if(window.innerWidth < 500) {
+    img.style.width = "99vw";
+    img.style.height = "70px";
+  }
+}
+// ...TODO: el resto del JS de productos, carrito, cliente, confirmación, etc, igual a la versión anterior...
 </script>
 </body>
 </html>
