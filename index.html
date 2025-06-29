@@ -388,34 +388,19 @@ function renderProductos() {
     let estadoTxt = p.Estado || "";
     let agotado = (estadoTxt.trim().toLowerCase() === "agotado");
     let rellenosHTML = '';
-    // Si tiene rellenos...
+    // Si el producto tiene rellenos, mostrar radio buttons
     if (p.Rellenos && p.Rellenos.length > 0) {
-      // SOLO para la Panetela especial (ajusta el nombre si quieres otro producto)
-      if (p.Nombre === "Panetela especial") {
-        rellenosHTML = `<div class="rellenos-lista">` +
-          p.Rellenos.map((r, ridx) =>
-            `<label style="display:block;margin-bottom:3px;">
-              <input type="radio" name="relleno_${idx}" value="${r}"
-                ${rellenosPorProducto[idx][ridx] === 1 ? "checked" : ""}
-                onchange="seleccionarRellenoUnico(${idx}, ${ridx})"
-                ${agotado ? 'disabled' : ''}>
-              ${r}
-            </label>`
-          ).join('') +
-          `</div>`;
-      } else {
-        // Para otros productos, sigue igual (+/-)
-        rellenosHTML = `<div class="rellenos-lista">` +
-          p.Rellenos.map((r, ridx) =>
-            `<div class="relleno-row">
-              <span class="relleno-nombre">${r}</span>
-              <button class="relleno-btn" onclick="cambiarRelleno(${idx},${ridx},-1)" ${agotado ? 'disabled' : ''}>−</button>
-              <span class="relleno-cant" id="rcant${idx}_${ridx}">${rellenosPorProducto[idx][ridx]}</span>
-              <button class="relleno-btn" onclick="cambiarRelleno(${idx},${ridx},1)" ${agotado ? 'disabled' : ''}>+</button>
-            </div>`
-          ).join('') +
-          `</div>`;
-      }
+      rellenosHTML = `<div class="rellenos-lista">` +
+        p.Rellenos.map((r, ridx) =>
+          `<label style="display:block;margin-bottom:3px;">
+            <input type="radio" name="relleno_${idx}" value="${r}"
+              ${rellenosPorProducto[idx][ridx] === 1 ? "checked" : ""}
+              onchange="seleccionarRellenoUnico(${idx}, ${ridx})"
+              ${agotado ? 'disabled' : ''}>
+            ${r}
+          </label>`
+        ).join('') +
+        `</div>`;
     }
     cont.innerHTML += `
       <div class="producto-card${agotado ? ' agotado' : ''}">
@@ -724,8 +709,8 @@ cargarProductos = function() {
   });
 };
 
-  function seleccionarRellenoUnico(idx, ridx) {
-  // Solo permite uno seleccionado: convierte a un array de 0 salvo el elegido
+function seleccionarRellenoUnico(idx, ridx) {
+  // Solo permite uno seleccionado: pone 1 al elegido y 0 a los demás
   rellenosPorProducto[idx] = rellenosPorProducto[idx].map((_, i) => i === ridx ? 1 : 0);
   renderProductos();
 }
