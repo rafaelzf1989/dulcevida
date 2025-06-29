@@ -330,6 +330,8 @@ function actualizarRepartos() {
   repartosConfig.forEach(r=>{
     select.innerHTML += `<option value="${r}">${r}</option>`;
   });
+  // ¡Agrega este evento!
+  select.onchange = actualizarCarrito;
 }
 cargarConfiguraciones();
 
