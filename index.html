@@ -227,18 +227,6 @@ header {
 </head>
 <body>
 
-  <div id="loading" style="display:flex;align-items:center;justify-content:center;position:fixed;z-index:99999;top:0;left:0;width:100vw;height:100vh;background:#fff;">
-  <div style="text-align:center;">
-    <div class="spinner" style="margin-bottom:15px;">
-      <div style="border:6px solid #ff4eb599;border-top:6px solid #3b2eae;border-radius:50%;width:48px;height:48px;animation:spin 1s linear infinite;"></div>
-    </div>
-    <div style="font-weight:bold;color:#3b2eae;font-size:1.12em;">Cargando...</div>
-  </div>
-</div>
-<style>
-@keyframes spin { 100% { transform: rotate(360deg); } }
-</style>
-
   
 <header>
   <div class="cabecera-wrap">
@@ -716,29 +704,6 @@ cargarProductos = function() {
   });
 };
 
-const oldCargarConfiguraciones = cargarConfiguraciones;
-cargarConfiguraciones = function() {
-  fetch(configEndpoint).then(r=>r.json()).then(config=>{
-    let texto = config.anuncio || '¡Bienvenido!';
-    document.getElementById('marquesinaScroll').innerHTML = texto + "&nbsp;&nbsp;&nbsp;&nbsp;" + texto;
-    velocidadMarquesina = config.velocidad || 18;
-    repartosConfig = config.repartos || [];
-    repartosPrecios = config.repartosPrecios || {};
-    actualizarRepartos();
-    setMarquesinaSpeed();
-    if(config.cabeceraImg) {
-      document.getElementById('cabeceraImg').src = config.cabeceraImg;
-    }
-    loadedConfig = true;
-    hideLoadingWhenReady();
-  }).catch(()=>{
-    let texto = "¡Bienvenido!";
-    document.getElementById('marquesinaScroll').innerHTML = texto + "&nbsp;&nbsp;&nbsp;&nbsp;" + texto;
-    setMarquesinaSpeed();
-    loadedConfig = true;
-    hideLoadingWhenReady();
-  });
-};
   
 </script>
 </body>
