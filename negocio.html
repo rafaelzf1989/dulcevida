@@ -269,7 +269,7 @@ function actualizarFiltroFechas() {
     .filter(f => f);
   // Quitar repetidas y ordenar de más reciente a más antigua
   fechas = Array.from(new Set(fechas))
-    .sort((a, b) => b.localeCompare(a)); // descendente
+    .sort((a, b) => a.localeCompare(b)); // descendente
 
   // Construir opciones
   select.innerHTML = `<option value="">Todas las fechas</option>` +
