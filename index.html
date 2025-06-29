@@ -385,37 +385,55 @@ function renderProductos() {
   const cont = document.getElementById('productos');
   cont.innerHTML = '';
   productosData.forEach((p, idx) => {
-    let estadoTxt = p.Estado||"";
+    let estadoTxt = p.Estado || "";
     let agotado = (estadoTxt.trim().toLowerCase() === "agotado");
     let rellenosHTML = '';
-    if (p.Rellenos && p.Rellenos.length>0) {
-      rellenosHTML = `<div class="rellenos-lista">`+
-        p.Rellenos.map((r, ridx) =>
-          `<div class="relleno-row">
-            <span class="relleno-nombre">${r}</span>
-            <button class="relleno-btn" onclick="cambiarRelleno(${idx},${ridx},-1)" ${agotado?'disabled':''}>−</button>
-            <span class="relleno-cant" id="rcant${idx}_${ridx}">${rellenosPorProducto[idx][ridx]}</span>
-            <button class="relleno-btn" onclick="cambiarRelleno(${idx},${ridx},1)" ${agotado?'disabled':''}>+</button>
-          </div>`).join('')+
-        `</div>`;
+    // Si tiene rellenos...
+    if (p.Rellenos && p.Rellenos.length > 0) {
+      // SOLO para la Panetela especial (ajusta el nombre si quieres otro producto)
+      if (p.Nombre === "Panetela especial") {
+        rellenosHTML = `<div class="rellenos-lista">` +
+          p.Rellenos.map((r, ridx) =>
+            `<label style="display:block;margin-bottom:3px;">
+              <input type="radio" name="relleno_${idx}" value="${r}"
+                ${rellenosPorProducto[idx][ridx] === 1 ? "checked" : ""}
+                onchange="seleccionarRellenoUnico(${idx}, ${ridx})"
+                ${agotado ? 'disabled' : ''}>
+              ${r}
+            </label>`
+          ).join('') +
+          `</div>`;
+      } else {
+        // Para otros productos, sigue igual (+/-)
+        rellenosHTML = `<div class="rellenos-lista">` +
+          p.Rellenos.map((r, ridx) =>
+            `<div class="relleno-row">
+              <span class="relleno-nombre">${r}</span>
+              <button class="relleno-btn" onclick="cambiarRelleno(${idx},${ridx},-1)" ${agotado ? 'disabled' : ''}>−</button>
+              <span class="relleno-cant" id="rcant${idx}_${ridx}">${rellenosPorProducto[idx][ridx]}</span>
+              <button class="relleno-btn" onclick="cambiarRelleno(${idx},${ridx},1)" ${agotado ? 'disabled' : ''}>+</button>
+            </div>`
+          ).join('') +
+          `</div>`;
+      }
     }
     cont.innerHTML += `
-    <div class="producto-card${agotado?' agotado':''}">
-      ${agotado?`<div class="agotado-marca">AGOTADO</div>`:""}
-      ${estadoTxt? `<div class="producto-estado${agotado?' agotado':''}">${estadoTxt}</div>`:''}
-      <img src="${p.Imagen||''}" alt="${p.Nombre}" onclick="mostrarImagenCompleta('${encodeURIComponent(p.Imagen||'')}')">
-      <div class="producto-nombre">${p.Nombre}</div>
-      <div class="producto-precio">${p.Precio} CUP</div>
-      <div class="producto-desc">${p.Descripción||''}</div>
-      <div class="cantidad-row">
-        <span class="cantidad-nombre"></span>
-        <button class="cantidad-btn" onclick="cambiarCantidad(${idx},-1)" ${agotado?'disabled':''}>−</button>
-        <span class="cantidad-cant" id="cant${idx}">${cantidadesPorProducto[idx]}</span>
-        <button class="cantidad-btn" onclick="cambiarCantidad(${idx},1)" ${agotado?'disabled':''}>+</button>
+      <div class="producto-card${agotado ? ' agotado' : ''}">
+        ${agotado ? `<div class="agotado-marca">AGOTADO</div>` : ""}
+        ${estadoTxt ? `<div class="producto-estado${agotado ? ' agotado' : ''}">${estadoTxt}</div>` : ''}
+        <img src="${p.Imagen || ''}" alt="${p.Nombre}" onclick="mostrarImagenCompleta('${encodeURIComponent(p.Imagen || '')}')">
+        <div class="producto-nombre">${p.Nombre}</div>
+        <div class="producto-precio">${p.Precio} CUP</div>
+        <div class="producto-desc">${p.Descripción || ''}</div>
+        <div class="cantidad-row">
+          <span class="cantidad-nombre"></span>
+          <button class="cantidad-btn" onclick="cambiarCantidad(${idx},-1)" ${agotado ? 'disabled' : ''}>−</button>
+          <span class="cantidad-cant" id="cant${idx}">${cantidadesPorProducto[idx]}</span>
+          <button class="cantidad-btn" onclick="cambiarCantidad(${idx},1)" ${agotado ? 'disabled' : ''}>+</button>
+        </div>
+        ${rellenosHTML}
+        <button class="producto-agregar" onclick="agregarAlCarrito(${idx})" ${agotado ? 'disabled' : ''}>Agregar al Carrito</button>
       </div>
-      ${rellenosHTML}
-      <button class="producto-agregar" onclick="agregarAlCarrito(${idx})" ${agotado?'disabled':''}>Agregar al Carrito</button>
-    </div>
     `;
   });
 }
@@ -706,7 +724,11 @@ cargarProductos = function() {
   });
 };
 
-  
+  function seleccionarRellenoUnico(idx, ridx) {
+  // Solo permite uno seleccionado: convierte a un array de 0 salvo el elegido
+  rellenosPorProducto[idx] = rellenosPorProducto[idx].map((_, i) => i === ridx ? 1 : 0);
+  renderProductos();
+}
 </script>
 </body>
 </html>
