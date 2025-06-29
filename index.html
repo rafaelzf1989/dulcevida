@@ -656,6 +656,20 @@ function enviarPedido(ticket) {
   let urlWsp = `https://wa.me/${numeroWsp}?text=${encodeURIComponent(resumen)}`;
   setTimeout(()=>{ window.open(urlWsp, '_blank'); }, 350);
 }
+
+  document.addEventListener('DOMContentLoaded', function() {
+  const dt = new Date();
+  // Ajusta minutos a múltiplo de 5 (opcional)
+  dt.setMinutes(Math.ceil(dt.getMinutes() / 5) * 5, 0, 0);
+  const pad = n => n.toString().padStart(2, '0');
+  // Formato: YYYY-MM-DDTHH:MM
+  const localISOTime = dt.getFullYear() + '-' +
+    pad(dt.getMonth() + 1) + '-' +
+    pad(dt.getDate()) + 'T' +
+    pad(dt.getHours()) + ':' +
+    pad(dt.getMinutes());
+  document.getElementById('fechaEntrega').setAttribute('min', localISOTime);
+});
 </script>
 </body>
 </html>
