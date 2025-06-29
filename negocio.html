@@ -57,7 +57,7 @@
   </section>
   <section id="pedidos"></section>
   <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbwsKnwL1A10S3JHgoSyysRS2145CiDm2-ME-LUB1H-qryFh0cxD7cnAzajtDXCOeVLD/exec?func=pedidos";
+const sheetURL = "https://script.google.com/macros/s/AKfycbxwTW_1AMINxw7sYEjMbOnQLVeDHXKrxyFsPq8gCykT4kaUkNEX2icBSksNlkfbPuw6/exec?func=pedidos";
 let todosLosPedidos = [];
 
 // Marquesina animada
@@ -186,7 +186,7 @@ function cambiarEstado(select, box) {
   box.className = `pedido estado-${claseEstado}`;
 
   // Aquí debes tener una función doPost que permita cambiar el estado por ticket en tu script
-  fetch("https://script.google.com/macros/s/AKfycbxnYsciq5EhfzgcgcF2FnyGECGarxqmF7zdDI0R9bizekqvB48W0RdBA4zZ0EGkDlWt/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbxwTW_1AMINxw7sYEjMbOnQLVeDHXKrxyFsPq8gCykT4kaUkNEX2icBSksNlkfbPuw6/exec", {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `func=cambiarEstadoPorTicket&ticket=${encodeURIComponent(ticket)}&estado=${encodeURIComponent(nuevoEstado)}`
