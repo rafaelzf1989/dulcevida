@@ -216,18 +216,19 @@ function actualizarRepartos() {
 }
 cargarConfiguraciones();
 
-window.addEventListener('resize', ajustarCabeceraImg);
-window.addEventListener('DOMContentLoaded', ajustarCabeceraImg);
-function ajustarCabeceraImg() {
-  let img = document.getElementById('cabeceraImg');
-  img.style.width = "330px";
-  img.style.maxWidth = "95vw";
-  img.style.height = "110px";
-  if(window.innerWidth < 500) {
-    img.style.width = "99vw";
-    img.style.height = "70px";
-  }
-}
+// -----AJUSTAR CABECERA-----
+// window.addEventListener('resize', ajustarCabeceraImg);
+// window.addEventListener('DOMContentLoaded', ajustarCabeceraImg);
+// function ajustarCabeceraImg() {
+//   let img = document.getElementById('cabeceraImg');
+//   img.style.width = "330px";
+//   img.style.maxWidth = "95vw";
+//   img.style.height = "110px";
+//   if(window.innerWidth < 500) {
+//     img.style.width = "99vw";
+//     img.style.height = "70px";
+//   }
+// }
 
 // Productos
 function mostrarError(msg) {
