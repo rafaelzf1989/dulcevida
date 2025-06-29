@@ -685,10 +685,60 @@ function enviarPedido(ticket) {
   document.getElementById('fechaEntrega').setAttribute('min', localISOTime);
 });
 
-  function hideLoading() {
-  document.getElementById('loading')?.setAttribute('style', 'display:none;');
+let loadedProducts = false, loadedConfig = false;
+
+function hideLoadingWhenReady() {
+  if (loadedProducts && loadedConfig) {
+    document.getElementById('loading')?.setAttribute('style', 'display:none;');
+  }
 }
-window.addEventListener('load', hideLoading);
+
+// Modifica tus funciones fetch para marcar cuando terminan:
+const oldCargarProductos = cargarProductos;
+cargarProductos = function() {
+  fetch(endpoint).then(r=>{
+    if(!r.ok) throw new Error('Respuesta HTTP no válida');
+    return r.json();
+  }).then(datos=>{
+    productosData = datos;
+    datos.forEach((prod, idx)=>{
+      cantidadesPorProducto[idx]=0;
+      rellenosPorProducto[idx]=prod.Rellenos.map(()=>0);
+    });
+    ocultarError();
+    renderProductos(); actualizarCarrito();
+    loadedProducts = true;
+    hideLoadingWhenReady();
+  }).catch(err=>{
+    mostrarError("No se pudieron cargar los productos desde la hoja de Google Sheets.<br><small>Error: "+err.message+"</small>");
+    loadedProducts = true;
+    hideLoadingWhenReady();
+  });
+};
+
+const oldCargarConfiguraciones = cargarConfiguraciones;
+cargarConfiguraciones = function() {
+  fetch(configEndpoint).then(r=>r.json()).then(config=>{
+    let texto = config.anuncio || '¡Bienvenido!';
+    document.getElementById('marquesinaScroll').innerHTML = texto + "&nbsp;&nbsp;&nbsp;&nbsp;" + texto;
+    velocidadMarquesina = config.velocidad || 18;
+    repartosConfig = config.repartos || [];
+    repartosPrecios = config.repartosPrecios || {};
+    actualizarRepartos();
+    setMarquesinaSpeed();
+    if(config.cabeceraImg) {
+      document.getElementById('cabeceraImg').src = config.cabeceraImg;
+    }
+    loadedConfig = true;
+    hideLoadingWhenReady();
+  }).catch(()=>{
+    let texto = "¡Bienvenido!";
+    document.getElementById('marquesinaScroll').innerHTML = texto + "&nbsp;&nbsp;&nbsp;&nbsp;" + texto;
+    setMarquesinaSpeed();
+    loadedConfig = true;
+    hideLoadingWhenReady();
+  });
+};
   
 </script>
 </body>
