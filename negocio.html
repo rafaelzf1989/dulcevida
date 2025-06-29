@@ -47,17 +47,14 @@
   </header>
   <div class="marquesina"><div class="scroll" id="marquesinaScroll"></div></div>
   <section id="filtros">
-    <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
-    <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
-    <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-enproceso">🧁 En proceso (0)</button>
-    <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
-    <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
-    <input type="date" id="filtroFecha" onchange="filtrar()" style="margin-left: 8px;" />
-    <input type="text" id="filtroBusqueda" placeholder="Buscar cliente, teléfono o ticket..." oninput="filtrar()" />
-    <select id="filtroFechaDesplegable" onchange="filtrar()" style="margin-left:8px;"></select>
+  <button onclick="filtrar('todos')" class="btn-filtro activo" id="btn-todos">📋 Todos</button>
+  <button onclick="filtrar('pendiente')" class="btn-filtro" id="btn-pendiente">📦 Pendientes (0)</button>
+  <button onclick="filtrar('en proceso')" class="btn-filtro" id="btn-enproceso">🧁 En proceso (0)</button>
+  <button onclick="filtrar('listo')" class="btn-filtro" id="btn-listo">🎂 Listos (0)</button>
+  <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
+  <select id="filtroFechaDesplegable" onchange="filtrar()" style="margin-left:8px;"></select>
   <input type="text" id="filtroBusqueda" placeholder="Buscar cliente, teléfono o ticket..." oninput="filtrar()" />
-
-  </section>
+</section>
   <section id="pedidos"></section>
   <script>
     const sheetURL = "https://script.google.com/macros/s/AKfycbxwTW_1AMINxw7sYEjMbOnQLVeDHXKrxyFsPq8gCykT4kaUkNEX2icBSksNlkfbPuw6/exec?func=pedidos";
