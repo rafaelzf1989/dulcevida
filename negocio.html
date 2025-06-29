@@ -278,10 +278,7 @@ html, body {
   </style>
 </head>
 <body>
-  <div id="loader">
-    <div class="loader-spinner"></div>
-    Cargando, por favor espere...
-  </div>
+
   <header>
     <img src="https://file.garden/aEX2yhToiQk-s_Qq/Dulce%20Vida/cabecera%20Dulce%20Vida%20WhatsApp.png" alt="Dulce Vida" />
     <h1>Panel de Gestión – Dulce Vida</h1>
@@ -290,19 +287,7 @@ html, body {
     <div class="infinite-scroll" id="marquesinaScroll"></div>
   </div>
   <!-- Formulario de acceso -->
-  <div id="loginBox">
-    <h2 style="color:#3b2eae; text-align:center;">Acceso al Panel</h2>
-    <label>👤 Usuario</label>
-    <input type="text" id="loginUsuario" placeholder="Ej: admin" autocomplete="username" />
-
-    <label>🔒 Contraseña</label>
-    <input type="password" id="loginClave" placeholder="Ej: clave123" autocomplete="current-password" />
-
-    <button onclick="iniciarSesion()" style="margin-top:12px; background: linear-gradient(60deg,#3b2eae 70%, #25D366 100%); color:white; font-weight:bold; padding:10px 38px; border:none; border-radius[...]
-      Iniciar sesión
-    </button>
-    <p id="loginError" style="color:red; text-align:center; margin-top:10px; display:none;"></p>
-  </div>
+  
 
   <!-- Panel completo (oculto por defecto hasta login exitoso) -->
   <div id="panel" style="display:none;">
@@ -330,9 +315,9 @@ function ponerMarquesinaInfinita() {
 ponerMarquesinaInfinita();
 
 // Loader
-function mostrarLoader(mostrar) {
-  document.getElementById("loader").style.display = mostrar ? "flex" : "none";
-}
+// function mostrarLoader(mostrar) {
+//   document.getElementById("loader").style.display = mostrar ? "flex" : "none";
+// }
 // Toast visual
 function mostrarToast(msg) {
   let toast = document.createElement('div');
@@ -348,32 +333,7 @@ if (sessionStorage.getItem("acceso") === "ok") {
   cargarPedidos();
 }
 
-function iniciarSesion() {
-  const usuario = document.getElementById("loginUsuario").value.trim();
-  const clave = document.getElementById("loginClave").value.trim();
-  mostrarLoader(true);
-  fetch(sheetURL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: `func=verificarCredenciales&usuario=${encodeURIComponent(usuario)}&clave=${encodeURIComponent(clave)}`
-  })
-  .then(r => r.json())
-  .then(resp => {
-    mostrarLoader(false);
-    if (resp.acceso) {
-      sessionStorage.setItem("acceso", "ok");
-      document.getElementById("loginBox").style.display = "none";
-      document.getElementById("panel").style.display = "block";
-      cargarPedidos();
-    } else {
-      mostrarError("Usuario o clave incorrectos.");
-    }
-  })
-  .catch(() => {
-    mostrarLoader(false);
-    mostrarError("Error de conexión.");
-  });
-}
+
 
 function mostrarError(msg) {
   const err = document.getElementById("loginError");
