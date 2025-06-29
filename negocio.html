@@ -54,10 +54,13 @@
     <button onclick="filtrar('entregado')" class="btn-filtro" id="btn-entregado">✅ Entregados (0)</button>
     <input type="date" id="filtroFecha" onchange="filtrar()" style="margin-left: 8px;" />
     <input type="text" id="filtroBusqueda" placeholder="Buscar cliente, teléfono o ticket..." oninput="filtrar()" />
+    <select id="filtroFechaDesplegable" onchange="filtrar()" style="margin-left:8px;"></select>
+  <input type="text" id="filtroBusqueda" placeholder="Buscar cliente, teléfono o ticket..." oninput="filtrar()" />
+
   </section>
   <section id="pedidos"></section>
   <script>
-const sheetURL = "https://script.google.com/macros/s/AKfycbxwTW_1AMINxw7sYEjMbOnQLVeDHXKrxyFsPq8gCykT4kaUkNEX2icBSksNlkfbPuw6/exec?func=pedidos";
+    const sheetURL = "https://script.google.com/macros/s/AKfycbxwTW_1AMINxw7sYEjMbOnQLVeDHXKrxyFsPq8gCykT4kaUkNEX2icBSksNlkfbPuw6/exec?func=pedidos";
 let todosLosPedidos = [];
 
 // Marquesina animada
@@ -88,13 +91,13 @@ function cargarPedidos() {
     .then(r => r.json())
     .then(data => {
       todosLosPedidos = data.reverse();
+      actualizarFiltroFechas(); // <-- importante: llena el select cada vez que se cargan los pedidos
       mostrarPedidos(todosLosPedidos);
     })
     .catch(() => {
       document.getElementById("pedidos").innerHTML = "Error al cargar pedidos";
     });
 }
-
 function mostrarPedidos(lista) {
   const cont = document.getElementById("pedidos");
   cont.innerHTML = "";
@@ -234,7 +237,8 @@ function filtrar(estadoSeleccionado) {
     if (btn) btn.classList.add("activo");
   }
 
-  const fechaFiltro = document.getElementById("filtroFecha").value;
+  // Toma la fecha seleccionada del select
+  const fechaFiltro = document.getElementById("filtroFechaDesplegable").value;
   const busqueda = (document.getElementById("filtroBusqueda")?.value || "").toLowerCase();
 
   const filtrados = todosLosPedidos.filter(p => {
@@ -244,12 +248,32 @@ function filtrar(estadoSeleccionado) {
     const coincideFecha = !fechaFiltro || fechaFiltro === fechaPedido;
     const coincideBusqueda = !busqueda
       || (p.Nombre && p.Nombre.toLowerCase().includes(busqueda))
-      || (p.Teléfono && p.Teléfono.toLowerCase().includes(busqueda))
-      || (p.Ticket && p.Ticket.toLowerCase().includes(busqueda));
+      || (p.Teléfono && String(p.Teléfono).toLowerCase().includes(busqueda))
+      || (p.Ticket && String(p.Ticket).toLowerCase().includes(busqueda));
     return coincideEstado && coincideFecha && coincideBusqueda;
   });
 
   mostrarPedidos(filtrados);
+}
+
+    // NUEVO: Llenar el select de fechas dinámicamente
+function actualizarFiltroFechas() {
+  const select = document.getElementById('filtroFechaDesplegable');
+  if (!select) return;
+  // Extraer fechas únicas de entrega en formato YYYY-MM-DD
+  let fechas = todosLosPedidos
+    .map(p => {
+      if (!p["Fecha de entrega"]) return null;
+      return String(p["Fecha de entrega"]).split("T")[0];
+    })
+    .filter(f => f);
+  // Quitar repetidas y ordenar de más reciente a más antigua
+  fechas = Array.from(new Set(fechas))
+    .sort((a, b) => b.localeCompare(a)); // descendente
+
+  // Construir opciones
+  select.innerHTML = `<option value="">Todas las fechas</option>` +
+    fechas.map(f => `<option value="${f}">${f}</option>`).join('');
 }
   </script>
 </body>
