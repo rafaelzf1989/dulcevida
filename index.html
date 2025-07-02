@@ -646,7 +646,7 @@ function enviarPedido(ticket) {
   });
   // WhatsApp
   function b(s){return `*${s}*`;}
-  let resumen = '🧾 *Ticket:* ' + ticket + '\n';
+  let resumen = '*Solicitud de Pedido*\n🧾 *Ticket:* ' + ticket + '\n';
   resumen += '\n🍰 *Productos:*\n';
   carrito.forEach(i => { resumen += `- ${i.nombre}${i.rellenos ? ' ('+i.rellenos+')' : ''} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`; });
   resumen += '\n👤 *Cliente:* ' + nombre + '\n';
