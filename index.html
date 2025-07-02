@@ -286,8 +286,8 @@ header {
 </main>
 <div id="carritoFlotante" onclick="document.getElementById('carritoBox').scrollIntoView({behavior:'smooth'});" aria-label="Ver carrito" tabindex="0" style="display:none;">🛒 <span id="contadorCarrito">0</span></div>
 <script>
-const endpoint = "https://script.google.com/macros/s/AKfycbyFFYGcrKYWX4b1Kuj_F_bxSwUoAlmqctj-3QSOFh-yYyATebPsegN5H12aB0YYUJKE/exec?func=catalogo";
-const configEndpoint = "https://script.google.com/macros/s/AKfycbyFFYGcrKYWX4b1Kuj_F_bxSwUoAlmqctj-3QSOFh-yYyATebPsegN5H12aB0YYUJKE/exec?func=config";
+const endpoint = "https://script.google.com/macros/s/AKfycbypavkuPIoD7ru-SG7JFyLqCvOJ9kSbOjt5iNMrcJZuqtMuSihav20PbkF4uWiO1vCe/exec?func=catalogo";
+const configEndpoint = "https://script.google.com/macros/s/AKfycbypavkuPIoD7ru-SG7JFyLqCvOJ9kSbOjt5iNMrcJZuqtMuSihav20PbkF4uWiO1vCe/exec?func=config";
 let productosData = [];
 let carrito = [];
 let cantidadesPorProducto = {};
@@ -614,7 +614,7 @@ function enviarPedido(ticket) {
   let productosResumen = carrito.map(i =>
     `${i.nombre}${i.rellenos?' ('+i.rellenos+')':''} x${i.cantidad}`
   ).join('; ');
-  fetch("https://script.google.com/macros/s/AKfycbyFFYGcrKYWX4b1Kuj_F_bxSwUoAlmqctj-3QSOFh-yYyATebPsegN5H12aB0YYUJKE/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbypavkuPIoD7ru-SG7JFyLqCvOJ9kSbOjt5iNMrcJZuqtMuSihav20PbkF4uWiO1vCe/exec", {
     method: "POST",
     body: new URLSearchParams({
       nombre,
