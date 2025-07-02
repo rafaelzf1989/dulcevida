@@ -646,7 +646,7 @@ function enviarPedido(ticket) {
   });
   // WhatsApp
   function b(s){return `*${s}*`;}
-  let resumen = '*Solicitud de Pedido*\n🧾 *Ticket:* ' + ticket + '\n';
+  let resumen = '*Solicitud de Pedido*\n🎫 *Ticket:* ' + ticket + '\n';
   resumen += '\n🍰 *Productos:*\n';
   carrito.forEach(i => { resumen += `- ${i.nombre}${i.rellenos ? ' ('+i.rellenos+')' : ''} x${i.cantidad} = ${i.precio * i.cantidad} CUP\n`; });
   resumen += '\n👤 *Cliente:* ' + nombre + '\n';
@@ -654,7 +654,20 @@ function enviarPedido(ticket) {
   if (direccion) resumen += '🏠 *Dirección:* ' + direccion + '\n';
   if (reparto) resumen += '📍 *Reparto:* ' + reparto + '\n';
   resumen += '🚚 *Entrega:* ' + (entrega==="si"?"A domicilio":"Retiro en tienda") + '\n';
-  resumen += '📅 *Fecha y hora:* ' + fechaEntrega.replace("T"," ") + '\n';
+  // Formatear fecha y hora al formato 17/07/2025 - 09:30 AM
+let fechaMostrada = fechaEntrega;
+try {
+  let dt = new Date(fechaEntrega);
+  let dia = ("0"+dt.getDate()).slice(-2);
+  let mes = ("0"+(dt.getMonth()+1)).slice(-2);
+  let anio = dt.getFullYear();
+  let horas = dt.getHours();
+  let minutos = ("0"+dt.getMinutes()).slice(-2);
+  let suf = horas >= 12 ? "PM" : "AM";
+  let horas12 = horas % 12 || 12;
+  fechaMostrada = `${dia}/${mes}/${anio} - ${("0"+horas12).slice(-2)}:${minutos} ${suf}`;
+} catch(e) {}
+resumen += '📅 *Fecha y hora:* ' + fechaMostrada + '\n';
   if (especificaciones) resumen += '📋 *Especificaciones:* ' + especificaciones + '\n';
   resumen += '\n============================\n';
   resumen += '💲 *Subtotal:* ' + b(subtotal+" CUP") + '\n';
