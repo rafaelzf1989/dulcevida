@@ -159,7 +159,6 @@
     // URL de tu Apps Script:
     const WEB_APP = 'https://script.google.com/macros/s/AKfycbwHArgHdYsyV22lU4XrrhxQtwQ9uLmj5Bo5d4MMmDBCJjDZUMzFx43hKzSX6CWFiMEC4w/exec';
 
-    // Sidebar
     function toggleSidebar(force) {
       const sidebar = document.getElementById('sidebar');
       if(force === true) sidebar.classList.add('visible');
@@ -190,7 +189,6 @@
       document.getElementById('modal-bg').classList.add('hidden');
     }
 
-    // Estado global
     let DATA = {productos:[], proveedores:[], ventas:[], detalleVentas:[]};
 
     // Helpers
@@ -199,17 +197,55 @@
       return p ? p.Nombre : (id || '');
     }
 
-    // Obtener todos los datos de Sheets
+    // Detección robusta de propiedad "Categoría" o "Categoria"
+    function getCategoria(item) {
+      return item.Categoría || item.Categoria || item.categoria || "Sin categoría";
+    }
+
+    // Carga robusta de datos con manejo de errores de estructura
     async function cargarDatos(callback) {
       showLoader();
       try {
         let resp = await fetch(WEB_APP + '?action=getAll');
-        DATA = await resp.json();
+        if (!resp.ok) throw new Error("Error de red");
+        let data = await resp.json();
+        if (!data.productos || !data.proveedores) throw new Error("Datos inválidos");
+        // Normaliza todos los campos con mayúsculas/minúsculas
+        data.productos = data.productos.map(p => ({
+          ID: p.ID ?? p.id,
+          Nombre: p.Nombre ?? p.nombre,
+          Categoría: p.Categoría ?? p.Categoria ?? p.categoria,
+          Proveedor: p.Proveedor ?? p.proveedor,
+          Existencias: p.Existencias ?? p.existencias,
+          PrecioCompra: p.PrecioCompra ?? p.preciocompra ?? p['Precio Compra'] ?? p['precio compra'],
+          PrecioVenta: p.PrecioVenta ?? p.precioventa ?? p['Precio Venta'] ?? p['precio venta']
+        }));
+        data.proveedores = data.proveedores.map(pr => ({
+          ID: pr.ID ?? pr.id,
+          Nombre: pr.Nombre ?? pr.nombre,
+          Empresa: pr.Empresa ?? pr.empresa,
+          Teléfono: pr.Teléfono ?? pr.telefono,
+          Correo: pr.Correo ?? pr.correo,
+          Dirección: pr.Dirección ?? pr.direccion
+        }));
+        data.ventas = data.ventas.map(v => ({
+          IDVenta: v.IDVenta ?? v.idventa,
+          Fecha: v.Fecha ?? v.fecha,
+          Total: v.Total ?? v.total
+        }));
+        data.detalleVentas = data.detalleVentas.map(d => ({
+          IDVenta: d.IDVenta ?? d.idventa,
+          IDProducto: d.IDProducto ?? d.idproducto,
+          Cantidad: d.Cantidad ?? d.cantidad,
+          Subtotal: d.Subtotal ?? d.subtotal
+        }));
+        DATA = data;
         hideLoader();
         if (callback) callback();
       } catch(e) {
         hideLoader();
-        alert("No se pudo cargar la base de datos desde Google Sheets.");
+        alert("No se pudo cargar la base de datos desde Google Sheets:\n" + e);
+        console.error(e);
       }
     }
 
@@ -224,11 +260,11 @@
           <div class="venta-resumen">Total: <span id="venta-total">0</span> CUP</div>
           <button class="btn" id="btn-registrar-venta">🧾 Registrar Venta</button>`;
 
-        // Agrupar productos por categoría
         const categorias = {};
         DATA.productos.forEach(p => {
-          if (!categorias[p.Categoría]) categorias[p.Categoría] = [];
-          categorias[p.Categoría].push(p);
+          const cat = getCategoria(p);
+          if (!categorias[cat]) categorias[cat] = [];
+          categorias[cat].push(p);
         });
         const catDiv = cont.querySelector('#categorias');
         for (let cat in categorias) {
@@ -267,6 +303,9 @@
         document.querySelectorAll('.venta-cant').forEach(inp => {
           inp.value = "0";
         });
+        document.querySelectorAll('.venta-cant').forEach(inp => {
+          inp.addEventListener('input', actualizarVentaItems);
+        });
         document.getElementById('btn-registrar-venta').addEventListener('click', () => {
           showModal("¿Confirmar venta?", function(){
             showLoader("Registrando venta...");
@@ -280,7 +319,6 @@
       let v = parseInt(inp.value)||0;
       v = Math.max(0, Math.min(max, v+delta));
       inp.value = v;
-      // trigger input event para actualizar totales
       inp.dispatchEvent(new Event('input',{bubbles:true}));
       actualizarVentaItems();
     }
@@ -310,7 +348,7 @@
       .then(r=>r.json())
       .then(_=>{
         hideLoader();
-        showModal('¡Venta registrada!',[mostrarNuevaVenta]);
+        showModal('¡Venta registrada!',mostrarNuevaVenta);
       });
     }
 
@@ -344,7 +382,10 @@
       showModal("¿Eliminar esta venta? Esto no puede deshacerse.", function(){
         showLoader("Eliminando venta...");
         // Aquí deberías implementar la acción en Apps Script para eliminar la venta y su detalle
-        alert("Función eliminar venta no implementada en Apps Script."); hideLoader();
+        setTimeout(()=>{
+          hideLoader();
+          alert("Función eliminar venta no implementada en Apps Script.");
+        }, 900);
       }, null, "Eliminar", "Cancelar");
     }
     function formEditarVenta(idVenta) {
@@ -359,7 +400,7 @@
         let detalles = DATA.detalleVentas.filter(d=>d.IDVenta===idv);
         let totalCompra=0, totalVenta=0;
         let rows = detalles.map(d=>{
-          let p = DATA.productos.find(pp=>pp.ID===d.IDProducto);
+          let p = DATA.productos.find(pp=>pp.ID==d.IDProducto);
           let nombre = p ? p.Nombre : d.IDProducto;
           let precioCompra = p ? Number(p.PrecioCompra) : 0;
           let precioVenta = p ? Number(p.PrecioVenta) : 0;
@@ -417,7 +458,7 @@
           c.innerHTML = `
             <span class="prod-title">${p.Nombre}</span>
             <div class="prod-details">
-              Categoría: ${p.Categoría}<br>
+              Categoría: ${getCategoria(p)}<br>
               Proveedor: ${getProveedorNombre(p.Proveedor)}<br>
               Existencias: ${p.Existencias}<br>
               Precio Compra: ${p.PrecioCompra} CUP<br>
@@ -486,7 +527,7 @@
       f.innerHTML = '';
     }
     function formEditarProd(id) {
-      const prod = DATA.productos.find(p=>p.ID===id);
+      const prod = DATA.productos.find(p=>p.ID==id);
       const f = document.getElementById('form-prod');
       f.classList.remove('hidden');
       let provOptions = `<option value="">Seleccionar...</option>`;
@@ -496,7 +537,7 @@
       f.innerHTML = `
         <form id="editar-prod-form">
           <label>Nombre <input name="nombre" value="${prod.Nombre}" required></label>
-          <label>Categoría <input name="categoria" value="${prod.Categoría}" required></label>
+          <label>Categoría <input name="categoria" value="${getCategoria(prod)}" required></label>
           <label>Proveedor
             <select name="proveedor" required>${provOptions}</select>
           </label>
@@ -627,7 +668,7 @@
       f.innerHTML = '';
     }
     function formEditarProv(id) {
-      const pr = DATA.proveedores.find(p=>p.ID===id);
+      const pr = DATA.proveedores.find(p=>p.ID==id);
       const f = document.getElementById('form-pr');
       f.classList.remove('hidden');
       f.innerHTML = `
@@ -642,7 +683,6 @@
           <button class="btn secondary" type="button" id="btn-salir-prov">Salir</button>
         </form>
       `;
-      // No implementado en Apps Script: updProv y delProv
       document.getElementById('editar-prov-form').addEventListener('submit', function(e){
         showModal("Actualización de proveedor no implementada en Apps Script.");
       });
@@ -654,8 +694,10 @@
     function confirmarEliminarProv(id) {
       showModal("¿Eliminar este proveedor? Esta acción no puede deshacerse.", function() {
         showLoader("Eliminando...");
-        // No implementado en Apps Script: delProv
-        alert("Función eliminar proveedor no implementada en Apps Script."); hideLoader();
+        setTimeout(()=>{
+          hideLoader();
+          alert("Función eliminar proveedor no implementada en Apps Script.");
+        },900);
       }, null, "Eliminar", "Cancelar");
     }
 
@@ -669,10 +711,10 @@
         let mes = new Date().getMonth();
         DATA.ventas.forEach(v=>{
           let dt = new Date(v.Fecha);
-          let venta = DATA.detalleVentas.filter(d=>d.IDVenta===v.IDVenta);
+          let venta = DATA.detalleVentas.filter(d=>d.IDVenta==v.IDVenta);
           let gan = 0, cant = 0;
           venta.forEach(d=>{
-            let prod = DATA.productos.find(p=>p.ID===d.IDProducto);
+            let prod = DATA.productos.find(p=>p.ID==d.IDProducto);
             gan += (prod.PrecioVenta-prod.PrecioCompra)*d.Cantidad;
             cant += parseInt(d.Cantidad)||0;
           });
@@ -716,18 +758,15 @@
       });
     }
 
-    // ========== SIDEBAR Y NAVEGACIÓN ==========
     function cerrarSidebarSiMovil() {
       if(window.innerWidth<800) toggleSidebar(false);
     }
 
-    // ========== INICIO ==========
     window.addEventListener('DOMContentLoaded', function(){
       document.getElementById('sidebar').classList.remove('visible');
       cargarDatos(mostrarNuevaVenta);
     });
 
-    // Expose for inline events
     window.formEditarProd = formEditarProd;
     window.confirmarEliminarProd = confirmarEliminarProd;
     window.formEditarProv = formEditarProv;
