@@ -25,10 +25,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,.15);
     }
     #main { flex:1; padding:20px; overflow:auto; margin-left:0; width:100vw;}
-    @media (min-width: 600px) {
-      #main { margin-left:0;}
-      #sidebar.visible ~ #main { margin-left:200px; }
-    }
     .hidden { display:none; }
     .btn { padding:6px 12px; margin:6px 0; cursor:pointer; }
     ul { list-style:none; padding:0; }
@@ -41,23 +37,31 @@
     .prod-details { font-size: 0.95em; color: #555; }
     .item-btn { margin-left: 4px; }
     .venta-resumen { font-weight: bold; margin-top: 16px; }
-    .disabled { opacity: .5; pointer-events: none;}
-    .flex-row {display:flex; align-items:center; gap:12px;}
     .venta-cant {margin-left:12px;}
+    @media (min-width: 600px) {
+      #main { margin-left:0;}
+      #sidebar.visible ~ #main { margin-left:200px; }
+    }
   </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
+</head>
+<body>
+  <button id="menu-toggle" onclick="toggleSidebar()">
+    ☰
+  </button>
+  <div id="sidebar">
+    <button onclick="toggleSidebar(false)" style="text-align:right;font-size:1.2em;">✖</button>
+    <button onclick="mostrarNuevaVenta();toggleSidebar(false)">🛒 Nueva venta</button>
+    <button onclick="mostrarVentas();toggleSidebar(false)">📋 Ventas</button>
+    <button onclick="mostrarProductos();toggleSidebar(false)">📦 Productos</button>
+    <button onclick="mostrarProveedores();toggleSidebar(false)">👥 Proveedores</button>
+    <button onclick="mostrarReportes();toggleSidebar(false)">📊 Reportes</button>
+  </div>
+  <div id="main"></div>
   <script>
-    // URLs reales de tu proyecto
-    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQeVSv6a5jZIllKWXwgIMk0lGrjOr4aSLBXHVnRQrb2Gqehzt0JfoLgbvzjvk2ZPHZelS89dAF9awVX/pubhtml';
-    const WEB_APP = 'https://script.google.com/macros/s/AKfycbyrB4-tvPPrMI_8NcJbvnrVECwAGcElWzdXnLgkVobqcMQpBO-EAlrG9aoPk0sxk9k7iw/exec';
+    // URL de tu Apps Script:
+    const WEB_APP = 'https://script.google.com/macros/s/AKfycbzGUqoLkSrFTQxC0IMvW_W9SpTmJX85GcsBEkMtdT4O55RooMIQjG9Xm2qgwluxclmGgQ/exec';
 
-    let hoja = {};
-    let productos = [];
-    let proveedores = [];
-    let ventas = [];
-    let detalleVentas = [];
-
-    // Sidebar toggle
+    // Sidebar
     function toggleSidebar(force) {
       const sidebar = document.getElementById('sidebar');
       if(force === true) sidebar.classList.add('visible');
@@ -65,26 +69,24 @@
       else sidebar.classList.toggle('visible');
     }
 
-    // Helper para proveedor por ID
+    // Estado global
+    let DATA = {productos:[], proveedores:[], ventas:[], detalleVentas:[]};
+
+    // Helpers
     function getProveedorNombre(id) {
-      const p = proveedores.find(pr => pr.ID == id || pr.Nombre == id);
+      const p = DATA.proveedores.find(pr => pr.ID == id || pr.Nombre == id);
       return p ? p.Nombre : (id || '');
     }
 
-    // Tabletop: Lee y normaliza los datos
-    function cargarDatos(callback) {
-      Tabletop.init({
-        key: SHEET_URL,
-        callback: data => {
-          hoja = data;
-          productos = (hoja.Productos||[]).filter(r=>r.ID && r.Nombre);
-          proveedores = (hoja.Proveedores||[]).filter(r=>r.ID && r.Nombre);
-          ventas = (hoja.Ventas||[]).filter(r=>r.IDVenta);
-          detalleVentas = (hoja.DetalleVentas||[]).filter(r=>r.IDVenta);
-          if(callback) callback();
-        },
-        simpleSheet: false
-      });
+    // Obtener todos los datos de Sheets
+    async function cargarDatos(callback) {
+      try {
+        let resp = await fetch(WEB_APP + '?action=getAll');
+        DATA = await resp.json();
+        if (callback) callback();
+      } catch(e) {
+        alert("No se pudo cargar la base de datos desde Google Sheets.");
+      }
     }
 
     // ========== NUEVA VENTA ==========
@@ -100,7 +102,7 @@
 
         // Agrupar productos por categoría
         const categorias = {};
-        productos.forEach(p => {
+        DATA.productos.forEach(p => {
           if (!categorias[p.Categoría]) categorias[p.Categoría] = [];
           categorias[p.Categoría].push(p);
         });
@@ -132,8 +134,6 @@
         }
         window.ventaItems = {};
         window.ventaTotal = 0;
-
-        // Escucha cambios en los inputs para el cálculo de venta
         document.querySelectorAll('.venta-cant').forEach(inp => {
           inp.addEventListener('input', function() {
             const id = this.dataset.id, precio = Number(this.dataset.precio), qty = parseInt(this.value)||0;
@@ -144,7 +144,6 @@
             calcularTotalVenta();
           });
         });
-
         document.getElementById('btn-registrar-venta').addEventListener('click', procesarVenta);
       });
     }
@@ -159,7 +158,7 @@
       if (!items.length) return alert('Seleccione al menos 1 producto');
       fetch(WEB_APP, {
         method:'POST',
-        body: JSON.stringify({ total: window.ventaTotal, items })
+        body: JSON.stringify({action:'addVenta', items, total: window.ventaTotal})
       })
       .then(r=>r.json())
       .then(_=>{
@@ -176,7 +175,7 @@
         const cont = document.getElementById('main');
         cont.innerHTML = '<h2>Ventas</h2><ul id="lv"></ul>';
         const ul = cont.querySelector('#lv');
-        ventas.forEach(v => {
+        DATA.ventas.forEach(v => {
           const li = document.createElement('li');
           li.innerHTML = `
             <span>${new Date(v.Fecha).toLocaleString()} – ${v.Total} CUP</span>
@@ -193,10 +192,10 @@
         const cont = document.getElementById('main');
         cont.innerHTML = '<h2>Detalle de venta</h2><ul id="ld"></ul><button class="btn" id="btn-volver-ventas">Volver</button>';
         const ul = cont.querySelector('#ld');
-        detalleVentas
+        DATA.detalleVentas
           .filter(d=>d.IDVenta===idv)
           .forEach(d=>{
-            const prod = productos.find(p=>p.ID===d.IDProducto);
+            const prod = DATA.productos.find(p=>p.ID===d.IDProducto);
             const li = document.createElement('li');
             li.innerHTML = `
               <b>${prod ? prod.Nombre : d.IDProducto}</b>
@@ -219,7 +218,7 @@
           <ul id="lp"></ul>
           <div id="form-prod" class="hidden"></div>`;
         const ul = cont.querySelector('#lp');
-        productos.forEach(p=>{
+        DATA.productos.forEach(p=>{
           const li = document.createElement('li');
           li.innerHTML = `
             <b>${p.Nombre}</b>
@@ -237,12 +236,11 @@
         document.getElementById('btn-agregar-prod').addEventListener('click', formAgregarProd);
       });
     }
-    // Formulario para agregar producto con proveedor desplegable
     function formAgregarProd() {
       const f = document.getElementById('form-prod');
       f.classList.remove('hidden');
       let provOptions = `<option value="">Seleccionar...</option>`;
-      proveedores.forEach(pr => {
+      DATA.proveedores.forEach(pr => {
         provOptions += `<option value="${pr.ID}">${pr.Nombre}</option>`;
       });
       f.innerHTML = `
@@ -266,7 +264,6 @@
       e.preventDefault();
       const form = e.target;
       const datos = {
-        action: 'addProd',
         nombre: form.nombre.value,
         categoria: form.categoria.value,
         proveedor: form.proveedor.value,
@@ -276,7 +273,7 @@
       };
       fetch(WEB_APP, {
         method:'POST',
-        body: JSON.stringify(datos)
+        body: JSON.stringify({action:'addProd', ...datos})
       }).then(_=>{
         alert('Producto agregado');
         cerrarFormProd();
@@ -288,13 +285,12 @@
       f.classList.add('hidden');
       f.innerHTML = '';
     }
-    // Editar producto con proveedor desplegable
     function formEditarProd(id) {
-      const prod = productos.find(p=>p.ID===id);
+      const prod = DATA.productos.find(p=>p.ID===id);
       const f = document.getElementById('form-prod');
       f.classList.remove('hidden');
       let provOptions = `<option value="">Seleccionar...</option>`;
-      proveedores.forEach(pr => {
+      DATA.proveedores.forEach(pr => {
         provOptions += `<option value="${pr.ID}" ${prod.Proveedor == pr.ID ? "selected" : ""}>${pr.Nombre}</option>`;
       });
       f.innerHTML = `
@@ -320,7 +316,6 @@
       e.preventDefault();
       const form = e.target;
       const datos = {
-        action: 'updProd',
         id,
         nombre: form.nombre.value,
         categoria: form.categoria.value,
@@ -331,7 +326,7 @@
       };
       fetch(WEB_APP, {
         method:'POST',
-        body: JSON.stringify(datos)
+        body: JSON.stringify({action:'updProd', ...datos})
       }).then(_=>{
         alert('Producto actualizado');
         cerrarFormProd();
@@ -360,7 +355,7 @@
           + '<button class="btn" id="btn-agregar-prov">+ Agregar Proveedor</button>'
           + '<ul id="lpr"></ul><div id="form-pr" class="hidden"></div>';
         const ul = cont.querySelector('#lpr');
-        proveedores.forEach(pr=>{
+        DATA.proveedores.forEach(pr=>{
           const li = document.createElement('li');
           li.innerHTML = `
             <b>${pr.Nombre}</b>
@@ -400,7 +395,6 @@
       e.preventDefault();
       const form = e.target;
       const datos = {
-        action: 'addProv',
         nombre: form.nombre.value,
         empresa: form.empresa.value,
         telefono: form.telefono.value,
@@ -409,7 +403,7 @@
       };
       fetch(WEB_APP, {
         method:'POST',
-        body: JSON.stringify(datos)
+        body: JSON.stringify({action:'addProv', ...datos})
       }).then(_=>{
         alert('Proveedor agregado');
         cerrarFormProv();
@@ -429,13 +423,13 @@
       cargarDatos(function(){
         const hoy = new Date().toDateString();
         let ventaHoy = 0, impHoy=0, ganHoy=0;
-        ventas.forEach(v=>{
+        DATA.ventas.forEach(v=>{
           if (new Date(v.Fecha).toDateString()===hoy) {
             impHoy += parseFloat(v.Total);
-            detalleVentas
+            DATA.detalleVentas
               .filter(d=>d.IDVenta===v.IDVenta)
               .forEach(d=>{
-                const prod = productos.find(p=>p.ID===d.IDProducto);
+                const prod = DATA.productos.find(p=>p.ID===d.IDProducto);
                 ganHoy += (prod.PrecioVenta - prod.PrecioCompra)*d.Cantidad;
                 ventaHoy += parseInt(d.Cantidad)||0;
               });
@@ -443,12 +437,12 @@
         });
         const mes = new Date().getMonth();
         let ganMes = 0;
-        ventas.forEach(v=>{
+        DATA.ventas.forEach(v=>{
           if (new Date(v.Fecha).getMonth()===mes) {
-            detalleVentas
+            DATA.detalleVentas
               .filter(d=>d.IDVenta===v.IDVenta)
               .forEach(d=>{
-                const prod = productos.find(p=>p.ID===d.IDProducto);
+                const prod = DATA.productos.find(p=>p.ID===d.IDProducto);
                 ganMes += (prod.PrecioVenta - prod.PrecioCompra)*d.Cantidad;
               });
           }
@@ -485,24 +479,9 @@
 
     // ========== INICIO ==========
     window.addEventListener('DOMContentLoaded', function(){
-      // Sidebar oculto al inicio y abre "Nueva Venta"
       document.getElementById('sidebar').classList.remove('visible');
       cargarDatos(mostrarNuevaVenta);
     });
   </script>
-</head>
-<body>
-  <button id="menu-toggle" onclick="toggleSidebar()">
-    ☰
-  </button>
-  <div id="sidebar">
-    <button onclick="toggleSidebar(false)" style="text-align:right;font-size:1.2em;">✖</button>
-    <button onclick="mostrarNuevaVenta();toggleSidebar(false)">🛒 Nueva venta</button>
-    <button onclick="mostrarVentas();toggleSidebar(false)">📋 Ventas</button>
-    <button onclick="mostrarProductos();toggleSidebar(false)">📦 Productos</button>
-    <button onclick="mostrarProveedores();toggleSidebar(false)">👥 Proveedores</button>
-    <button onclick="mostrarReportes();toggleSidebar(false)">📊 Reportes</button>
-  </div>
-  <div id="main"></div>
 </body>
 </html>
