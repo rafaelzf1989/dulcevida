@@ -114,19 +114,6 @@
       width:42px; text-align:center; border:none; background:none; padding:0;margin:0;font-size:1.2em;
     }
     .venta-resumen { font-weight: bold; margin-top: 18px; font-size:1.1em;}
-    .loader {
-      position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(44,62,80,0.14); z-index:99;
-      display:flex; align-items:center; justify-content:center; font-size:2em; font-weight:600; color:var(--primary); letter-spacing:0.13em;
-    }
-    .modal-bg {
-      position:fixed; z-index:101; top:0; left:0; width:100vw; height:100vh; background:rgba(44,62,80,0.25);
-      display:flex; align-items:center; justify-content:center;
-    }
-    .modal {
-      background:#fff; padding:32px 34px; border-radius:14px; box-shadow:0 8px 32px rgba(44,62,80,0.13); min-width:270px; max-width:93vw;
-      color:#22313f; text-align:center; font-size:1.15em;
-    }
-    .modal .modal-actions { margin-top:22px; display:flex; gap:18px; justify-content:center;}
     .det-table {width:100%; border-collapse:collapse; margin-top:14px;}
     .det-table th, .det-table td {padding:7px 9px;}
     .det-table th {
@@ -153,18 +140,14 @@
     <button onclick="mostrarReportes();toggleSidebar(false)">📊 Reportes</button>
   </div>
   <div id="main"></div>
- 
-  <div id="modal-bg" class="modal-bg hidden"></div>
   <script>
-// mensaje si hay error en la carga
+    // Captura errores de JS para mostrar en pantalla
     window.onerror = function(msg, url, line, col, error) {
-  document.body.innerHTML = "<pre style='background:#fee;color:#a00;padding:2em;font-size:1.2em;'>"
-    + "ERROR DE JAVASCRIPT:\n" + msg + "\n" + (error && error.stack ? error.stack : "") + "</pre>";
-};
+      document.body.innerHTML = "<pre style='background:#fee;color:#a00;padding:2em;font-size:1.2em;'>"
+        + "ERROR DE JAVASCRIPT:\n" + msg + "\n" + (error && error.stack ? error.stack : "") + "</pre>";
+    };
 
-    
-    // URL de tu Apps Script:
-    const WEB_APP = 'https://script.google.com/macros/s/AKfycbwHArgHdYsyV22lU4XrrhxQtwQ9uLmj5Bo5d4MMmDBCJjDZUMzFx43hKzSX6CWFiMEC4w/exec';
+    const WEB_APP = 'https://script.google.com/macros/s/AKfycbyrB4-tvPPrMI_8NcJbvnrVECwAGcElWzdXnLgkVobqcMQpBO-EAlrG9aoPk0sxk9k7iw/exec';
 
     function toggleSidebar(force) {
       const sidebar = document.getElementById('sidebar');
@@ -173,55 +156,29 @@
       else sidebar.classList.toggle('visible');
     }
 
-    // ---- Loader y Modal ----
-    //function showLoader(msg='Cargando...') {
-      //document.getElementById('loader').classList.remove('hidden');
-      //document.getElementById('loader').textContent = msg;
-    //}
-    //function hideLoader() {
-  //    document.getElementById('loader').classList.add('hidden');
-  //  }
-    function showModal(msg, onOk, onCancel, okText='Aceptar', cancelText='Cancelar') {
-      const bg = document.getElementById('modal-bg');
-      bg.classList.remove('hidden');
-      let html = `<div class="modal">${msg}<div class="modal-actions">`;
-      html += `<button class="btn success" id="modal-ok">${okText}</button>`;
-      if (onCancel) html += `<button class="btn secondary" id="modal-cancel">${cancelText}</button>`;
-      html += `</div></div>`;
-      bg.innerHTML = html;
-      document.getElementById('modal-ok').onclick = () => { bg.classList.add('hidden'); onOk && onOk(); };
-      if (onCancel) document.getElementById('modal-cancel').onclick = () => { bg.classList.add('hidden'); onCancel(); };
-    }
-    function hideModal() {
-      document.getElementById('modal-bg').classList.add('hidden');
-    }
-
     let DATA = {productos:[], proveedores:[], ventas:[], detalleVentas:[]};
 
-    // Helpers
     function getProveedorNombre(id) {
       const p = DATA.proveedores.find(pr => pr.ID == id || pr.Nombre == id);
       return p ? p.Nombre : (id || '');
     }
 
-    // Detección robusta de propiedad "Categoría" o "Categoria"
+    // Siempre prioriza "Categoria" sin tilde
     function getCategoria(item) {
-      return item.Categoría || item.Categoria || item.categoria || "Sin categoría";
+      return item.Categoria || item.categoria || item.Categoría || "Sin categoría";
     }
 
-    // Carga robusta de datos con manejo de errores de estructura
     async function cargarDatos(callback) {
-      showLoader();
       try {
         let resp = await fetch(WEB_APP + '?action=getAll');
         if (!resp.ok) throw new Error("Error de red");
         let data = await resp.json();
         if (!data.productos || !data.proveedores) throw new Error("Datos inválidos");
-        // Normaliza todos los campos con mayúsculas/minúsculas
+        // Normaliza todos los campos para máxima compatibilidad
         data.productos = data.productos.map(p => ({
           ID: p.ID ?? p.id,
           Nombre: p.Nombre ?? p.nombre,
-          Categoría: p.Categoría ?? p.Categoria ?? p.categoria,
+          Categoria: p.Categoria ?? p.categoria ?? p.Categoría,
           Proveedor: p.Proveedor ?? p.proveedor,
           Existencias: p.Existencias ?? p.existencias,
           PrecioCompra: p.PrecioCompra ?? p.preciocompra ?? p['Precio Compra'] ?? p['precio compra'],
@@ -247,10 +204,8 @@
           Subtotal: d.Subtotal ?? d.subtotal
         }));
         DATA = data;
-        hideLoader();
         if (callback) callback();
       } catch(e) {
-        hideLoader();
         alert("No se pudo cargar la base de datos desde Google Sheets:\n" + e);
         console.error(e);
       }
@@ -314,10 +269,11 @@
           inp.addEventListener('input', actualizarVentaItems);
         });
         document.getElementById('btn-registrar-venta').addEventListener('click', () => {
-          showModal("¿Confirmar venta?", function(){
-            showLoader("Registrando venta...");
-            procesarVenta();
-          }, null, "Sí, vender", "Cancelar");
+          if (Object.keys(window.ventaItems).length === 0) {
+            alert("Selecciona al menos un producto.");
+            return;
+          }
+          procesarVenta();
         });
       });
     }
@@ -347,15 +303,15 @@
     }
     function procesarVenta() {
       const items = Object.values(window.ventaItems).filter(i=>i.cantidad>0);
-      if (!items.length) {hideLoader(); return alert('Seleccione al menos 1 producto');}
+      if (!items.length) return alert('Seleccione al menos 1 producto');
       fetch(WEB_APP, {
         method:'POST',
         body: JSON.stringify({action:'addVenta', items, total: window.ventaTotal})
       })
       .then(r=>r.json())
       .then(_=>{
-        hideLoader();
-        showModal('¡Venta registrada!',mostrarNuevaVenta);
+        alert('¡Venta registrada!');
+        mostrarNuevaVenta();
       });
     }
 
@@ -376,8 +332,6 @@
               Total: <b>${v.Total} CUP</b>
             </div>
             <div class="card-actions">
-              <button class="btn icon edit" title="Editar" onclick="formEditarVenta('${v.IDVenta}')">✏️</button>
-              <button class="btn icon danger" title="Eliminar" onclick="confirmarEliminarVenta('${v.IDVenta}')">🗑️</button>
               <button class="btn icon" title="Ver Detalle" onclick="mostrarDetalleVenta('${v.IDVenta}')">🔍</button>
             </div>
           `;
@@ -385,26 +339,13 @@
         });
       });
     }
-    function confirmarEliminarVenta(idVenta) {
-      showModal("¿Eliminar esta venta? Esto no puede deshacerse.", function(){
-        showLoader("Eliminando venta...");
-        // Aquí deberías implementar la acción en Apps Script para eliminar la venta y su detalle
-        setTimeout(()=>{
-          hideLoader();
-          alert("Función eliminar venta no implementada en Apps Script.");
-        }, 900);
-      }, null, "Eliminar", "Cancelar");
-    }
-    function formEditarVenta(idVenta) {
-      showModal("La edición de ventas aún no está implementada.");
-    }
     function mostrarDetalleVenta(idv) {
       document.title = "Detalle de Venta - InventarioApp";
       cerrarSidebarSiMovil();
       cargarDatos(function(){
         const cont = document.getElementById('main');
-        let venta = DATA.ventas.find(v=>v.IDVenta===idv);
-        let detalles = DATA.detalleVentas.filter(d=>d.IDVenta===idv);
+        let venta = DATA.ventas.find(v=>v.IDVenta==idv);
+        let detalles = DATA.detalleVentas.filter(d=>d.IDVenta==idv);
         let totalCompra=0, totalVenta=0;
         let rows = detalles.map(d=>{
           let p = DATA.productos.find(pp=>pp.ID==d.IDProducto);
@@ -471,10 +412,6 @@
               Precio Compra: ${p.PrecioCompra} CUP<br>
               Precio Venta: ${p.PrecioVenta} CUP
             </div>
-            <div class="card-actions">
-              <button class="btn icon edit" title="Editar" onclick="formEditarProd('${p.ID}')">✏️</button>
-              <button class="btn icon danger" title="Eliminar" onclick="confirmarEliminarProd('${p.ID}')">🗑️</button>
-            </div>
           `;
           pl.appendChild(c);
         });
@@ -516,216 +453,22 @@
         precioCompra: parseFloat(form.precioCompra.value)||0,
         precioVenta: parseFloat(form.precioVenta.value)||0
       };
-      showModal("¿Agregar producto?", function() {
-        showLoader("Agregando...");
-        fetch(WEB_APP, {
-          method:'POST',
-          body: JSON.stringify({action:'addProd', ...datos})
-        }).then(_=>{
-          hideLoader();
-          cerrarFormProd();
-          mostrarProductos();
-        });
-      }, null, "Agregar", "Cancelar");
+      fetch(WEB_APP, {
+        method:'POST',
+        body: JSON.stringify({action:'addProd', ...datos})
+      }).then(_=>{
+        alert('Producto agregado');
+        cerrarFormProd();
+        mostrarProductos();
+      });
     }
     function cerrarFormProd() {
       const f = document.getElementById('form-prod');
       f.classList.add('hidden');
       f.innerHTML = '';
     }
-    function formEditarProd(id) {
-      const prod = DATA.productos.find(p=>p.ID==id);
-      const f = document.getElementById('form-prod');
-      f.classList.remove('hidden');
-      let provOptions = `<option value="">Seleccionar...</option>`;
-      DATA.proveedores.forEach(pr => {
-        provOptions += `<option value="${pr.ID}" ${prod.Proveedor == pr.ID ? "selected" : ""}>${pr.Nombre}</option>`;
-      });
-      f.innerHTML = `
-        <form id="editar-prod-form">
-          <label>Nombre <input name="nombre" value="${prod.Nombre}" required></label>
-          <label>Categoría <input name="categoria" value="${getCategoria(prod)}" required></label>
-          <label>Proveedor
-            <select name="proveedor" required>${provOptions}</select>
-          </label>
-          <label>Cantidad <input name="cantidad" type="number" min="0" value="${prod.Existencias}" required></label>
-          <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" value="${prod.PrecioCompra}" required></label>
-          <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" value="${prod.PrecioVenta}" required></label>
-          <button class="btn" type="submit">Actualizar</button>
-          <button class="btn danger" type="button" id="btn-eliminar-prod">Eliminar</button>
-          <button class="btn secondary" type="button" id="btn-salir-prod">Salir</button>
-        </form>
-      `;
-      document.getElementById('editar-prod-form').addEventListener('submit', function(e){ enviarEditarProd(e,id); });
-      document.getElementById('btn-eliminar-prod').addEventListener('click', function(){ confirmarEliminarProd(id); });
-      document.getElementById('btn-salir-prod').addEventListener('click', cerrarFormProd);
-    }
-    function enviarEditarProd(e, id) {
-      e.preventDefault();
-      const form = e.target;
-      const datos = {
-        id,
-        nombre: form.nombre.value,
-        categoria: form.categoria.value,
-        proveedor: form.proveedor.value,
-        cantidad: parseInt(form.cantidad.value)||0,
-        precioCompra: parseFloat(form.precioCompra.value)||0,
-        precioVenta: parseFloat(form.precioVenta.value)||0
-      };
-      showModal("¿Actualizar producto?", function() {
-        showLoader("Actualizando...");
-        fetch(WEB_APP, {
-          method:'POST',
-          body: JSON.stringify({action:'updProd', ...datos})
-        }).then(_=>{
-          hideLoader();
-          cerrarFormProd();
-          mostrarProductos();
-        });
-      }, null, "Actualizar", "Cancelar");
-    }
-    function confirmarEliminarProd(id) {
-      showModal("¿Eliminar este producto? Esta acción no puede deshacerse.", function() {
-        showLoader("Eliminando...");
-        fetch(WEB_APP, {
-          method:'POST',
-          body: JSON.stringify({ action:'delProd', id })
-        }).then(_=>{
-          hideLoader();
-          cerrarFormProd();
-          mostrarProductos();
-        });
-      }, null, "Eliminar", "Cancelar");
-    }
 
-    // ========== PROVEEDORES ==========
-    function mostrarProveedores() {
-      document.title = "Proveedores - InventarioApp";
-      cerrarSidebarSiMovil();
-      cargarDatos(function(){
-        const cont = document.getElementById('main');
-        cont.innerHTML = `<div class="header">Proveedores</div>
-          <button class="btn" id="btn-agregar-prov">+ Agregar Proveedor</button>
-          <div class="prov-list"></div>
-          <div id="form-pr" class="hidden"></div>`;
-        const pl = cont.querySelector('.prov-list');
-        DATA.proveedores.forEach(pr=>{
-          const c = document.createElement('div');
-          c.className = "card";
-          c.innerHTML = `
-            <span class="prov-title">${pr.Nombre}</span>
-            <div class="prov-details">
-              ${pr.Empresa ? "Empresa: "+pr.Empresa+"<br>":""}
-              ${pr.Teléfono ? "Teléfono: "+pr.Teléfono+"<br>":""}
-              ${pr.Correo ? "Correo: "+pr.Correo+"<br>":""}
-              ${pr.Dirección ? "Dirección: "+pr.Dirección:""}
-            </div>
-            <div class="card-actions">
-              <button class="btn icon edit" title="Editar" onclick="formEditarProv('${pr.ID}')">✏️</button>
-              <button class="btn icon danger" title="Eliminar" onclick="confirmarEliminarProv('${pr.ID}')">🗑️</button>
-            </div>
-          `;
-          pl.appendChild(c);
-        });
-        document.getElementById('btn-agregar-prov').addEventListener('click', formAgregarProv);
-      });
-    }
-    function formAgregarProv() {
-      const f = document.getElementById('form-pr');
-      f.classList.remove('hidden');
-      f.innerHTML = `
-        <form id="agregar-prov-form">
-          <label>Nombre <input name="nombre" required></label>
-          <label>Empresa <input name="empresa"></label>
-          <label>Teléfono <input name="telefono"></label>
-          <label>Correo <input name="correo" type="email"></label>
-          <label>Dirección <input name="direccion"></label>
-          <button class="btn" type="submit">Agregar Proveedor</button>
-          <button class="btn secondary" type="button" id="btn-cerrar-prov">Cancelar</button>
-        </form>
-      `;
-      document.getElementById('agregar-prov-form').addEventListener('submit', enviarAgregarProv);
-      document.getElementById('btn-cerrar-prov').addEventListener('click', cerrarFormProv);
-    }
-    function enviarAgregarProv(e) {
-      e.preventDefault();
-      const form = e.target;
-      const datos = {
-        nombre: form.nombre.value,
-        empresa: form.empresa.value,
-        telefono: form.telefono.value,
-        correo: form.correo.value,
-        direccion: form.direccion.value
-      };
-      showModal("¿Agregar proveedor?", function() {
-        showLoader("Agregando...");
-        fetch(WEB_APP, {
-          method:'POST',
-          body: JSON.stringify({action:'addProv', ...datos})
-        }).then(_=>{
-          hideLoader();
-          cerrarFormProv();
-          mostrarProveedores();
-        });
-      }, null, "Agregar", "Cancelar");
-    }
-    function cerrarFormProv() {
-      const f = document.getElementById('form-pr');
-      f.classList.add('hidden');
-      f.innerHTML = '';
-    }
-    function formEditarProv(id) {
-      const pr = DATA.proveedores.find(p=>p.ID==id);
-      const f = document.getElementById('form-pr');
-      f.classList.remove('hidden');
-      f.innerHTML = `
-        <form id="editar-prov-form">
-          <label>Nombre <input name="nombre" value="${pr.Nombre}" required></label>
-          <label>Empresa <input name="empresa" value="${pr.Empresa||''}"></label>
-          <label>Teléfono <input name="telefono" value="${pr.Teléfono||''}"></label>
-          <label>Correo <input name="correo" type="email" value="${pr.Correo||''}"></label>
-          <label>Dirección <input name="direccion" value="${pr.Dirección||''}"></label>
-          <button class="btn" type="submit">Actualizar</button>
-          <button class="btn danger" type="button" id="btn-eliminar-prov">Eliminar</button>
-          <button class="btn secondary" type="button" id="btn-salir-prov">Salir</button>
-        </form>
-      `;
-      document.getElementById('editar-prov-form').addEventListener('submit', function(e){
-        showModal("Actualización de proveedor no implementada en Apps Script.");
-      });
-      document.getElementById('btn-eliminar-prov').addEventListener('click', function(){
-        confirmarEliminarProv(id);
-      });
-      document.getElementById('btn-salir-prov').addEventListener('click', cerrarFormProv);
-    }
-    function confirmarEliminarProv(id) {
-      showModal("¿Eliminar este proveedor? Esta acción no puede deshacerse.", function() {
-        showLoader("Eliminando...");
-        setTimeout(()=>{
-          hideLoader();
-          alert("Función eliminar proveedor no implementada en Apps Script.");
-        },900);
-      }, null, "Eliminar", "Cancelar");
-    }
-
-    // ========== REPORTES ==========
-    function mostrarReportes() {
-      document.title = "Reportes - InventarioApp";
-      cerrarSidebarSiMovil();
-      cargarDatos(function(){
-        let hoy = new Date().toDateString();
-        let ventaHoy = 0, impHoy=0, ganHoy=0, ventasMes=0, ganMes=0, ventasTotales=0, impTot=0, ganTot=0;
-        let mes = new Date().getMonth();
-        DATA.ventas.forEach(v=>{
-          let dt = new Date(v.Fecha);
-          let venta = DATA.detalleVentas.filter(d=>d.IDVenta==v.IDVenta);
-          let gan = 0, cant = 0;
-          venta.forEach(d=>{
-            let prod = DATA.productos.find(p=>p.ID==d.IDProducto);
-            gan += (prod.PrecioVenta-prod.PrecioCompra)*d.Cantidad;
-            cant += parseInt(d.Cantidad)||0;
-          });
-          if (dt.toDateString()===hoy) {
+  
             impHoy += parseFloat(v.Total); ganHoy += gan; ventaHoy += cant;
           }
           if (dt.getMonth()===mes) {
@@ -774,19 +517,13 @@
       cargarDatos(mostrarNuevaVenta);
     });
 
-    window.formEditarProd = formEditarProd;
-    window.confirmarEliminarProd = confirmarEliminarProd;
-    window.formEditarProv = formEditarProv;
-    window.confirmarEliminarProv = confirmarEliminarProv;
-    window.mostrarDetalleVenta = mostrarDetalleVenta;
-    window.formEditarVenta = formEditarVenta;
-    window.confirmarEliminarVenta = confirmarEliminarVenta;
-    window.ajustarCantidad = ajustarCantidad;
     window.mostrarNuevaVenta = mostrarNuevaVenta;
     window.mostrarVentas = mostrarVentas;
     window.mostrarProductos = mostrarProductos;
     window.mostrarProveedores = mostrarProveedores;
     window.mostrarReportes = mostrarReportes;
+    window.ajustarCantidad = ajustarCantidad;
+    window.mostrarDetalleVenta = mostrarDetalleVenta;
   </script>
 </body>
 </html>
