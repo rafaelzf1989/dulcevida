@@ -26,14 +26,20 @@
     form { margin-bottom: 12px; }
     .prod-group { border:1px solid #eee; border-radius:8px; margin-bottom:18px; padding:10px; background:#f9f9f9; }
     .prod-details { font-size: 0.95em; color: #555; }
+    .item-btn { margin-left: 4px; }
+    .selected { background: #dff0d8 !important; }
+    .venta-resumen { font-weight: bold; margin-top: 16px; }
+    .disabled { opacity: .5; pointer-events: none;}
   </style>
+  <!-- Tabletop.js para leer Google Sheets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
   <script>
-    // URLs de tu proyecto
+    // Cambia estas URLs por las de TU PROYECTO
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQeVSv6a5jZIllKWXwgIMk0lGrjOr4aSLBXHVnRQrb2Gqehzt0JfoLgbvzjvk2ZPHZelS89dAF9awVX/pubhtml';
     const WEB_APP = 'https://script.google.com/macros/s/AKfycbyrB4-tvPPrMI_8NcJbvnrVECwAGcElWzdXnLgkVobqcMQpBO-EAlrG9aoPk0sxk9k7iw/exec';
 
     let hoja;
+    // Almacena los datos leídos de Tabletop
     function initApp() {
       Tabletop.init({
         key: SHEET_URL,
@@ -46,11 +52,16 @@
     }
     window.addEventListener('DOMContentLoaded', initApp);
 
-    // Helper para proveedor por ID
+    // Devuelve nombre del proveedor por ID
     function getProveedorNombre(id) {
       if (!hoja?.Proveedores) return id || '';
       const p = hoja.Proveedores.find(pr => pr.ID == id || pr.Nombre == id);
       return p ? p.Nombre : (id || '');
+    }
+    // Devuelve objeto proveedor por ID
+    function getProveedorObj(id) {
+      if (!hoja?.Proveedores) return null;
+      return hoja.Proveedores.find(pr => pr.ID == id || pr.Nombre == id) || null;
     }
   </script>
 </head>
@@ -69,12 +80,12 @@
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Nueva venta</h2>' +
       '<div id="categorias"></div>' +
-      '<p>Total: <span id="venta-total">0</span> CUP</p>' +
-      '<button class="btn" onclick="procesarVenta()">🧾 Registrar Venta</button>';
+      '<div class="venta-resumen">Total: <span id="venta-total">0</span> CUP</div>' +
+      '<button class="btn" id="btn-registrar-venta">🧾 Registrar Venta</button>';
 
     // Agrupar productos por categoría
     const categorias = {};
-    hoja.Productos.forEach(p => {
+    (hoja.Productos||[]).forEach(p => {
       if (!categorias[p.Categoría]) categorias[p.Categoría] = [];
       categorias[p.Categoría].push(p);
     });
@@ -96,9 +107,8 @@
             | Precio: ${p.PrecioVenta} CUP
             | Existencias: ${p.Existencias}
           </span>
-          <input type="number" min="0" max="${p.Existencias}" value="0"
-                 style="width:50px;"
-                 onchange="actualizaTotal('${p.ID}', ${p.PrecioVenta}, this.value)" />
+          <input class="venta-cant" type="number" min="0" max="${p.Existencias}" value="0"
+                 data-id="${p.ID}" data-precio="${p.PrecioVenta}" style="width:50px;" />
         `;
         ul.appendChild(li);
       });
@@ -107,17 +117,27 @@
     }
     window.ventaItems = {};
     window.ventaTotal = 0;
-  }
 
-  function actualizaTotal(id, precio, qty) {
-    qty = parseInt(qty)||0;
-    const prev = window.ventaItems[id]?.subtotal||0;
-    const now = precio * qty;
-    window.ventaItems[id] = { id, cantidad: qty, subtotal: now };
-    window.ventaTotal += now - prev;
-    document.getElementById('venta-total').textContent = window.ventaTotal;
-  }
+    // Escucha cambios en los inputs para el cálculo de venta
+    document.querySelectorAll('.venta-cant').forEach(inp => {
+      inp.addEventListener('input', function() {
+        const id = this.dataset.id, precio = Number(this.dataset.precio), qty = parseInt(this.value)||0;
+        const prev = window.ventaItems[id]?.subtotal||0;
+        const now = precio * qty;
+        window.ventaItems[id] = { id, cantidad: qty, subtotal: now };
+        window.ventaTotal += now - prev;
+        calcularTotalVenta();
+      });
+    });
 
+    document.getElementById('btn-registrar-venta').addEventListener('click', procesarVenta);
+  }
+  function calcularTotalVenta() {
+    let total = 0;
+    for (const k in window.ventaItems) if(window.ventaItems[k].cantidad>0) total += window.ventaItems[k].subtotal;
+    window.ventaTotal = total;
+    document.getElementById('venta-total').textContent = total;
+  }
   function procesarVenta() {
     const items = Object.values(window.ventaItems).filter(i=>i.cantidad>0);
     if (!items.length) return alert('Seleccione al menos 1 producto');
@@ -139,31 +159,36 @@
     const ul = cont.querySelector('#lv');
     (hoja.Ventas||[]).forEach(v => {
       const li = document.createElement('li');
-      li.textContent = `${new Date(v.Fecha).toLocaleString()} – ${v.Total} CUP`;
-      li.onclick = ()=>mostrarDetalleVenta(v.IDVenta);
+      li.innerHTML = `
+        <span>${new Date(v.Fecha).toLocaleString()} – ${v.Total} CUP</span>
+        <button class="item-btn" onclick="mostrarDetalleVenta('${v.IDVenta}')">🔍 Detalles</button>
+      `;
       ul.appendChild(li);
     });
   }
-
   function mostrarDetalleVenta(idv) {
     const cont = document.getElementById('main');
-    cont.innerHTML = '<h2>Detalle de venta</h2><ul id="ld"></ul>';
+    cont.innerHTML = '<h2>Detalle de venta</h2><ul id="ld"></ul><button class="btn" id="btn-volver-ventas">Volver</button>';
     const ul = cont.querySelector('#ld');
     (hoja.DetalleVentas||[])
       .filter(d=>d.IDVenta===idv)
       .forEach(d=>{
         const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
-        const li = document.createElement('li');
-        li.textContent = `${prod ? prod.Nombre : d.IDProducto} × ${d.Cantidad} = ${d.Subtotal} CUP`;
+        li = document.createElement('li');
+        li.innerHTML = `
+          <b>${prod ? prod.Nombre : d.IDProducto}</b>
+          <span class='prod-details'>| Cantidad: ${d.Cantidad} | Total: ${d.Subtotal} CUP</span>
+        `;
         ul.appendChild(li);
       });
+    document.getElementById('btn-volver-ventas').onclick = mostrarVentas;
   }
 
   // ========== PRODUCTOS ==========
   function mostrarProductos() {
     const cont = document.getElementById('main');
     cont.innerHTML = `<h2>Productos</h2>
-      <button class="btn" onclick="formAgregarProd()">+ Agregar Producto</button>
+      <button class="btn" id="btn-agregar-prod">+ Agregar Producto</button>
       <ul id="lp"></ul>
       <div id="form-prod" class="hidden"></div>`;
     const ul = cont.querySelector('#lp');
@@ -178,12 +203,12 @@
           | Precio Compra: ${p.PrecioCompra} CUP
           | Precio Venta: ${p.PrecioVenta} CUP
         </span>
-        <button onclick="formEditarProd('${p.ID}')">✏️</button>
+        <button class="item-btn" onclick="formEditarProd('${p.ID}')">✏️</button>
       `;
       ul.appendChild(li);
     });
+    document.getElementById('btn-agregar-prod').addEventListener('click', formAgregarProd);
   }
-
   // Formulario para agregar producto con proveedor desplegable
   function formAgregarProd() {
     const f = document.getElementById('form-prod');
@@ -194,7 +219,7 @@
       provOptions += `<option value="${pr.ID}">${pr.Nombre}</option>`;
     });
     f.innerHTML = `
-      <form id="agregar-prod-form" onsubmit="enviarAgregarProd(event)">
+      <form id="agregar-prod-form">
         <label>Nombre <input name="nombre" required></label>
         <label>Categoría <input name="categoria" required></label>
         <label>Proveedor
@@ -204,11 +229,12 @@
         <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" required></label>
         <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" required></label>
         <button class="btn" type="submit">Agregar al Inventario</button>
-        <button class="btn" type="button" onclick="cerrarFormProd()">Cancelar</button>
+        <button class="btn" type="button" id="btn-cerrar-prod">Cancelar</button>
       </form>
     `;
+    document.getElementById('agregar-prod-form').addEventListener('submit', enviarAgregarProd);
+    document.getElementById('btn-cerrar-prod').addEventListener('click', cerrarFormProd);
   }
-
   function enviarAgregarProd(e) {
     e.preventDefault();
     const form = e.target;
@@ -231,13 +257,11 @@
       mostrarProductos();
     });
   }
-
   function cerrarFormProd() {
     const f = document.getElementById('form-prod');
     f.classList.add('hidden');
     f.innerHTML = '';
   }
-
   // Editar producto con proveedor desplegable
   function formEditarProd(id) {
     const prod = hoja.Productos.find(p=>p.ID===id);
@@ -249,7 +273,7 @@
       provOptions += `<option value="${pr.ID}" ${prod.Proveedor == pr.ID ? "selected" : ""}>${pr.Nombre}</option>`;
     });
     f.innerHTML = `
-      <form id="editar-prod-form" onsubmit="enviarEditarProd(event, '${id}')">
+      <form id="editar-prod-form">
         <label>Nombre <input name="nombre" value="${prod.Nombre}" required></label>
         <label>Categoría <input name="categoria" value="${prod.Categoría}" required></label>
         <label>Proveedor
@@ -259,12 +283,14 @@
         <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" value="${prod.PrecioCompra}" required></label>
         <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" value="${prod.PrecioVenta}" required></label>
         <button class="btn" type="submit">Actualizar</button>
-        <button class="btn" type="button" onclick="borrarProd('${id}')">Eliminar</button>
-        <button class="btn" type="button" onclick="cerrarFormProd()">Salir</button>
+        <button class="btn" type="button" id="btn-eliminar-prod">Eliminar</button>
+        <button class="btn" type="button" id="btn-salir-prod">Salir</button>
       </form>
     `;
+    document.getElementById('editar-prod-form').addEventListener('submit', function(e){ enviarEditarProd(e,id); });
+    document.getElementById('btn-eliminar-prod').addEventListener('click', function(){ borrarProd(id); });
+    document.getElementById('btn-salir-prod').addEventListener('click', cerrarFormProd);
   }
-
   function enviarEditarProd(e, id) {
     e.preventDefault();
     const form = e.target;
@@ -288,7 +314,6 @@
       mostrarProductos();
     });
   }
-
   function borrarProd(id) {
     if(!confirm('Eliminar producto?')) return;
     fetch(WEB_APP, {
@@ -306,7 +331,7 @@
   function mostrarProveedores() {
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Proveedores</h2>'
-      + '<button class="btn" onclick="formAgregarProv()">+ Agregar Proveedor</button>'
+      + '<button class="btn" id="btn-agregar-prov">+ Agregar Proveedor</button>'
       + '<ul id="lpr"></ul><div id="form-pr" class="hidden"></div>';
     const ul = cont.querySelector('#lpr');
     (hoja.Proveedores||[]).forEach(pr=>{
@@ -314,10 +339,10 @@
       li.innerHTML = `
         <b>${pr.Nombre}</b>
         <span class="prod-details">
-          | Empresa: ${pr.Empresa||''}
-          | Teléfono: ${pr.Teléfono||''}
-          | Correo: ${pr.Correo||''}
-          | Dirección: ${pr.Dirección||''}
+          ${pr.Empresa ? "| Empresa: " + pr.Empresa : ""}
+          ${pr.Teléfono ? "| Teléfono: " + pr.Teléfono : ""}
+          ${pr.Correo ? "| Correo: " + pr.Correo : ""}
+          ${pr.Dirección ? "| Dirección: " + pr.Dirección : ""}
         </span>
         <button title="Llamar" onclick="location.href='tel:${pr.Teléfono}'">📞</button>
         <button title="SMS" onclick="location.href='sms:${pr.Teléfono}'">💬</button>
@@ -325,24 +350,25 @@
       `;
       ul.appendChild(li);
     });
+    document.getElementById('btn-agregar-prov').addEventListener('click', formAgregarProv);
   }
-
   function formAgregarProv() {
     const f = document.getElementById('form-pr');
     f.classList.remove('hidden');
     f.innerHTML = `
-      <form id="agregar-prov-form" onsubmit="enviarAgregarProv(event)">
+      <form id="agregar-prov-form">
         <label>Nombre <input name="nombre" required></label>
         <label>Empresa <input name="empresa"></label>
         <label>Teléfono <input name="telefono"></label>
         <label>Correo <input name="correo" type="email"></label>
         <label>Dirección <input name="direccion"></label>
         <button class="btn" type="submit">Agregar Proveedor</button>
-        <button class="btn" type="button" onclick="cerrarFormProv()">Cancelar</button>
+        <button class="btn" type="button" id="btn-cerrar-prov">Cancelar</button>
       </form>
     `;
+    document.getElementById('agregar-prov-form').addEventListener('submit', enviarAgregarProv);
+    document.getElementById('btn-cerrar-prov').addEventListener('click', cerrarFormProv);
   }
-
   function enviarAgregarProv(e) {
     e.preventDefault();
     const form = e.target;
@@ -364,7 +390,6 @@
       mostrarProveedores();
     });
   }
-
   function cerrarFormProv() {
     const f = document.getElementById('form-pr');
     f.classList.add('hidden');
@@ -407,6 +432,18 @@
       <p>Ganancia del Mes: ${ganMes} CUP</p>
     `;
   }
+
+  // Hacer funciones globales por si Tabletop cambia el scope
+  window.formAgregarProd = formAgregarProd;
+  window.enviarAgregarProd = enviarAgregarProd;
+  window.cerrarFormProd = cerrarFormProd;
+  window.formEditarProd = formEditarProd;
+  window.enviarEditarProd = enviarEditarProd;
+  window.borrarProd = borrarProd;
+  window.formAgregarProv = formAgregarProv;
+  window.enviarAgregarProv = enviarAgregarProv;
+  window.cerrarFormProv = cerrarFormProv;
+  window.mostrarDetalleVenta = mostrarDetalleVenta;
 </script>
 </body>
 </html>
