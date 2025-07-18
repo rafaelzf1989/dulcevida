@@ -485,7 +485,8 @@
 
     // ========== INICIO ==========
     window.addEventListener('DOMContentLoaded', function(){
-      // Cargar datos y abrir "Nueva Venta" al inicio
+      // Sidebar oculto al inicio y abre "Nueva Venta"
+      document.getElementById('sidebar').classList.remove('visible');
       cargarDatos(mostrarNuevaVenta);
     });
   </script>
@@ -503,9 +504,5 @@
     <button onclick="mostrarReportes();toggleSidebar(false)">📊 Reportes</button>
   </div>
   <div id="main"></div>
-  <script>
-    // Sidebar debe estar oculto al inicio
-    document.getElementById('sidebar').classList.remove('visible');
-  </script>
 </body>
 </html>
