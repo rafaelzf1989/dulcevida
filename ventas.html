@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <title>InventarioApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <!-- ==== ESTILOS ==== -->
   <style>
     body { margin:0; font-family: sans-serif; display:flex; }
     #sidebar {
@@ -23,21 +21,19 @@
     ul { list-style:none; padding:0; }
     li { margin-bottom:8px; }
     h3 { margin-bottom: 0; margin-top: 1em; }
-    input, select { margin-bottom:8px; }
     label { display:block; margin-top:8px; }
+    input, select { margin-bottom:8px; }
     form { margin-bottom: 12px; }
+    .prod-group { border:1px solid #eee; border-radius:8px; margin-bottom:18px; padding:10px; background:#f9f9f9; }
+    .prod-details { font-size: 0.95em; color: #555; }
   </style>
-
-  <!-- Tabletop.js para leer Google Sheets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
-
   <script>
-    // Cambia estas URLs por las reales de tu proyecto
+    // URLs de tu proyecto
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQeVSv6a5jZIllKWXwgIMk0lGrjOr4aSLBXHVnRQrb2Gqehzt0JfoLgbvzjvk2ZPHZelS89dAF9awVX/pubhtml';
     const WEB_APP = 'https://script.google.com/macros/s/AKfycbyrB4-tvPPrMI_8NcJbvnrVECwAGcElWzdXnLgkVobqcMQpBO-EAlrG9aoPk0sxk9k7iw/exec';
 
     let hoja;
-
     function initApp() {
       Tabletop.init({
         key: SHEET_URL,
@@ -49,10 +45,16 @@
       });
     }
     window.addEventListener('DOMContentLoaded', initApp);
+
+    // Helper para proveedor por ID
+    function getProveedorNombre(id) {
+      if (!hoja?.Proveedores) return id || '';
+      const p = hoja.Proveedores.find(pr => pr.ID == id || pr.Nombre == id);
+      return p ? p.Nombre : (id || '');
+    }
   </script>
 </head>
 <body>
-  <!-- ==== MENÚ LATERAL ==== -->
   <div id="sidebar">
     <button onclick="mostrarNuevaVenta()">🛒 Nueva venta</button>
     <button onclick="mostrarVentas()">📋 Ventas</button>
@@ -60,12 +62,9 @@
     <button onclick="mostrarProveedores()">👥 Proveedores</button>
     <button onclick="mostrarReportes()">📊 Reportes</button>
   </div>
-
-  <!-- ==== SECCIÓN PRINCIPAL ==== -->
   <div id="main"></div>
-
 <script>
-  // ============= NUEVA VENTA (agrupado por categoría) =============
+  // ========== NUEVA VENTA ==========
   function mostrarNuevaVenta() {
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Nueva venta</h2>' +
@@ -73,6 +72,7 @@
       '<p>Total: <span id="venta-total">0</span> CUP</p>' +
       '<button class="btn" onclick="procesarVenta()">🧾 Registrar Venta</button>';
 
+    // Agrupar productos por categoría
     const categorias = {};
     hoja.Productos.forEach(p => {
       if (!categorias[p.Categoría]) categorias[p.Categoría] = [];
@@ -81,21 +81,29 @@
 
     const catDiv = cont.querySelector('#categorias');
     for (let cat in categorias) {
+      const group = document.createElement('div');
+      group.className = "prod-group";
       const h3 = document.createElement('h3');
       h3.textContent = cat;
-      catDiv.appendChild(h3);
+      group.appendChild(h3);
       const ul = document.createElement('ul');
       categorias[cat].forEach(p => {
         const li = document.createElement('li');
         li.innerHTML = `
-          ${p.Nombre} (${p.Existencias}) – ${p.PrecioVenta} CUP
+          <b>${p.Nombre}</b>
+          <span class="prod-details">
+            | Proveedor: ${getProveedorNombre(p.Proveedor)}
+            | Precio: ${p.PrecioVenta} CUP
+            | Existencias: ${p.Existencias}
+          </span>
           <input type="number" min="0" max="${p.Existencias}" value="0"
                  style="width:50px;"
                  onchange="actualizaTotal('${p.ID}', ${p.PrecioVenta}, this.value)" />
         `;
         ul.appendChild(li);
       });
-      catDiv.appendChild(ul);
+      group.appendChild(ul);
+      catDiv.appendChild(group);
     }
     window.ventaItems = {};
     window.ventaTotal = 0;
@@ -124,12 +132,12 @@
     });
   }
 
-  // ============= LISTAR VENTAS =============
+  // ========== VENTAS ==========
   function mostrarVentas() {
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Ventas</h2><ul id="lv"></ul>';
     const ul = cont.querySelector('#lv');
-    hoja.Ventas.forEach(v => {
+    (hoja.Ventas||[]).forEach(v => {
       const li = document.createElement('li');
       li.textContent = `${new Date(v.Fecha).toLocaleString()} – ${v.Total} CUP`;
       li.onclick = ()=>mostrarDetalleVenta(v.IDVenta);
@@ -141,17 +149,17 @@
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Detalle de venta</h2><ul id="ld"></ul>';
     const ul = cont.querySelector('#ld');
-    hoja.DetalleVentas
+    (hoja.DetalleVentas||[])
       .filter(d=>d.IDVenta===idv)
       .forEach(d=>{
         const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
         const li = document.createElement('li');
-        li.textContent = `${prod.Nombre} × ${d.Cantidad} = ${d.Subtotal} CUP`;
+        li.textContent = `${prod ? prod.Nombre : d.IDProducto} × ${d.Cantidad} = ${d.Subtotal} CUP`;
         ul.appendChild(li);
       });
   }
 
-  // ============= CRUD DE PRODUCTOS (ahora con formulario HTML) =============
+  // ========== PRODUCTOS ==========
   function mostrarProductos() {
     const cont = document.getElementById('main');
     cont.innerHTML = `<h2>Productos</h2>
@@ -159,26 +167,39 @@
       <ul id="lp"></ul>
       <div id="form-prod" class="hidden"></div>`;
     const ul = cont.querySelector('#lp');
-    hoja.Productos.forEach(p=>{
+    (hoja.Productos||[]).forEach(p=>{
       const li = document.createElement('li');
       li.innerHTML = `
-        ${p.Nombre} – ${p.Proveedor} – ${p.Existencias} – ${p.PrecioVenta} CUP
+        <b>${p.Nombre}</b>
+        <span class="prod-details">
+          | Categoría: ${p.Categoría}
+          | Proveedor: ${getProveedorNombre(p.Proveedor)}
+          | Existencias: ${p.Existencias}
+          | Precio Compra: ${p.PrecioCompra} CUP
+          | Precio Venta: ${p.PrecioVenta} CUP
+        </span>
         <button onclick="formEditarProd('${p.ID}')">✏️</button>
       `;
       ul.appendChild(li);
     });
   }
 
-  // Muestra formulario para agregar producto
+  // Formulario para agregar producto con proveedor desplegable
   function formAgregarProd() {
     const f = document.getElementById('form-prod');
     f.classList.remove('hidden');
-    // Crea formulario HTML
+    const proveedores = hoja.Proveedores || [];
+    let provOptions = `<option value="">Seleccionar...</option>`;
+    proveedores.forEach(pr => {
+      provOptions += `<option value="${pr.ID}">${pr.Nombre}</option>`;
+    });
     f.innerHTML = `
       <form id="agregar-prod-form" onsubmit="enviarAgregarProd(event)">
         <label>Nombre <input name="nombre" required></label>
         <label>Categoría <input name="categoria" required></label>
-        <label>Proveedor <input name="proveedor"></label>
+        <label>Proveedor
+          <select name="proveedor" required>${provOptions}</select>
+        </label>
         <label>Cantidad <input name="cantidad" type="number" min="0" required></label>
         <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" required></label>
         <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" required></label>
@@ -188,7 +209,6 @@
     `;
   }
 
-  // Envía los datos del producto al backend
   function enviarAgregarProd(e) {
     e.preventDefault();
     const form = e.target;
@@ -212,23 +232,29 @@
     });
   }
 
-  // Cerrar formulario de producto
   function cerrarFormProd() {
     const f = document.getElementById('form-prod');
     f.classList.add('hidden');
     f.innerHTML = '';
   }
 
-  // Editar producto existente
+  // Editar producto con proveedor desplegable
   function formEditarProd(id) {
     const prod = hoja.Productos.find(p=>p.ID===id);
     const f = document.getElementById('form-prod');
     f.classList.remove('hidden');
+    const proveedores = hoja.Proveedores || [];
+    let provOptions = `<option value="">Seleccionar...</option>`;
+    proveedores.forEach(pr => {
+      provOptions += `<option value="${pr.ID}" ${prod.Proveedor == pr.ID ? "selected" : ""}>${pr.Nombre}</option>`;
+    });
     f.innerHTML = `
       <form id="editar-prod-form" onsubmit="enviarEditarProd(event, '${id}')">
         <label>Nombre <input name="nombre" value="${prod.Nombre}" required></label>
         <label>Categoría <input name="categoria" value="${prod.Categoría}" required></label>
-        <label>Proveedor <input name="proveedor" value="${prod.Proveedor||''}"></label>
+        <label>Proveedor
+          <select name="proveedor" required>${provOptions}</select>
+        </label>
         <label>Cantidad <input name="cantidad" type="number" min="0" value="${prod.Existencias}" required></label>
         <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" value="${prod.PrecioCompra}" required></label>
         <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" value="${prod.PrecioVenta}" required></label>
@@ -239,7 +265,6 @@
     `;
   }
 
-  // Envía los datos editados del producto al backend
   function enviarEditarProd(e, id) {
     e.preventDefault();
     const form = e.target;
@@ -264,7 +289,6 @@
     });
   }
 
-  // Eliminar producto
   function borrarProd(id) {
     if(!confirm('Eliminar producto?')) return;
     fetch(WEB_APP, {
@@ -278,17 +302,23 @@
     });
   }
 
-  // ============= CRUD DE PROVEEDORES (formulario HTML) =============
+  // ========== PROVEEDORES ==========
   function mostrarProveedores() {
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Proveedores</h2>'
       + '<button class="btn" onclick="formAgregarProv()">+ Agregar Proveedor</button>'
       + '<ul id="lpr"></ul><div id="form-pr" class="hidden"></div>';
     const ul = cont.querySelector('#lpr');
-    hoja.Proveedores.forEach(pr=>{
+    (hoja.Proveedores||[]).forEach(pr=>{
       const li = document.createElement('li');
       li.innerHTML = `
-        ${pr.Nombre} – ${pr.Empresa||''}
+        <b>${pr.Nombre}</b>
+        <span class="prod-details">
+          | Empresa: ${pr.Empresa||''}
+          | Teléfono: ${pr.Teléfono||''}
+          | Correo: ${pr.Correo||''}
+          | Dirección: ${pr.Dirección||''}
+        </span>
         <button title="Llamar" onclick="location.href='tel:${pr.Teléfono}'">📞</button>
         <button title="SMS" onclick="location.href='sms:${pr.Teléfono}'">💬</button>
         <button title="Correo" onclick="location.href='mailto:${pr.Correo}'">✉️</button>
@@ -341,14 +371,14 @@
     f.innerHTML = '';
   }
 
-  // ============= REPORTES =============
+  // ========== REPORTES ==========
   function mostrarReportes() {
     const hoy = new Date().toDateString();
     let ventaHoy = 0, impHoy=0, ganHoy=0;
-    hoja.Ventas.forEach(v=>{
+    (hoja.Ventas||[]).forEach(v=>{
       if (new Date(v.Fecha).toDateString()===hoy) {
         impHoy += parseFloat(v.Total);
-        hoja.DetalleVentas
+        (hoja.DetalleVentas||[])
           .filter(d=>d.IDVenta===v.IDVenta)
           .forEach(d=>{
             const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
@@ -359,9 +389,9 @@
     });
     const mes = new Date().getMonth();
     let ganMes = 0;
-    hoja.Ventas.forEach(v=>{
+    (hoja.Ventas||[]).forEach(v=>{
       if (new Date(v.Fecha).getMonth()===mes) {
-        hoja.DetalleVentas
+        (hoja.DetalleVentas||[])
           .filter(d=>d.IDVenta===v.IDVenta)
           .forEach(d=>{
             const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
