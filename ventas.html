@@ -156,6 +156,13 @@
  
   <div id="modal-bg" class="modal-bg hidden"></div>
   <script>
+// mensaje si hay error en la carga
+    window.onerror = function(msg, url, line, col, error) {
+  document.body.innerHTML = "<pre style='background:#fee;color:#a00;padding:2em;font-size:1.2em;'>"
+    + "ERROR DE JAVASCRIPT:\n" + msg + "\n" + (error && error.stack ? error.stack : "") + "</pre>";
+};
+
+    
     // URL de tu Apps Script:
     const WEB_APP = 'https://script.google.com/macros/s/AKfycbwHArgHdYsyV22lU4XrrhxQtwQ9uLmj5Bo5d4MMmDBCJjDZUMzFx43hKzSX6CWFiMEC4w/exec';
 
