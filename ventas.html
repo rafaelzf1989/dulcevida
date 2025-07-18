@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>InventarioApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body { margin:0; font-family: sans-serif; display:flex; }
+    #sidebar {
+      width:200px; background:#2c3e50; color:#ecf0f1; height:100vh;
+      padding-top:20px; box-sizing:border-box;
+    }
+    #sidebar button {
+      width:100%; padding:12px; border:none; background:transparent;
+      color:inherit; text-align:left; cursor:pointer; outline:none;
+    }
+    #sidebar button:hover { background:#34495e; }
+    #main { flex:1; padding:20px; overflow:auto; }
+    .hidden { display:none; }
+    .form-iframe { width:100%; border:0; height:400px; }
+    .btn { padding:6px 12px; margin:6px 0; cursor:pointer; }
+    ul { list-style:none; padding:0; }
+    li { margin-bottom:8px; }
+  </style>
+
+  <!-- Tabletop.js para lectura directa de tu Sheet -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
+
+  <script>
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/2PACX-1vQeVSv6a5jZIllKWXwgIMk0lGrjOr4aSLBXHVnRQrb2Gqehzt0JfoLgbvzjvk2ZPHZelS89dAF9awVX/pubhtml';
+    const WEB_APP = 'https://script.google.com/macros/s/AKfycbwk1zDSB9XEX8fzWodfSKrci5Ahnw7rmGfyKKYVf7FrPiqD5JgwZ0eonqwmpmjNLPtJEg/exec';
+    let hoja;
+
+    function initApp() {
+      Tabletop.init({
+        key: SHEET_URL,
+        callback: data => {
+          hoja = data;
+          mostrarNuevaVenta();
+        },
+        simpleSheet: false
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
+</head>
+<body>
+  <div id="sidebar">
+    <button onclick="mostrarNuevaVenta()">?? Nueva venta</button>
+    <button onclick="mostrarVentas()">?? Ventas</button>
+    <button onclick="mostrarProductos()">?? Productos</button>
+    <button onclick="mostrarProveedores()">?? Proveedores</button>
+    <button onclick="mostrarReportes()">?? Reportes</button>
+  </div>
+
+  <div id="main"><!-- Aquí carga cada sección --></div>
+
+<script>
+  // ------------ NUEVA VENTA ------------
+  function mostrarNuevaVenta() {
+    const cont = document.getElementById('main');
+    cont.innerHTML = '<h2>Nueva venta</h2>'
+      + '<ul id="lista-prod"></ul>'
+      + '<p>Total: <span id="venta-total">0</span> CUP</p>'
+      + '<button class="btn" onclick="procesarVenta()">?? Registrar Venta</button>';
+    const ul = cont.querySelector('#lista-prod');
+    let total = 0;
+    hoja.Productos.forEach(p => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${p.Categoría} – ${p.Nombre} (${p.Existencias})
+        – ${p.PrecioVenta} CUP
+        <input type="number" min="0" max="${p.Existencias}" value="0"
+               style="width:50px;"
+               onchange="actualizaTotal('${p.ID}', ${p.PrecioVenta}, this.value)" />
+      `;
+      ul.appendChild(li);
+    });
+    window.ventaItems = {};  // obj { idProducto: {cantidad, subtotal} }
+    window.ventaTotal = 0;
+  }
+
+  function actualizaTotal(id, precio, qty) {
+    qty = parseInt(qty)||0;
+    const prev = window.ventaItems[id]?.subtotal||0;
+    const now = precio * qty;
+    window.ventaItems[id] = { id, cantidad: qty, subtotal: now };
+    window.ventaTotal += now - prev;
+    document.getElementById('venta-total').textContent = window.ventaTotal;
+  }
+
+  function procesarVenta() {
+    const items = Object.values(window.ventaItems).filter(i=>i.cantidad>0);
+    if (!items.length) return alert('Seleccione al menos 1 producto');
+    fetch(WEB_APP, {
+      method:'POST',
+      body: JSON.stringify({ total: window.ventaTotal, items })
+    })
+    .then(r=>r.json())
+    .then(_=>{
+      alert('Venta registrada');
+      initApp();  // recarga datos y vuelve a Nueva venta
+    });
+  }
+
+  // ------------ LISTAR VENTAS ------------
+  function mostrarVentas() {
+    const cont = document.getElementById('main');
+    cont.innerHTML = '<h2>Ventas</h2><ul id="lv"></ul>';
+    const ul = cont.querySelector('#lv');
+    hoja.Ventas.forEach(v => {
+      const li = document.createElement('li');
+      li.textContent = `${new Date(v.Fecha).toLocaleString()} – ${v.Total} CUP`;
+      li.onclick = ()=>mostrarDetalleVenta(v.IDVenta);
+      ul.appendChild(li);
+    });
+  }
+
+  function mostrarDetalleVenta(idv) {
+    const cont = document.getElementById('main');
+    cont.innerHTML = '<h2>Detalle de venta</h2><ul id="ld"></ul>';
+    const ul = cont.querySelector('#ld');
+    hoja.DetalleVentas
+      .filter(d=>d.IDVenta===idv)
+      .forEach(d=>{
+        const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
+        const li = document.createElement('li');
+        li.textContent = `${prod.Nombre} × ${d.Cantidad} = ${d.Subtotal} CUP`;
+        ul.appendChild(li);
+      });
+  }
+
+  // ------------ PRODUCTOS (CRUD) ------------
+  function mostrarProductos() {
+    const cont = document.getElementById('main');
+    cont.innerHTML = '<h2>Productos</h2>'
+      + '<button class="btn" onclick="formAgregarProd()">+ Agregar Producto</button>'
+      + '<ul id="lp"></ul>'
+      + '<div id="form-prod" class="hidden"></div>';
+    const ul = cont.querySelector('#lp');
+    hoja.Productos.forEach(p=>{
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${p.Nombre} – ${p.Proveedor} – ${p.Existencias} – ${p.PrecioVenta} CUP
+        <button onclick="formEditarProd('${p.ID}')">??</button>
+      `;
+      ul.appendChild(li);
+    });
+  }
+
+  function formAgregarProd() {
+    const f = document.getElementById('form-prod');
+    f.classList.remove('hidden');
+    f.innerHTML = `
+      <iframe src="https://docs.google.com/forms/d/e/FORM_PRODUCTOS_ID/viewform?embedded=true"
+              class="form-iframe"></iframe>
+      <button class="btn" onclick="mostrarProductos()">Cancelar</button>
+    `;
+  }
+
+  function formEditarProd(id) {
+    const prod = hoja.Productos.find(p=>p.ID===id);
+    const f = document.getElementById('form-prod');
+    f.classList.remove('hidden');
+    f.innerHTML = `
+      <h3>Editar ${prod.Nombre}</h3>
+      <label>Cantidad <input id="e-cant" type="number" value="${prod.Existencias}"></label><br>
+      <label>Precio Venta <input id="e-pv" type="number" value="${prod.PrecioVenta}"></label><br>
+      <button class="btn" onclick="actualizarProd('${id}')">Actualizar</button>
+      <button class="btn" onclick="borrarProd('${id}')">Eliminar</button>
+      <button class="btn" onclick="mostrarProductos()">Salir</button>
+    `;
+  }
+
+  function actualizarProd(id) {
+    const cant = parseInt(document.getElementById('e-cant').value)||0;
+    const pv = parseFloat(document.getElementById('e-pv').value)||0;
+    fetch(WEB_APP, {
+      method:'POST',
+      body: JSON.stringify({ action:'updProd', id, cant, pv })
+    }).then(_=>{
+      alert('Producto actualizado');
+      initApp(); mostrarProductos();
+    });
+  }
+
+  function borrarProd(id) {
+    if(!confirm('Eliminar producto?')) return;
+    fetch(WEB_APP, {
+      method:'POST',
+      body: JSON.stringify({ action:'delProd', id })
+    }).then(_=>{
+      alert('Producto eliminado');
+      initApp(); mostrarProductos();
+    });
+  }
+
+  // ------------ PROVEEDORES ------------
+  function mostrarProveedores() {
+    const cont = document.getElementById('main');
+    cont.innerHTML = '<h2>Proveedores</h2>'
+      + '<button class="btn" onclick="formAgregarProv()">+ Agregar Proveedor</button>'
+      + '<ul id="lpr"></ul><div id="form-pr" class="hidden"></div>';
+    const ul = cont.querySelector('#lpr');
+    hoja.Proveedores.forEach(pr=>{
+      const li = document.createElement('li');
+      li.innerHTML = `
+        ${pr.Nombre} – ${pr.Empresa||''}
+        <button onclick="location.href='tel:${pr.Teléfono}'">??</button>
+        <button onclick="location.href='sms:${pr.Teléfono}'">??</button>
+        <button onclick="location.href='mailto:${pr.Correo}'">??</button>
+      `;
+      ul.appendChild(li);
+    });
+  }
+
+  function formAgregarProv() {
+    const f = document.getElementById('form-pr');
+    f.classList.remove('hidden');
+    f.innerHTML = `
+      <iframe src="https://docs.google.com/forms/d/e/FORM_PROVEEDORES_ID/viewform?embedded=true"
+              class="form-iframe"></iframe>
+      <button class="btn" onclick="mostrarProveedores()">Cancelar</button>
+    `;
+  }
+
+  // ------------ REPORTES ------------
+  function mostrarReportes() {
+    const hoy = new Date().toDateString();
+    let ventaHoy = 0, impHoy=0, ganHoy=0;
+    hoja.Ventas.forEach(v=>{
+      if (new Date(v.Fecha).toDateString()===hoy) {
+        impHoy += parseFloat(v.Total);
+        hoja.DetalleVentas
+          .filter(d=>d.IDVenta===v.IDVenta)
+          .forEach(d=>{
+            const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
+            ganHoy += (prod.PrecioVenta - prod.PrecioCompra)*d.Cantidad;
+            ventaHoy += d.Cantidad;
+          });
+      }
+    });
+    const mes = new Date().getMonth();
+    let ganMes = 0;
+    hoja.Ventas.forEach(v=>{
+      if (new Date(v.Fecha).getMonth()===mes) {
+        hoja.DetalleVentas
+          .filter(d=>d.IDVenta===v.IDVenta)
+          .forEach(d=>{
+            const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
+            ganMes += (prod.PrecioVenta - prod.PrecioCompra)*d.Cantidad;
+          });
+      }
+    });
+    document.getElementById('main').innerHTML = `
+      <h2>Reportes</h2>
+      <p>Ventas de Hoy: ${ventaHoy}</p>
+      <p>Importe Diario: ${impHoy} CUP</p>
+      <p>Ganancia Diaria: ${ganHoy} CUP</p>
+      <p>Ganancia del Mes: ${ganMes} CUP</p>
+    `;
+  }
+</script>
+</body>
+</html>
+
