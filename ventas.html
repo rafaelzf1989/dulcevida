@@ -5,6 +5,7 @@
   <title>InventarioApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
+  <!-- ==== ESTILOS ==== -->
   <style>
     body { margin:0; font-family: sans-serif; display:flex; }
     #sidebar {
@@ -18,18 +19,22 @@
     #sidebar button:hover { background:#34495e; }
     #main { flex:1; padding:20px; overflow:auto; }
     .hidden { display:none; }
-    .form-iframe { width:100%; border:0; height:400px; }
     .btn { padding:6px 12px; margin:6px 0; cursor:pointer; }
     ul { list-style:none; padding:0; }
     li { margin-bottom:8px; }
+    h3 { margin-bottom: 0; margin-top: 1em; }
+    input, select { margin-bottom:8px; }
+    label { display:block; margin-top:8px; }
+    form { margin-bottom: 12px; }
   </style>
 
-  <!-- Tabletop.js para lectura directa de tu Sheet -->
+  <!-- Tabletop.js para leer Google Sheets -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tabletop.js/1.5.1/tabletop.min.js"></script>
 
   <script>
+    // Cambia estas URLs por las reales de tu proyecto
     const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQeVSv6a5jZIllKWXwgIMk0lGrjOr4aSLBXHVnRQrb2Gqehzt0JfoLgbvzjvk2ZPHZelS89dAF9awVX/pubhtml';
-    const const WEB_APP = 'https://script.google.com/macros/s/AKfycbwk1zDSB9XEX8fzWodfSKrci5Ahnw7rmGfyKKYVf7FrPiqD5JgwZ0eonqwmpmjNLPtJEg/exec';
+    const WEB_APP = 'https://script.google.com/macros/s/AKfycbyrB4-tvPPrMI_8NcJbvnrVECwAGcElWzdXnLgkVobqcMQpBO-EAlrG9aoPk0sxk9k7iw/exec';
 
     let hoja;
 
@@ -43,43 +48,56 @@
         simpleSheet: false
       });
     }
-
     window.addEventListener('DOMContentLoaded', initApp);
   </script>
 </head>
 <body>
+  <!-- ==== MENÚ LATERAL ==== -->
   <div id="sidebar">
-    <button onclick="mostrarNuevaVenta()">?? Nueva venta</button>
-    <button onclick="mostrarVentas()">?? Ventas</button>
-    <button onclick="mostrarProductos()">?? Productos</button>
-    <button onclick="mostrarProveedores()">?? Proveedores</button>
-    <button onclick="mostrarReportes()">?? Reportes</button>
+    <button onclick="mostrarNuevaVenta()">🛒 Nueva venta</button>
+    <button onclick="mostrarVentas()">📋 Ventas</button>
+    <button onclick="mostrarProductos()">📦 Productos</button>
+    <button onclick="mostrarProveedores()">👥 Proveedores</button>
+    <button onclick="mostrarReportes()">📊 Reportes</button>
   </div>
 
-  <div id="main"><!-- Aquí carga cada sección --></div>
+  <!-- ==== SECCIÓN PRINCIPAL ==== -->
+  <div id="main"></div>
 
 <script>
-  // ------------ NUEVA VENTA ------------
+  // ============= NUEVA VENTA (agrupado por categoría) =============
   function mostrarNuevaVenta() {
     const cont = document.getElementById('main');
-    cont.innerHTML = '<h2>Nueva venta</h2>'
-      + '<ul id="lista-prod"></ul>'
-      + '<p>Total: <span id="venta-total">0</span> CUP</p>'
-      + '<button class="btn" onclick="procesarVenta()">?? Registrar Venta</button>';
-    const ul = cont.querySelector('#lista-prod');
-    let total = 0;
+    cont.innerHTML = '<h2>Nueva venta</h2>' +
+      '<div id="categorias"></div>' +
+      '<p>Total: <span id="venta-total">0</span> CUP</p>' +
+      '<button class="btn" onclick="procesarVenta()">🧾 Registrar Venta</button>';
+
+    const categorias = {};
     hoja.Productos.forEach(p => {
-      const li = document.createElement('li');
-      li.innerHTML = `
-        ${p.Categoría} – ${p.Nombre} (${p.Existencias})
-        – ${p.PrecioVenta} CUP
-        <input type="number" min="0" max="${p.Existencias}" value="0"
-               style="width:50px;"
-               onchange="actualizaTotal('${p.ID}', ${p.PrecioVenta}, this.value)" />
-      `;
-      ul.appendChild(li);
+      if (!categorias[p.Categoría]) categorias[p.Categoría] = [];
+      categorias[p.Categoría].push(p);
     });
-    window.ventaItems = {};  // obj { idProducto: {cantidad, subtotal} }
+
+    const catDiv = cont.querySelector('#categorias');
+    for (let cat in categorias) {
+      const h3 = document.createElement('h3');
+      h3.textContent = cat;
+      catDiv.appendChild(h3);
+      const ul = document.createElement('ul');
+      categorias[cat].forEach(p => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          ${p.Nombre} (${p.Existencias}) – ${p.PrecioVenta} CUP
+          <input type="number" min="0" max="${p.Existencias}" value="0"
+                 style="width:50px;"
+                 onchange="actualizaTotal('${p.ID}', ${p.PrecioVenta}, this.value)" />
+        `;
+        ul.appendChild(li);
+      });
+      catDiv.appendChild(ul);
+    }
+    window.ventaItems = {};
     window.ventaTotal = 0;
   }
 
@@ -102,11 +120,11 @@
     .then(r=>r.json())
     .then(_=>{
       alert('Venta registrada');
-      initApp();  // recarga datos y vuelve a Nueva venta
+      initApp();
     });
   }
 
-  // ------------ LISTAR VENTAS ------------
+  // ============= LISTAR VENTAS =============
   function mostrarVentas() {
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Ventas</h2><ul id="lv"></ul>';
@@ -133,60 +151,120 @@
       });
   }
 
-  // ------------ PRODUCTOS (CRUD) ------------
+  // ============= CRUD DE PRODUCTOS (ahora con formulario HTML) =============
   function mostrarProductos() {
     const cont = document.getElementById('main');
-    cont.innerHTML = '<h2>Productos</h2>'
-      + '<button class="btn" onclick="formAgregarProd()">+ Agregar Producto</button>'
-      + '<ul id="lp"></ul>'
-      + '<div id="form-prod" class="hidden"></div>';
+    cont.innerHTML = `<h2>Productos</h2>
+      <button class="btn" onclick="formAgregarProd()">+ Agregar Producto</button>
+      <ul id="lp"></ul>
+      <div id="form-prod" class="hidden"></div>`;
     const ul = cont.querySelector('#lp');
     hoja.Productos.forEach(p=>{
       const li = document.createElement('li');
       li.innerHTML = `
         ${p.Nombre} – ${p.Proveedor} – ${p.Existencias} – ${p.PrecioVenta} CUP
-        <button onclick="formEditarProd('${p.ID}')">??</button>
+        <button onclick="formEditarProd('${p.ID}')">✏️</button>
       `;
       ul.appendChild(li);
     });
   }
 
+  // Muestra formulario para agregar producto
   function formAgregarProd() {
     const f = document.getElementById('form-prod');
     f.classList.remove('hidden');
+    // Crea formulario HTML
     f.innerHTML = `
-      <iframe src="https://docs.google.com/forms/d/e/FORM_PRODUCTOS_ID/viewform?embedded=true"
-              class="form-iframe"></iframe>
-      <button class="btn" onclick="mostrarProductos()">Cancelar</button>
+      <form id="agregar-prod-form" onsubmit="enviarAgregarProd(event)">
+        <label>Nombre <input name="nombre" required></label>
+        <label>Categoría <input name="categoria" required></label>
+        <label>Proveedor <input name="proveedor"></label>
+        <label>Cantidad <input name="cantidad" type="number" min="0" required></label>
+        <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" required></label>
+        <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" required></label>
+        <button class="btn" type="submit">Agregar al Inventario</button>
+        <button class="btn" type="button" onclick="cerrarFormProd()">Cancelar</button>
+      </form>
     `;
   }
 
+  // Envía los datos del producto al backend
+  function enviarAgregarProd(e) {
+    e.preventDefault();
+    const form = e.target;
+    const datos = {
+      action: 'addProd',
+      nombre: form.nombre.value,
+      categoria: form.categoria.value,
+      proveedor: form.proveedor.value,
+      cantidad: parseInt(form.cantidad.value)||0,
+      precioCompra: parseFloat(form.precioCompra.value)||0,
+      precioVenta: parseFloat(form.precioVenta.value)||0
+    };
+    fetch(WEB_APP, {
+      method:'POST',
+      body: JSON.stringify(datos)
+    }).then(_=>{
+      alert('Producto agregado');
+      cerrarFormProd();
+      initApp();
+      mostrarProductos();
+    });
+  }
+
+  // Cerrar formulario de producto
+  function cerrarFormProd() {
+    const f = document.getElementById('form-prod');
+    f.classList.add('hidden');
+    f.innerHTML = '';
+  }
+
+  // Editar producto existente
   function formEditarProd(id) {
     const prod = hoja.Productos.find(p=>p.ID===id);
     const f = document.getElementById('form-prod');
     f.classList.remove('hidden');
     f.innerHTML = `
-      <h3>Editar ${prod.Nombre}</h3>
-      <label>Cantidad <input id="e-cant" type="number" value="${prod.Existencias}"></label><br>
-      <label>Precio Venta <input id="e-pv" type="number" value="${prod.PrecioVenta}"></label><br>
-      <button class="btn" onclick="actualizarProd('${id}')">Actualizar</button>
-      <button class="btn" onclick="borrarProd('${id}')">Eliminar</button>
-      <button class="btn" onclick="mostrarProductos()">Salir</button>
+      <form id="editar-prod-form" onsubmit="enviarEditarProd(event, '${id}')">
+        <label>Nombre <input name="nombre" value="${prod.Nombre}" required></label>
+        <label>Categoría <input name="categoria" value="${prod.Categoría}" required></label>
+        <label>Proveedor <input name="proveedor" value="${prod.Proveedor||''}"></label>
+        <label>Cantidad <input name="cantidad" type="number" min="0" value="${prod.Existencias}" required></label>
+        <label>Precio de compra <input name="precioCompra" type="number" min="0" step="any" value="${prod.PrecioCompra}" required></label>
+        <label>Precio de venta <input name="precioVenta" type="number" min="0" step="any" value="${prod.PrecioVenta}" required></label>
+        <button class="btn" type="submit">Actualizar</button>
+        <button class="btn" type="button" onclick="borrarProd('${id}')">Eliminar</button>
+        <button class="btn" type="button" onclick="cerrarFormProd()">Salir</button>
+      </form>
     `;
   }
 
-  function actualizarProd(id) {
-    const cant = parseInt(document.getElementById('e-cant').value)||0;
-    const pv = parseFloat(document.getElementById('e-pv').value)||0;
+  // Envía los datos editados del producto al backend
+  function enviarEditarProd(e, id) {
+    e.preventDefault();
+    const form = e.target;
+    const datos = {
+      action: 'updProd',
+      id,
+      nombre: form.nombre.value,
+      categoria: form.categoria.value,
+      proveedor: form.proveedor.value,
+      cantidad: parseInt(form.cantidad.value)||0,
+      precioCompra: parseFloat(form.precioCompra.value)||0,
+      precioVenta: parseFloat(form.precioVenta.value)||0
+    };
     fetch(WEB_APP, {
       method:'POST',
-      body: JSON.stringify({ action:'updProd', id, cant, pv })
+      body: JSON.stringify(datos)
     }).then(_=>{
       alert('Producto actualizado');
-      initApp(); mostrarProductos();
+      cerrarFormProd();
+      initApp();
+      mostrarProductos();
     });
   }
 
+  // Eliminar producto
   function borrarProd(id) {
     if(!confirm('Eliminar producto?')) return;
     fetch(WEB_APP, {
@@ -194,11 +272,13 @@
       body: JSON.stringify({ action:'delProd', id })
     }).then(_=>{
       alert('Producto eliminado');
-      initApp(); mostrarProductos();
+      cerrarFormProd();
+      initApp();
+      mostrarProductos();
     });
   }
 
-  // ------------ PROVEEDORES ------------
+  // ============= CRUD DE PROVEEDORES (formulario HTML) =============
   function mostrarProveedores() {
     const cont = document.getElementById('main');
     cont.innerHTML = '<h2>Proveedores</h2>'
@@ -209,9 +289,9 @@
       const li = document.createElement('li');
       li.innerHTML = `
         ${pr.Nombre} – ${pr.Empresa||''}
-        <button onclick="location.href='tel:${pr.Teléfono}'">??</button>
-        <button onclick="location.href='sms:${pr.Teléfono}'">??</button>
-        <button onclick="location.href='mailto:${pr.Correo}'">??</button>
+        <button title="Llamar" onclick="location.href='tel:${pr.Teléfono}'">📞</button>
+        <button title="SMS" onclick="location.href='sms:${pr.Teléfono}'">💬</button>
+        <button title="Correo" onclick="location.href='mailto:${pr.Correo}'">✉️</button>
       `;
       ul.appendChild(li);
     });
@@ -221,13 +301,47 @@
     const f = document.getElementById('form-pr');
     f.classList.remove('hidden');
     f.innerHTML = `
-      <iframe src="https://docs.google.com/forms/d/e/FORM_PROVEEDORES_ID/viewform?embedded=true"
-              class="form-iframe"></iframe>
-      <button class="btn" onclick="mostrarProveedores()">Cancelar</button>
+      <form id="agregar-prov-form" onsubmit="enviarAgregarProv(event)">
+        <label>Nombre <input name="nombre" required></label>
+        <label>Empresa <input name="empresa"></label>
+        <label>Teléfono <input name="telefono"></label>
+        <label>Correo <input name="correo" type="email"></label>
+        <label>Dirección <input name="direccion"></label>
+        <button class="btn" type="submit">Agregar Proveedor</button>
+        <button class="btn" type="button" onclick="cerrarFormProv()">Cancelar</button>
+      </form>
     `;
   }
 
-  // ------------ REPORTES ------------
+  function enviarAgregarProv(e) {
+    e.preventDefault();
+    const form = e.target;
+    const datos = {
+      action: 'addProv',
+      nombre: form.nombre.value,
+      empresa: form.empresa.value,
+      telefono: form.telefono.value,
+      correo: form.correo.value,
+      direccion: form.direccion.value
+    };
+    fetch(WEB_APP, {
+      method:'POST',
+      body: JSON.stringify(datos)
+    }).then(_=>{
+      alert('Proveedor agregado');
+      cerrarFormProv();
+      initApp();
+      mostrarProveedores();
+    });
+  }
+
+  function cerrarFormProv() {
+    const f = document.getElementById('form-pr');
+    f.classList.add('hidden');
+    f.innerHTML = '';
+  }
+
+  // ============= REPORTES =============
   function mostrarReportes() {
     const hoy = new Date().toDateString();
     let ventaHoy = 0, impHoy=0, ganHoy=0;
@@ -239,7 +353,7 @@
           .forEach(d=>{
             const prod = hoja.Productos.find(p=>p.ID===d.IDProducto);
             ganHoy += (prod.PrecioVenta - prod.PrecioCompra)*d.Cantidad;
-            ventaHoy += d.Cantidad;
+            ventaHoy += parseInt(d.Cantidad)||0;
           });
       }
     });
@@ -266,4 +380,3 @@
 </script>
 </body>
 </html>
-
