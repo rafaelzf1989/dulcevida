@@ -147,7 +147,9 @@
         + "ERROR DE JAVASCRIPT:\n" + msg + "\n" + (error && error.stack ? error.stack : "") + "</pre>";
     };
 
-    const WEB_APP = 'https://script.google.com/macros/s/AKfycbwHArgHdYsyV22lU4XrrhxQtwQ9uLmj5Bo5d4MMmDBCJjDZUMzFx43hKzSX6CWFiMEC4w/exec';
+    const WEB_APP = 'https://script.google.com/macros/s/AKfycbyrB4-tvPPrMI_8NcJbvnrVECwAGcElWzdXnLgkVobqcMQpBO-EAlrG9aoPk0sxk9k7iw/exec';
+
+    let DATA = {productos:[], proveedores:[], ventas:[], detalleVentas:[]};
 
     function toggleSidebar(force) {
       const sidebar = document.getElementById('sidebar');
@@ -156,16 +158,13 @@
       else sidebar.classList.toggle('visible');
     }
 
-    let DATA = {productos:[], proveedores:[], ventas:[], detalleVentas:[]};
-
     function getProveedorNombre(id) {
       const p = DATA.proveedores.find(pr => pr.ID == id || pr.Nombre == id);
       return p ? p.Nombre : (id || '');
     }
 
-    // Siempre prioriza "Categoria" sin tilde
     function getCategoria(item) {
-      return item.Categoria || item.categoria || item.Categoría || "Sin categoría";
+      return item.Categoria || "Sin categoría";
     }
 
     async function cargarDatos(callback) {
@@ -174,34 +173,34 @@
         if (!resp.ok) throw new Error("Error de red");
         let data = await resp.json();
         if (!data.productos || !data.proveedores) throw new Error("Datos inválidos");
-        // Normaliza todos los campos para máxima compatibilidad
+        // Normaliza los campos para máxima compatibilidad
         data.productos = data.productos.map(p => ({
-          ID: p.ID ?? p.id,
-          Nombre: p.Nombre ?? p.nombre,
-          Categoria: p.Categoria ?? p.categoria ?? p.Categoría,
-          Proveedor: p.Proveedor ?? p.proveedor,
-          Existencias: p.Existencias ?? p.existencias,
-          PrecioCompra: p.PrecioCompra ?? p.preciocompra ?? p['Precio Compra'] ?? p['precio compra'],
-          PrecioVenta: p.PrecioVenta ?? p.precioventa ?? p['Precio Venta'] ?? p['precio venta']
+          ID: p.ID,
+          Nombre: p.Nombre,
+          Categoria: p.Categoria, // <-- SIN TILDE
+          Proveedor: p.Proveedor,
+          Existencias: p.Existencias,
+          PrecioCompra: p.PrecioCompra,
+          PrecioVenta: p.PrecioVenta
         }));
         data.proveedores = data.proveedores.map(pr => ({
-          ID: pr.ID ?? pr.id,
-          Nombre: pr.Nombre ?? pr.nombre,
-          Empresa: pr.Empresa ?? pr.empresa,
-          Teléfono: pr.Teléfono ?? pr.telefono,
-          Correo: pr.Correo ?? pr.correo,
-          Dirección: pr.Dirección ?? pr.direccion
+          ID: pr.ID,
+          Nombre: pr.Nombre,
+          Empresa: pr.Empresa,
+          Teléfono: pr.Teléfono,
+          Correo: pr.Correo,
+          Dirección: pr.Dirección
         }));
         data.ventas = data.ventas.map(v => ({
-          IDVenta: v.IDVenta ?? v.idventa,
-          Fecha: v.Fecha ?? v.fecha,
-          Total: v.Total ?? v.total
+          IDVenta: v.IDVenta,
+          Fecha: v.Fecha,
+          Total: v.Total
         }));
         data.detalleVentas = data.detalleVentas.map(d => ({
-          IDVenta: d.IDVenta ?? d.idventa,
-          IDProducto: d.IDProducto ?? d.idproducto,
-          Cantidad: d.Cantidad ?? d.cantidad,
-          Subtotal: d.Subtotal ?? d.subtotal
+          IDVenta: d.IDVenta,
+          IDProducto: d.IDProducto,
+          Cantidad: d.Cantidad,
+          Subtotal: d.Subtotal
         }));
         DATA = data;
         if (callback) callback();
@@ -468,15 +467,6 @@
       f.innerHTML = '';
     }
 
-  
-            impHoy += parseFloat(v.Total); ganHoy += gan; ventaHoy += cant;
-          }
-          if (dt.getMonth()===mes) {
-            impTot += parseFloat(v.Total); ganMes += gan; ventasMes += cant;
-          }
-          impTot += parseFloat(v.Total); ganTot += gan; ventasTotales += cant;
-        });
-        document.getElementById('main').innerHTML = `
           <div class="header">Reportes</div>
           <div class="report-grid">
             <div class="report-card">
