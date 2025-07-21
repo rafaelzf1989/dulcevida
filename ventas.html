@@ -140,22 +140,29 @@
     <button onclick="mostrarReportes();toggleSidebar(false)">📊 Reportes</button>
   </div>
   <div id="main"></div>
+  <!-- JS SIEMPRE AL FINAL DEL BODY -->
   <script>
-    // Captura errores de JS para mostrar en pantalla
+    // Captura errores JS y los muestra en pantalla
     window.onerror = function(msg, url, line, col, error) {
       document.body.innerHTML = "<pre style='background:#fee;color:#a00;padding:2em;font-size:1.2em;'>"
         + "ERROR DE JAVASCRIPT:\n" + msg + "\n" + (error && error.stack ? error.stack : "") + "</pre>";
     };
 
+    // URL de tu Apps Script (¡Cámbiala por la tuya si es necesario!)
     const WEB_APP = 'https://script.google.com/macros/s/AKfycbwHArgHdYsyV22lU4XrrhxQtwQ9uLmj5Bo5d4MMmDBCJjDZUMzFx43hKzSX6CWFiMEC4w/exec';
 
     let DATA = {productos:[], proveedores:[], ventas:[], detalleVentas:[]};
 
+    // Sidebar
     function toggleSidebar(force) {
       const sidebar = document.getElementById('sidebar');
       if(force === true) sidebar.classList.add('visible');
       else if(force === false) sidebar.classList.remove('visible');
       else sidebar.classList.toggle('visible');
+    }
+
+    function cerrarSidebarSiMovil() {
+      if(window.innerWidth<800) toggleSidebar(false);
     }
 
     function getProveedorNombre(id) {
@@ -170,42 +177,13 @@
     async function cargarDatos(callback) {
       try {
         let resp = await fetch(WEB_APP + '?action=getAll');
-        if (!resp.ok) throw new Error("Error de red");
+        if (!resp.ok) throw new Error("Error de red " + resp.status);
         let data = await resp.json();
         if (!data.productos || !data.proveedores) throw new Error("Datos inválidos");
-        // Normaliza los campos para máxima compatibilidad
-        data.productos = data.productos.map(p => ({
-          ID: p.ID,
-          Nombre: p.Nombre,
-          Categoria: p.Categoria, // <-- SIN TILDE
-          Proveedor: p.Proveedor,
-          Existencias: p.Existencias,
-          PrecioCompra: p.PrecioCompra,
-          PrecioVenta: p.PrecioVenta
-        }));
-        data.proveedores = data.proveedores.map(pr => ({
-          ID: pr.ID,
-          Nombre: pr.Nombre,
-          Empresa: pr.Empresa,
-          Teléfono: pr.Teléfono,
-          Correo: pr.Correo,
-          Dirección: pr.Dirección
-        }));
-        data.ventas = data.ventas.map(v => ({
-          IDVenta: v.IDVenta,
-          Fecha: v.Fecha,
-          Total: v.Total
-        }));
-        data.detalleVentas = data.detalleVentas.map(d => ({
-          IDVenta: d.IDVenta,
-          IDProducto: d.IDProducto,
-          Cantidad: d.Cantidad,
-          Subtotal: d.Subtotal
-        }));
         DATA = data;
         if (callback) callback();
       } catch(e) {
-        alert("No se pudo cargar la base de datos desde Google Sheets:\n" + e);
+        document.getElementById('main').innerHTML = `<pre style="background:#fee;color:#a00;padding:2em;">ERROR al cargar datos:<br>${e}</pre>`;
         console.error(e);
       }
     }
@@ -467,6 +445,102 @@
       f.innerHTML = '';
     }
 
+    // ========== PROVEEDORES ==========
+    function mostrarProveedores() {
+      document.title = "Proveedores - InventarioApp";
+      cerrarSidebarSiMovil();
+      cargarDatos(function(){
+        const cont = document.getElementById('main');
+        cont.innerHTML = `<div class="header">Proveedores</div>
+          <button class="btn" id="btn-agregar-prov">+ Agregar Proveedor</button>
+          <div class="prov-list"></div>
+          <div id="form-pr" class="hidden"></div>`;
+        const pl = cont.querySelector('.prov-list');
+        DATA.proveedores.forEach(pr=>{
+          const c = document.createElement('div');
+          c.className = "card";
+          c.innerHTML = `
+            <span class="prov-title">${pr.Nombre}</span>
+            <div class="prov-details">
+              ${pr.Empresa ? "Empresa: "+pr.Empresa+"<br>":""}
+              ${pr.Teléfono ? "Teléfono: "+pr.Teléfono+"<br>":""}
+              ${pr.Correo ? "Correo: "+pr.Correo+"<br>":""}
+              ${pr.Dirección ? "Dirección: "+pr.Dirección:""}
+            </div>
+          `;
+          pl.appendChild(c);
+        });
+        document.getElementById('btn-agregar-prov').addEventListener('click', formAgregarProv);
+      });
+    }
+    function formAgregarProv() {
+      const f = document.getElementById('form-pr');
+      f.classList.remove('hidden');
+      f.innerHTML = `
+        <form id="agregar-prov-form">
+          <label>Nombre <input name="nombre" required></label>
+          <label>Empresa <input name="empresa"></label>
+          <label>Teléfono <input name="telefono"></label>
+          <label>Correo <input name="correo" type="email"></label>
+          <label>Dirección <input name="direccion"></label>
+          <button class="btn" type="submit">Agregar Proveedor</button>
+          <button class="btn secondary" type="button" id="btn-cerrar-prov">Cancelar</button>
+        </form>
+      `;
+      document.getElementById('agregar-prov-form').addEventListener('submit', enviarAgregarProv);
+      document.getElementById('btn-cerrar-prov').addEventListener('click', cerrarFormProv);
+    }
+    function enviarAgregarProv(e) {
+      e.preventDefault();
+      const form = e.target;
+      const datos = {
+        nombre: form.nombre.value,
+        empresa: form.empresa.value,
+        telefono: form.telefono.value,
+        correo: form.correo.value,
+        direccion: form.direccion.value
+      };
+      fetch(WEB_APP, {
+        method:'POST',
+        body: JSON.stringify({action:'addProv', ...datos})
+      }).then(_=>{
+        alert('Proveedor agregado');
+        cerrarFormProv();
+        mostrarProveedores();
+      });
+    }
+    function cerrarFormProv() {
+      const f = document.getElementById('form-pr');
+      f.classList.add('hidden');
+      f.innerHTML = '';
+    }
+
+    // ========== REPORTES ==========
+    function mostrarReportes() {
+      document.title = "Reportes - InventarioApp";
+      cerrarSidebarSiMovil();
+      cargarDatos(function(){
+        let hoy = new Date().toDateString();
+        let ventaHoy = 0, impHoy=0, ganHoy=0, ventasMes=0, ganMes=0, ventasTotales=0, impTot=0, ganTot=0;
+        let mes = new Date().getMonth();
+        DATA.ventas.forEach(v=>{
+          let dt = new Date(v.Fecha);
+          let venta = DATA.detalleVentas.filter(d=>d.IDVenta==v.IDVenta);
+          let gan = 0, cant = 0;
+          venta.forEach(d=>{
+            let prod = DATA.productos.find(p=>p.ID==d.IDProducto);
+            gan += (prod.PrecioVenta-prod.PrecioCompra)*d.Cantidad;
+            cant += parseInt(d.Cantidad)||0;
+          });
+          if (dt.toDateString()===hoy) {
+            impHoy += parseFloat(v.Total); ganHoy += gan; ventaHoy += cant;
+          }
+          if (dt.getMonth()===mes) {
+            impTot += parseFloat(v.Total); ganMes += gan; ventasMes += cant;
+          }
+          impTot += parseFloat(v.Total); ganTot += gan; ventasTotales += cant;
+        });
+        document.getElementById('main').innerHTML = `
           <div class="header">Reportes</div>
           <div class="report-grid">
             <div class="report-card">
@@ -496,10 +570,6 @@
           </div>
         `;
       });
-    }
-
-    function cerrarSidebarSiMovil() {
-      if(window.innerWidth<800) toggleSidebar(false);
     }
 
     window.addEventListener('DOMContentLoaded', function(){
